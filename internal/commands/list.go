@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"githum.com/Murchoid/iwashere/internal/repository"
-	"githum.com/Murchoid/iwashere/internal/services/git"
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
@@ -26,15 +25,11 @@ func (a *ListCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
 
-	gitService := git.NewService(ctx.WorkDir)
-	info, err := gitService.GetInfo()
-
 	filters := repository.NoteFilter{
 		ProjectPath: ctx.ProjectPath,
 		Limit:       5,
-		Branch: info.Branch,
 	}
-	
+
 	notes, err := repo.ListNotes(&filters)
 	if err != nil {
 		return err

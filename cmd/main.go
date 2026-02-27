@@ -84,6 +84,8 @@ func normalizeCmdName(cmdName string) string {
 		return "list"
 	case "rm":
 		return "delete"
+	case "b":
+		return "branch"
 	}
 
 	return cmdName
