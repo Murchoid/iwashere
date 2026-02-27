@@ -1,4 +1,3 @@
 # iwashere personal notes
 .iwashere/
-*.odt
-*.odt#
+docs/
