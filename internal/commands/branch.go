@@ -36,7 +36,8 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 
 	var filters repository.NoteFilter
 	filters.ProjectPath = ctx.ProjectPath
-
+	filters.Tags = utils.ParseTags(ctx.Flags["--tags"])
+	
 	if ctx.Config.Git.AutoContext {
 		gitService := git.NewService(ctx.WorkDir)
 		if gitInfo, err := gitService.GetInfo(); err == nil && gitInfo != nil {

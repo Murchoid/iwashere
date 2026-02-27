@@ -5,6 +5,7 @@ import (
 
 	"githum.com/Murchoid/iwashere/internal/domain/models"
 	"githum.com/Murchoid/iwashere/internal/services/git"
+	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
 type AddCommand struct{}
@@ -34,7 +35,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	note := &models.Note{
 		Message:     message,
 		ProjectPath: ctx.ProjectPath,
-		Tags:        a.parseTags(ctx.Flags["--tags"]),
+		Tags:        utils.ParseTags(ctx.Flags["--tags"]),
 	}
 
 	if ctx.Config.Git.AutoContext {
@@ -62,13 +63,6 @@ func (a *AddCommand) Execute(ctx *Context) error {
 
 	fmt.Printf("Note saved (ID: %s)\n", note.ID)
 	return nil
-}
-
-func (a *AddCommand) parseTags(tagFlags string) []string {
-	var tags []string
-	tags = append(tags, tagFlags)
-
-	return tags
 }
 
 func init() {

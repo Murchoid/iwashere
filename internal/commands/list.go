@@ -28,6 +28,7 @@ func (a *ListCommand) Execute(ctx *Context) error {
 	filters := repository.NoteFilter{
 		ProjectPath: ctx.ProjectPath,
 		Limit:       5,
+		Tags: utils.ParseTags(ctx.Flags["--tags"]),
 	}
 
 	notes, err := repo.ListNotes(&filters)
@@ -46,7 +47,7 @@ func (a *ListCommand) Execute(ctx *Context) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
