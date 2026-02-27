@@ -26,9 +26,9 @@ func (a *EditCommand) Execute(ctx *Context) error {
 	id := ctx.Args[0]
 	newMsg := ctx.Flags["--message"]
 
-	newNote := models.Note {
-		ID: id,
-		Message: newMsg,
+	newNote := models.Note{
+		ID:          id,
+		Message:     newMsg,
 		ProjectPath: ctx.ProjectPath,
 	}
 	if err := repo.UpdateNote(&newNote); err != nil {

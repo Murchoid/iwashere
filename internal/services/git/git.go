@@ -6,13 +6,13 @@ import (
 )
 
 type Info struct {
-	Branch      string
-	CommitHash  string
-	CommitMsg   string
-	Remote      string
-	HasChanges  bool   // Unstaged changes
-	HasStaged   bool   // Staged changes
-	RootPath    string // Root of git repo
+	Branch     string
+	CommitHash string
+	CommitMsg  string
+	Remote     string
+	HasChanges bool   // Unstaged changes
+	HasStaged  bool   // Staged changes
+	RootPath   string // Root of git repo
 }
 
 type Service struct {
@@ -146,7 +146,7 @@ func (s *Service) GetModifiedFiles() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	files := strings.Split(strings.TrimSpace(string(out)), "\n")
 	if len(files) == 1 && files[0] == "" {
 		return []string{}, nil

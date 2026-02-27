@@ -31,6 +31,12 @@ func (a *ShowCommand) Execute(ctx *Context) error {
 	}
 	howLongAgo := utils.HowLongAgo(note.UpdatedAt)
 	fmt.Printf("[%v](%v) %v: %v\n", howLongAgo, note.Branch, note.ID, note.Message)
+	if len(note.ModifiedFiles) > 0 {
+		fmt.Println("Modified files")
+		for idx := range note.ModifiedFiles {
+			fmt.Printf("[%v]\n", note.ModifiedFiles[idx])
+		}
+	}
 	return nil
 }
 
