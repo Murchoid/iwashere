@@ -10,7 +10,11 @@ type Note struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	ProjectPath string    `json:"project_path"`
-	Branch      string    `json:"branch"`
-	GitHash     string    `json:"git_hash"`
-	Tags        []string  `json:"tags"`
+// Git-related fields
+    Branch      string    `json:"branch,omitempty"`
+    CommitHash  string    `json:"commit_hash,omitempty"`
+    CommitMsg   string    `json:"commit_msg,omitempty"`
+    Remote      string    `json:"remote,omitempty"`
+    
+    Tags        []string  `json:"tags,omitempty"`
 }
