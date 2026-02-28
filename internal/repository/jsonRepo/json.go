@@ -16,19 +16,22 @@ import (
 
 // Json implementation as a storage option
 type JSONRepository struct {
-	basePath string // .iwashere/notes/
+	notesBasePath string // .iwashere/notes/
+	sessionBasePath string // .iwashere/sessions/
 }
 
 func NewJSONRepository(iwasherePath string) *JSONRepository {
 	notesPath := filepath.Join(iwasherePath, "notes")
+	sessionPath := filepath.Join(iwasherePath, "sessions")
 	// Ensure directory exists
 	os.MkdirAll(notesPath, 0755)
-	return &JSONRepository{basePath: notesPath}
+	os.MkdirAll(sessionPath, 0755)
+	return &JSONRepository{notesBasePath: notesPath, sessionBasePath: sessionPath}
 }
 
 func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.Note, error) {
 	// Read all note files
-	files, err := os.ReadDir(r.basePath)
+	files, err := os.ReadDir(r.notesBasePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []*models.Note{}, nil // No notes yet
@@ -70,7 +73,7 @@ func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.Not
 }
 
 func (r *JSONRepository) readNoteFile(filename string) (*models.Note, error) {
-	path := filepath.Join(r.basePath, filename)
+	path := filepath.Join(r.notesBasePath, filename)
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -142,7 +145,7 @@ func (r *JSONRepository) SaveNote(note *models.Note) error {
 	}
 	note.UpdatedAt = time.Now()
 
-	path := filepath.Join(r.basePath, note.ID+".json")
+	path := filepath.Join(r.notesBasePath, note.ID+".json")
 	data, err := json.MarshalIndent(note, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal note: %w", err)
@@ -152,7 +155,7 @@ func (r *JSONRepository) SaveNote(note *models.Note) error {
 }
 
 func (r *JSONRepository) GetNote(id string) (*models.Note, error) {
-	path := filepath.Join(r.basePath, id+".json")
+	path := filepath.Join(r.notesBasePath, id+".json")
 
 	// Check if exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -188,7 +191,7 @@ func (r *JSONRepository) UpdateNote(note *models.Note) error {
 }
 
 func (r *JSONRepository) DeleteNote(id string) error {
-	path := filepath.Join(r.basePath, id+".json")
+	path := filepath.Join(r.notesBasePath, id+".json")
 
 	if err := os.Remove(path); err != nil {
 		if os.IsNotExist(err) {
@@ -214,7 +217,7 @@ func (r *JSONRepository) SaveSession(session *models.Session) error {
 		session.StartTime = time.Now()
 	}
 
-	path := filepath.Join(r.basePath, session.ID+".json")
+	path := filepath.Join(r.sessionBasePath, session.ID+".json")
 	data, err := json.MarshalIndent(session, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal note: %w", err)
@@ -224,7 +227,7 @@ func (r *JSONRepository) SaveSession(session *models.Session) error {
 }
 
 func (r *JSONRepository) GetSession(id string) (*models.Session, error) {
-	path := filepath.Join(r.basePath, id+".json")
+	path := filepath.Join(r.sessionBasePath, id+".json")
 
 	// Check if exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -240,6 +243,46 @@ func (r *JSONRepository) GetSession(id string) (*models.Session, error) {
 	if err := json.Unmarshal(data, &session); err != nil {
 		return nil, err
 	}
+
+	return &session, nil
+}
+
+
+func (r *JSONRepository) GetOpenSession() (*models.Session, error) {
+	
+	files, err := os.ReadDir(r.sessionBasePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return &models.Session{}, nil // No notes yet
+		}
+		return nil, fmt.Errorf("failed to read notes directory: %w", err)
+	}
+	
+	var session models.Session
+	
+	for _, file := range files {
+		// Skip directories and non-JSON files
+		if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
+			continue
+		}
+		path := filepath.Join(r.sessionBasePath, file.Name())
+		data, err := os.ReadFile(path)
+		
+		if err != nil {
+			continue
+		}
+
+		var s models.Session
+		if err := json.Unmarshal(data, &s); err != nil {
+			continue
+		}
+
+		if s.ID != "" && s.EndTime.IsZero() {
+			session = s
+			break
+		}
+	}
+
 
 	return &session, nil
 }

@@ -8,15 +8,15 @@ import (
 func HowLongAgo(date time.Time) string {
 	now := time.Now()
 	timeDifference := now.Sub(date)
-	howLongAgo := ""
-	if timeDifference.Minutes() < 60 {
-		howLongAgo = fmt.Sprintf("%.f minutes ago", timeDifference.Round(60000000000).Minutes())
-	} else if timeDifference.Hours() < 24 {
-		howLongAgo = fmt.Sprintf("%.f hours ago", timeDifference.Round(60).Hours())
-	} else {
-		days := timeDifference.Round(24).Hours() / 24
-		howLongAgo = fmt.Sprintf("%.f days ago", days)
-	}
 
-	return howLongAgo
+	if timeDifference.Minutes() < 60 {
+		return fmt.Sprintf("%.0f minutes ago", timeDifference.Minutes())
+	} else if timeDifference.Hours() < 24 {
+		hours := int(timeDifference.Hours())
+		minutes := int(timeDifference.Minutes()) % 60
+		return fmt.Sprintf("%dhr %d mins ago", hours, minutes)
+	} else {
+		days := int(timeDifference.Hours() / 24)
+		return fmt.Sprintf("%d days ago", days)
+	}
 }

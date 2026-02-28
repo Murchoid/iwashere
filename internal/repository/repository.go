@@ -17,6 +17,7 @@ type Repository interface {
 	// Sessions
 	SaveSession(session *models.Session) error
 	GetSession(id string) (*models.Session, error)
+	GetOpenSession() (*models.Session, error)
 
 	Close() error
 }
