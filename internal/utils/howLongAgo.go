@@ -15,7 +15,7 @@ func HowLongAgo(date time.Time) string {
 		howLongAgo = fmt.Sprintf("%.f hours ago", timeDifference.Round(60).Hours())
 	} else {
 		days := timeDifference.Round(24).Hours() / 24
-		howLongAgo = fmt.Sprintf("%f days ago", days)
+		howLongAgo = fmt.Sprintf("%.f days ago", days)
 	}
 
 	return howLongAgo
