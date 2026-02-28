@@ -49,8 +49,12 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 			return err
 		}
 
+	case "list":
+		if err := listSessions(repo); err != nil {
+			return err
+		}
 	default:
-		return fmt.Errorf("Unknown argument %v", sessionTags)
+		return fmt.Errorf("Unknown argument %v\n", sessionTags)
 	}
 
 	return nil
@@ -78,7 +82,7 @@ func startSession(repo repository.Repository,workDir, sName string) error {
 		return err
 	}
 
-	fmt.Printf("Session %v started at %v", sName, session.StartTime)
+	fmt.Printf("Session %v started at %v\n", sName, session.StartTime)
 	return nil
 }
 
@@ -102,7 +106,24 @@ func endSession(repo repository.Repository) error {
 	}
 
 	howLongAgo := utils.HowLongAgo(session.StartTime)
-	fmt.Printf("Session %v ended duration  (%v)", session.Title, howLongAgo)
+	fmt.Printf("Session %v ended duration  (%v)\n", session.Title, howLongAgo)
+	return nil
+}
+
+
+func listSessions(repo repository.Repository) error {
+	sessions, err := repo.ListSessions();
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("All sessions")
+	for _, session := range sessions {
+		howLongAgo := utils.HowLongAgo(session.StartTime)
+		fmt.Printf("'%v' started %v\n", session.Title, howLongAgo)
+	}
+
 	return nil
 }
 

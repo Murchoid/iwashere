@@ -87,6 +87,21 @@ func (r *JSONRepository) readNoteFile(filename string) (*models.Note, error) {
 	return &note, nil
 }
 
+func (r *JSONRepository) readSessionFile(filename string) (*models.Session, error) {
+	path := filepath.Join(r.sessionBasePath, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var session models.Session
+	if err := json.Unmarshal(data, &session); err != nil {
+		return nil, err
+	}
+
+	return &session, nil
+}
+
 func (r *JSONRepository) matchesFilter(note *models.Note, filter *repository.NoteFilter) bool {
 	if filter == nil {
 		return true
@@ -265,24 +280,49 @@ func (r *JSONRepository) GetOpenSession() (*models.Session, error) {
 		if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
 			continue
 		}
-		path := filepath.Join(r.sessionBasePath, file.Name())
-		data, err := os.ReadFile(path)
-		
-		if err != nil {
-			continue
-		}
+		s, err := r.readSessionFile(file.Name())
 
-		var s models.Session
-		if err := json.Unmarshal(data, &s); err != nil {
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to read note %s: %v\n", file.Name(), err)
 			continue
 		}
 
 		if s.ID != "" && s.EndTime.IsZero() {
-			session = s
+			session = *s
 			break
 		}
 	}
 
 
 	return &session, nil
+}
+
+func (r *JSONRepository) ListSessions() ([]*models.Session, error) {
+// Read all note files
+files, err := os.ReadDir(r.sessionBasePath)
+if err != nil {
+	if os.IsNotExist(err) {
+		return []*models.Session{}, nil // No sessions yet
+	}
+	return nil, fmt.Errorf("failed to read notes directory: %w", err)
+}
+
+var sessions []*models.Session
+
+for _, file := range files {
+	// Skip directories and non-JSON files
+	if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
+		continue
+	}
+
+	// Read and parse each note
+	session, err := r.readSessionFile(file.Name())
+	if err != nil {
+		// Log but don't stop - could be corrupted file
+		fmt.Fprintf(os.Stderr, "Warning: failed to read note %s: %v\n", file.Name(), err)
+		continue
+	}
+	sessions = append(sessions, session)
+}
+return sessions, nil
 }

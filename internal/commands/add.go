@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"githum.com/Murchoid/iwashere/internal/domain/models"
+	"githum.com/Murchoid/iwashere/internal/repository"
 	"githum.com/Murchoid/iwashere/internal/services/git"
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
@@ -27,6 +28,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		return fmt.Errorf("not in an iwashere project (run iwashere init first)")
 	}
 
+	repo := ctx.Repo
 	message := ctx.Args[0]
 	if message == "" {
 		return fmt.Errorf("message required (use -m or provide as argument)")
@@ -41,6 +43,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		note.Tags = utils.ParseTags(ctx.Flags["--tags"])
 	}
 
+	
 	if ctx.Config.Git.AutoContext {
 		gitService := git.NewService(ctx.WorkDir)
 		if gitInfo, err := gitService.GetInfo(); err == nil && gitInfo != nil {
@@ -60,11 +63,37 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		}
 	}
 
-	if err := ctx.Repo.SaveNote(note); err != nil {
+	if err := repo.SaveNote(note); err != nil {
 		return fmt.Errorf("failed to save note: %w", err)
 	}
 
+	if ctx.Flags["--session"] != "" {
+		if err:= addNoteToCurrentSession(repo, note.ID); err!=nil {
+			return err
+		}
+	}
+
 	fmt.Printf("Note saved (ID: %s)\n", note.ID)
+	return nil
+}
+
+func addNoteToCurrentSession(repo repository.Repository,id string) error{
+	session, err := repo.GetOpenSession()
+
+	if err != nil {
+		return err
+	}
+
+	if session.ID == "" {
+		fmt.Println("No session open create one to add a note to it")
+		return nil
+	}
+
+	session.Notes = append(session.Notes, id)
+	if err := repo.SaveSession(session); err != nil {
+		return err
+	}
+
 	return nil
 }
 
