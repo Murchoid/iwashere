@@ -52,7 +52,15 @@ func (a *TagCommand) Execute(ctx *Context) error {
 }
 
 func addNewTag(repo repository.Repository, args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("An id must be provided")
+	}
 	id:=args[0]
+
+	
+	if len(args[1:]) == 0 {
+		return fmt.Errorf("At least one tag to be added must be given")
+	}
 	tags := args[1:]
 
 	note, err := repo.GetNote(id)
@@ -74,7 +82,15 @@ func addNewTag(repo repository.Repository, args []string) error {
 }
 
 func removeTag(repo repository.Repository, args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("An id must be provided")
+	}
 	id:=args[0]
+
+	
+	if len(args[1:]) == 0 {
+		return fmt.Errorf("At least one tag to be added must be given")
+	}
 	tags := args[1:]
 
 	note, err := repo.GetNote(id)

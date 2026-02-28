@@ -35,7 +35,10 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	note := &models.Note{
 		Message:     message,
 		ProjectPath: ctx.ProjectPath,
-		Tags:        utils.ParseTags(ctx.Flags["--tags"]),
+	}
+
+	if ctx.Flags["--tags"] != "" {
+		note.Tags = utils.ParseTags(ctx.Flags["--tags"])
 	}
 
 	if ctx.Config.Git.AutoContext {
