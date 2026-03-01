@@ -17,3 +17,7 @@ func GetFactory(name string) (CommandFactory, bool) {
 
 	return f, ok
 }
+
+func GetAll() map[string]CommandFactory {
+    return registry
+}

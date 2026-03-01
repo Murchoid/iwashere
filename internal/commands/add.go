@@ -9,18 +9,40 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type AddCommand struct{}
+type AddCommand struct{
+	BaseCommand
+}
 
 func NewAddCommandFactory() Command {
-	return &AddCommand{}
+	return &AddCommand{
+		BaseCommand{
+			NameStr: "add",
+			DescStr: "Add a new note",
+			UsageStr: "iwashere add/a <message> [options]",
+			ExamplesList: []string{
+        "iwashere add \"Working on authentication\"",
+        "iwashere a \"Fix memory leak\" --tags bug,performance",
+        "iwashere add \"Update README\" --branch main",
+        "iwashere add \"Add current note in current session\" --session",
+    },
+		},
+	}
 }
 
 func (a *AddCommand) Name() string {
-	return "add"
+	return a.BaseCommand.Name()
 }
 
 func (a *AddCommand) Description() string {
-	return "Add a new note"
+	return a.BaseCommand.Description()
+}
+
+func (a *AddCommand) Usage() string {
+	return a.BaseCommand.Usage()
+}
+
+func (a *AddCommand) Examples() []string {
+	return a.BaseCommand.Examples()
 }
 
 func (a *AddCommand) Execute(ctx *Context) error {

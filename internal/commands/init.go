@@ -12,18 +12,39 @@ import (
 	"githum.com/Murchoid/iwashere/internal/repository/jsonRepo"
 )
 
-type InitCommand struct{}
+type InitCommand struct {
+    BaseCommand
+}
 
 func NewInitCommand() Command {
-	return &InitCommand{}
+    return &InitCommand{
+        BaseCommand: BaseCommand{
+            NameStr:  "init",
+            DescStr:  "Initialize iwashere in current directory",
+            UsageStr: "iwashere init [--force] [--no-ignore]",
+            ExamplesList: []string{
+                "iwashere init",
+                "iwashere init --force",
+                "iwashere init --no-ignore",
+            },
+        },
+    }
 }
 
 func (c *InitCommand) Name() string {
-	return "init"
+	return c.BaseCommand.Name()
 }
 
 func (c *InitCommand) Description() string {
-	return "Initialize iwashere in current directory"
+	return c.BaseCommand.Description()
+}
+
+func (c *InitCommand) Usage() string {
+	return c.BaseCommand.Usage()
+}
+
+func (c *InitCommand) Examples() []string {
+	return c.BaseCommand.Examples()
 }
 
 func (c *InitCommand) Execute(ctx *Context) error {

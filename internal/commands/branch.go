@@ -8,18 +8,39 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type BranchCommand struct{}
+type BranchCommand struct{
+	BaseCommand
+}
 
 func NewBranchCommandFactory() Command {
-	return &BranchCommand{}
+	return &BranchCommand{
+		BaseCommand{
+			NameStr: "branch",
+			DescStr: "Shows all notes of the current branch",
+			UsageStr: `iwashere branch  [argument]`,
+			ExamplesList: []string{
+				"iwashere branch",
+				"iwashere branch main",
+			},
+		},
+	}
 }
 
 func (a *BranchCommand) Name() string {
-	return "add"
+	return a.BaseCommand.Name()
 }
 
 func (a *BranchCommand) Description() string {
-	return "Add a new note"
+	return a.BaseCommand.Description()
+}
+
+
+func (a *BranchCommand) Usage() string {
+	return a.BaseCommand.Usage()
+}
+
+func (a *BranchCommand) Examples() []string {
+	return a.BaseCommand.Examples()
 }
 
 func (a *BranchCommand) Execute(ctx *Context) error {

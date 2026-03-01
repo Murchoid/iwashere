@@ -7,19 +7,42 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type ListCommand struct{}
+type ListCommand struct{
+	BaseCommand
+}
 
 func NewListCommandFactory() Command {
-	return &ListCommand{}
+	return &ListCommand{
+		BaseCommand{
+			NameStr: "list",
+			DescStr: "Lists all notes in the project/repo",
+			UsageStr: "iwashere list/ls [options]",
+			ExamplesList: []string{
+				"iwashere list",
+				"iwashere list --limit 10",
+				"iwashere ls",
+				"iwashere ls --limit 10",
+			},
+		},
+	}
 }
 
 func (a *ListCommand) Name() string {
-	return "list"
+	return a.BaseCommand.Name()
 }
 
 func (a *ListCommand) Description() string {
-	return "Show a a list of n-number of notes"
+	return a.BaseCommand.Description()
 }
+
+func (a *ListCommand) Usage() string {
+	return a.BaseCommand.Usage()
+}
+
+func (a *ListCommand) Examples() []string {
+	return a.BaseCommand.Examples()
+}
+
 
 func (a *ListCommand) Execute(ctx *Context) error {
 

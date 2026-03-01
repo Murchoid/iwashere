@@ -10,18 +10,38 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type SessionCommand struct{}
+type SessionCommand struct{
+	BaseCommand
+}
 
 func NewSessionCommandFactory() Command {
-	return &SessionCommand{}
+	return &SessionCommand{
+		BaseCommand{
+			NameStr: "session",
+			DescStr: "create or end a session",
+			UsageStr: "iwashere session [option] [title]",
+			ExamplesList: []string{
+				"iwashere session start \"start debbuging\"",
+				"iwashere session end",
+			},
+		},
+	}
 }
 
 func (a *SessionCommand) Name() string {
-	return "add"
+	return a.BaseCommand.Name()
 }
 
 func (a *SessionCommand) Description() string {
-	return "Add a new note"
+	return a.BaseCommand.Description()
+}
+
+func (a *SessionCommand) Usage() string {
+	return a.BaseCommand.Usage()
+}
+
+func (a *SessionCommand) Examples() []string {
+	return a.BaseCommand.Examples()
 }
 
 func (a *SessionCommand) Execute(ctx *Context) error {

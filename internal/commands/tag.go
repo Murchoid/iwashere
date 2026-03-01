@@ -8,19 +8,46 @@ import (
 	"githum.com/Murchoid/iwashere/internal/repository"
 )
 
-type TagCommand struct{}
+type TagCommand struct{
+	BaseCommand
+}
 
 func NewTagCommandFactory() Command {
-	return &TagCommand{}
+	return &TagCommand{
+		BaseCommand{
+			NameStr: "tag",
+			DescStr: "add or remove a tag from a note",
+			UsageStr:  `iwashere tag <subcommand> [arguments]
+
+Subcommands:
+  add    <note-id> <tag>     Add tag to note
+  remove <note-id> <tag>     Remove tag from note
+  list   [tag]              List notes by tag`,
+			ExamplesList: []string{
+				"iwashere tag add 123 bug",
+        "iwashere tag add 456 urgent,frontend",
+        "iwashere tag remove 123 bug",
+			},
+		},
+	}
 }
 
 func (a *TagCommand) Name() string {
-	return "add"
+	return a.BaseCommand.Name()
 }
 
 func (a *TagCommand) Description() string {
-	return "Add a new note"
+	return a.BaseCommand.Description()
 }
+
+func (a *TagCommand) Usage() string {
+	return a.BaseCommand.Usage()
+}
+
+func (a *TagCommand) Examples() []string {
+	return a.BaseCommand.Examples()
+}
+
 
 func (a *TagCommand) Execute(ctx *Context) error {
 	if ctx.Repo == nil {

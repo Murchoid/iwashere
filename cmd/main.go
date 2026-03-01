@@ -17,7 +17,7 @@ func main() {
 
 	args := os.Args[1:]
 	if len(args) == 0 {
-		printUsage()
+		commands.ShowGlobalHelp()
 		os.Exit(1)
 	}
 
@@ -69,7 +69,7 @@ func main() {
 		}
 	} else {
 		fmt.Printf("Unknown command: %s\n", cmdName)
-		printUsage()
+		commands.ShowGlobalHelp()
 		os.Exit(1)
 	}
 }
@@ -86,7 +86,10 @@ func normalizeCmdName(cmdName string) string {
 		return "delete"
 	case "b":
 		return "branch"
-	}
+	case "-h":
+		return "help"
+	case "--help":
+		return "help"	}
 
 	return cmdName
 }
@@ -204,16 +207,3 @@ func createRepository(projectPath string, cfg *models.Config) (repository.Reposi
 	}
 }
 
-func printUsage() {
-	fmt.Println(`iwashere - Context preservation tool
-
-Usage:
-  iwashere <command> [arguments]
-
-Commands:
-  init    Initialize iwashere in current directory
-  add     Add a note (coming soon)
-  show    Show notes (coming soon)
-  
-Use "iwashere help <command>" for more info about a command.`)
-}

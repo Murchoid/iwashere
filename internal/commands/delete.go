@@ -4,18 +4,38 @@ import (
 	"fmt"
 )
 
-type DeleteCommand struct{}
+type DeleteCommand struct{
+	BaseCommand
+}
 
 func NewDeleteCommandFactory() Command {
-	return &DeleteCommand{}
+	return &DeleteCommand{
+		BaseCommand{
+			NameStr: "delete",
+			DescStr: "deletes a note",
+			UsageStr: "iwashere delete/rm <id>",
+			ExamplesList: []string{
+				"iwashere delete 123",
+				"iwashere rm 123",
+			},
+		},
+	}
 }
 
 func (a *DeleteCommand) Name() string {
-	return "delete"
+	return a.BaseCommand.Name()
 }
 
 func (a *DeleteCommand) Description() string {
-	return "Delete a note with id"
+	return a.BaseCommand.Description()
+}
+
+func (a *DeleteCommand) Usage() string {
+	return a.BaseCommand.Usage()
+}
+
+func (a *DeleteCommand) Examples() []string {
+	return a.BaseCommand.Examples()
 }
 
 func (a *DeleteCommand) Execute(ctx *Context) error {
