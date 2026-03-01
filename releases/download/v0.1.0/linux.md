@@ -5,7 +5,6 @@
 
 ## Quick Install
 
-```bash
 # Download
 wget https://github.com/Murchoid/iwashere/releases/download/v0.1.0/iwashere-linux-amd64
 
@@ -24,7 +23,6 @@ text
 
 When creating your release on GitHub, use this template:
 
-```markdown
 # iwashere v0.1.0 - Never lose your context again! 🎯
 
 A CLI tool that remembers where you left off in your coding projects.
@@ -39,7 +37,7 @@ A CLI tool that remembers where you left off in your coding projects.
 - **`tag`** - Organize notes
 
 ## Quick Start
-```bash
+
 cd your-project
 iwashere init
 iwashere add "Starting work on feature X"
