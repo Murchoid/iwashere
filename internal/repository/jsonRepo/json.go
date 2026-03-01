@@ -59,6 +59,7 @@ func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.Not
 		if r.matchesFilter(note, filter) {
 			notes = append(notes, note)
 		}
+		// notes = append(notes, note)
 	}
 
 	// Sort by timestamp (newest first)

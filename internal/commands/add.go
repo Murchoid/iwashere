@@ -116,6 +116,7 @@ func addNoteToCurrentSession(repo repository.Repository, note *models.Note) erro
 	}
 
 	session.Notes = append(session.Notes, note.ID)
+	note.SessionID = session.ID
 	if err := repo.SaveSession(session); err != nil {
 		return err
 	}
