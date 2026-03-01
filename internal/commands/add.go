@@ -68,7 +68,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	}
 
 	if ctx.Flags["--session"] != "" {
-		if err:= addNoteToCurrentSession(repo, note.ID); err!=nil {
+		if err:= addNoteToCurrentSession(repo, note); err!=nil {
 			return err
 		}
 	}
@@ -77,7 +77,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	return nil
 }
 
-func addNoteToCurrentSession(repo repository.Repository,id string) error{
+func addNoteToCurrentSession(repo repository.Repository,note *models.Note) error{
 	session, err := repo.GetOpenSession()
 
 	if err != nil {
@@ -89,7 +89,12 @@ func addNoteToCurrentSession(repo repository.Repository,id string) error{
 		return nil
 	}
 
-	session.Notes = append(session.Notes, id)
+	if session.Branch != note.Branch {
+		fmt.Println("There is no open session in this branch")
+		return nil
+	}
+
+	session.Notes = append(session.Notes, note.ID)
 	if err := repo.SaveSession(session); err != nil {
 		return err
 	}
