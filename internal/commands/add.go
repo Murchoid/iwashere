@@ -9,22 +9,22 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type AddCommand struct{
+type AddCommand struct {
 	BaseCommand
 }
 
 func NewAddCommandFactory() Command {
 	return &AddCommand{
 		BaseCommand{
-			NameStr: "add",
-			DescStr: "Add a new note",
+			NameStr:  "add",
+			DescStr:  "Add a new note",
 			UsageStr: "iwashere add/a <message> [options]",
 			ExamplesList: []string{
-        "iwashere add \"Working on authentication\"",
-        "iwashere a \"Fix memory leak\" --tags bug,performance",
-        "iwashere add \"Update README\" --branch main",
-        "iwashere add \"Add current note in current session\" --session",
-    },
+				"iwashere add \"Working on authentication\"",
+				"iwashere a \"Fix memory leak\" --tags bug,performance",
+				"iwashere add \"Update README\" --branch main",
+				"iwashere add \"Add current note in current session\" --session",
+			},
 		},
 	}
 }
@@ -65,7 +65,6 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		note.Tags = utils.ParseTags(ctx.Flags["--tags"])
 	}
 
-	
 	if ctx.Config.Git.AutoContext {
 		gitService := git.NewService(ctx.WorkDir)
 		if gitInfo, err := gitService.GetInfo(); err == nil && gitInfo != nil {
@@ -90,7 +89,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	}
 
 	if ctx.Flags["--session"] != "" {
-		if err:= addNoteToCurrentSession(repo, note); err!=nil {
+		if err := addNoteToCurrentSession(repo, note); err != nil {
 			return err
 		}
 	}
@@ -99,7 +98,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	return nil
 }
 
-func addNoteToCurrentSession(repo repository.Repository,note *models.Note) error{
+func addNoteToCurrentSession(repo repository.Repository, note *models.Note) error {
 	session, err := repo.GetOpenSession()
 
 	if err != nil {

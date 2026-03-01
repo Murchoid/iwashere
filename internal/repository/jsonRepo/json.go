@@ -16,7 +16,7 @@ import (
 
 // Json implementation as a storage option
 type JSONRepository struct {
-	notesBasePath string // .iwashere/notes/
+	notesBasePath   string // .iwashere/notes/
 	sessionBasePath string // .iwashere/sessions/
 }
 
@@ -262,9 +262,8 @@ func (r *JSONRepository) GetSession(id string) (*models.Session, error) {
 	return &session, nil
 }
 
-
 func (r *JSONRepository) GetOpenSession() (*models.Session, error) {
-	
+
 	files, err := os.ReadDir(r.sessionBasePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -272,9 +271,9 @@ func (r *JSONRepository) GetOpenSession() (*models.Session, error) {
 		}
 		return nil, fmt.Errorf("failed to read notes directory: %w", err)
 	}
-	
+
 	var session models.Session
-	
+
 	for _, file := range files {
 		// Skip directories and non-JSON files
 		if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
@@ -293,36 +292,35 @@ func (r *JSONRepository) GetOpenSession() (*models.Session, error) {
 		}
 	}
 
-
 	return &session, nil
 }
 
 func (r *JSONRepository) ListSessions() ([]*models.Session, error) {
-// Read all note files
-files, err := os.ReadDir(r.sessionBasePath)
-if err != nil {
-	if os.IsNotExist(err) {
-		return []*models.Session{}, nil // No sessions yet
-	}
-	return nil, fmt.Errorf("failed to read notes directory: %w", err)
-}
-
-var sessions []*models.Session
-
-for _, file := range files {
-	// Skip directories and non-JSON files
-	if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
-		continue
-	}
-
-	// Read and parse each note
-	session, err := r.readSessionFile(file.Name())
+	// Read all note files
+	files, err := os.ReadDir(r.sessionBasePath)
 	if err != nil {
-		// Log but don't stop - could be corrupted file
-		fmt.Fprintf(os.Stderr, "Warning: failed to read note %s: %v\n", file.Name(), err)
-		continue
+		if os.IsNotExist(err) {
+			return []*models.Session{}, nil // No sessions yet
+		}
+		return nil, fmt.Errorf("failed to read notes directory: %w", err)
 	}
-	sessions = append(sessions, session)
-}
-return sessions, nil
+
+	var sessions []*models.Session
+
+	for _, file := range files {
+		// Skip directories and non-JSON files
+		if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
+			continue
+		}
+
+		// Read and parse each note
+		session, err := r.readSessionFile(file.Name())
+		if err != nil {
+			// Log but don't stop - could be corrupted file
+			fmt.Fprintf(os.Stderr, "Warning: failed to read note %s: %v\n", file.Name(), err)
+			continue
+		}
+		sessions = append(sessions, session)
+	}
+	return sessions, nil
 }

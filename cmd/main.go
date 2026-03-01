@@ -89,7 +89,8 @@ func normalizeCmdName(cmdName string) string {
 	case "-h":
 		return "help"
 	case "--help":
-		return "help"	}
+		return "help"
+	}
 
 	return cmdName
 }
@@ -206,4 +207,3 @@ func createRepository(projectPath string, cfg *models.Config) (repository.Reposi
 		return jsonRepo.NewJSONRepository(iwasherePath), nil // default to json
 	}
 }
-

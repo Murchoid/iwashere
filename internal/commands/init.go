@@ -13,22 +13,22 @@ import (
 )
 
 type InitCommand struct {
-    BaseCommand
+	BaseCommand
 }
 
 func NewInitCommand() Command {
-    return &InitCommand{
-        BaseCommand: BaseCommand{
-            NameStr:  "init",
-            DescStr:  "Initialize iwashere in current directory",
-            UsageStr: "iwashere init [--force] [--no-ignore]",
-            ExamplesList: []string{
-                "iwashere init",
-                "iwashere init --force",
-                "iwashere init --no-ignore",
-            },
-        },
-    }
+	return &InitCommand{
+		BaseCommand: BaseCommand{
+			NameStr:  "init",
+			DescStr:  "Initialize iwashere in current directory",
+			UsageStr: "iwashere init [--force] [--no-ignore]",
+			ExamplesList: []string{
+				"iwashere init",
+				"iwashere init --force",
+				"iwashere init --no-ignore",
+			},
+		},
+	}
 }
 
 func (c *InitCommand) Name() string {

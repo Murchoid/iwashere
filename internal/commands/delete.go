@@ -4,15 +4,15 @@ import (
 	"fmt"
 )
 
-type DeleteCommand struct{
+type DeleteCommand struct {
 	BaseCommand
 }
 
 func NewDeleteCommandFactory() Command {
 	return &DeleteCommand{
 		BaseCommand{
-			NameStr: "delete",
-			DescStr: "deletes a note",
+			NameStr:  "delete",
+			DescStr:  "deletes a note",
 			UsageStr: "iwashere delete/rm <id>",
 			ExamplesList: []string{
 				"iwashere delete 123",

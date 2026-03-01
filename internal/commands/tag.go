@@ -8,7 +8,7 @@ import (
 	"githum.com/Murchoid/iwashere/internal/repository"
 )
 
-type TagCommand struct{
+type TagCommand struct {
 	BaseCommand
 }
 
@@ -17,7 +17,7 @@ func NewTagCommandFactory() Command {
 		BaseCommand{
 			NameStr: "tag",
 			DescStr: "add or remove a tag from a note",
-			UsageStr:  `iwashere tag <subcommand> [arguments]
+			UsageStr: `iwashere tag <subcommand> [arguments]
 
 Subcommands:
   add    <note-id> <tag>     Add tag to note
@@ -25,8 +25,8 @@ Subcommands:
   list   [tag]              List notes by tag`,
 			ExamplesList: []string{
 				"iwashere tag add 123 bug",
-        "iwashere tag add 456 urgent,frontend",
-        "iwashere tag remove 123 bug",
+				"iwashere tag add 456 urgent,frontend",
+				"iwashere tag remove 123 bug",
 			},
 		},
 	}
@@ -48,7 +48,6 @@ func (a *TagCommand) Examples() []string {
 	return a.BaseCommand.Examples()
 }
 
-
 func (a *TagCommand) Execute(ctx *Context) error {
 	if ctx.Repo == nil {
 		return fmt.Errorf("not in an iwashere project (run iwashere init first)")
@@ -64,9 +63,9 @@ func (a *TagCommand) Execute(ctx *Context) error {
 		fmt.Println("arguments: ", ctx.Args[idx])
 	}
 
-	switch (tag) {
+	switch tag {
 	case "add":
-		if err:= addNewTag(repo, ctx.Args[1:]); err != nil {
+		if err := addNewTag(repo, ctx.Args[1:]); err != nil {
 			return err
 		}
 	case "remove":
@@ -82,29 +81,26 @@ func addNewTag(repo repository.Repository, args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("An id must be provided")
 	}
-	id:=args[0]
+	id := args[0]
 
-	
 	if len(args[1:]) == 0 {
 		return fmt.Errorf("At least one tag to be added must be given")
 	}
 	tags := args[1:]
 
 	note, err := repo.GetNote(id)
-	
-	if err!= nil {
+
+	if err != nil {
 		return err
 	}
-
 
 	note.Tags = append(note.Tags, tags...)
 
-	if err:=repo.UpdateNote(note); err != nil {
+	if err := repo.UpdateNote(note); err != nil {
 		return err
 	}
 
-
-	fmt.Println("New tag added to note #",id)
+	fmt.Println("New tag added to note #", id)
 	return nil
 }
 
@@ -112,17 +108,16 @@ func removeTag(repo repository.Repository, args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("An id must be provided")
 	}
-	id:=args[0]
+	id := args[0]
 
-	
 	if len(args[1:]) == 0 {
 		return fmt.Errorf("At least one tag to be added must be given")
 	}
 	tags := args[1:]
 
 	note, err := repo.GetNote(id)
-	
-	if err!= nil {
+
+	if err != nil {
 		return err
 	}
 
@@ -141,7 +136,7 @@ func removeTag(repo repository.Repository, args []string) error {
 	note.Tags = newTags
 	note.UpdatedAt = time.Now()
 
-	if err:=repo.UpdateNote(note); err != nil {
+	if err := repo.UpdateNote(note); err != nil {
 		return err
 	}
 

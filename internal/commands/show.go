@@ -6,15 +6,15 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type ShowCommand struct{
+type ShowCommand struct {
 	BaseCommand
 }
 
 func NewShowCommandFactory() Command {
 	return &ShowCommand{
 		BaseCommand{
-			NameStr: "show",
-			DescStr: "Shows the note specified by the id",
+			NameStr:  "show",
+			DescStr:  "Shows the note specified by the id",
 			UsageStr: "iwashere show/s <id>",
 			ExamplesList: []string{
 				"iwashere show 123",
@@ -31,7 +31,6 @@ func (a *ShowCommand) Name() string {
 func (a *ShowCommand) Description() string {
 	return a.BaseCommand.Description()
 }
-
 
 func (a *ShowCommand) Usage() string {
 	return a.BaseCommand.Usage()

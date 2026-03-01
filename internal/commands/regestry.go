@@ -19,5 +19,5 @@ func GetFactory(name string) (CommandFactory, bool) {
 }
 
 func GetAll() map[string]CommandFactory {
-    return registry
+	return registry
 }

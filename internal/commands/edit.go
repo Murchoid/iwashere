@@ -6,15 +6,15 @@ import (
 	"githum.com/Murchoid/iwashere/internal/domain/models"
 )
 
-type EditCommand struct{
+type EditCommand struct {
 	BaseCommand
 }
 
 func NewEditCommandFactory() Command {
 	return &EditCommand{
 		BaseCommand{
-			NameStr: "edit",
-			DescStr: "Edits a note",
+			NameStr:  "edit",
+			DescStr:  "Edits a note",
 			UsageStr: "iwashere edit <id> --message <message>",
 			ExamplesList: []string{
 				"iwashere edit 123 \"Edited this note to something new\"",
@@ -30,7 +30,6 @@ func (a *EditCommand) Name() string {
 func (a *EditCommand) Description() string {
 	return a.BaseCommand.Description()
 }
-
 
 func (a *EditCommand) Usage() string {
 	return a.BaseCommand.Usage()

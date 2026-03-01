@@ -10,15 +10,15 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type SessionCommand struct{
+type SessionCommand struct {
 	BaseCommand
 }
 
 func NewSessionCommandFactory() Command {
 	return &SessionCommand{
 		BaseCommand{
-			NameStr: "session",
-			DescStr: "create or end a session",
+			NameStr:  "session",
+			DescStr:  "create or end a session",
 			UsageStr: "iwashere session [option] [title]",
 			ExamplesList: []string{
 				"iwashere session start \"start debbuging\"",
@@ -55,13 +55,13 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 		return fmt.Errorf("tag name required (use tag or provide as argument)")
 	}
 
-	switch (sessionTags) {
+	switch sessionTags {
 	case "start":
 		if ctx.Args[1] == "" {
 			return fmt.Errorf("You have to give a session name")
 		}
 
-		if err:= startSession(repo, ctx.WorkDir, ctx.Args[1]); err != nil {
+		if err := startSession(repo, ctx.WorkDir, ctx.Args[1]); err != nil {
 			return err
 		}
 	case "end":
@@ -80,8 +80,7 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 	return nil
 }
 
-
-func startSession(repo repository.Repository,workDir, sName string) error {
+func startSession(repo repository.Repository, workDir, sName string) error {
 	getRepoService := git.NewService(workDir)
 
 	info, err := getRepoService.GetInfo()
@@ -91,11 +90,11 @@ func startSession(repo repository.Repository,workDir, sName string) error {
 	}
 
 	branch := info.Branch
-	session := models.Session {
-		ID: utils.GenerateId(),
-		Title: sName,
+	session := models.Session{
+		ID:        utils.GenerateId(),
+		Title:     sName,
 		StartTime: time.Now(),
-		Branch: branch,
+		Branch:    branch,
 	}
 
 	if err := repo.SaveSession(&session); err != nil {
@@ -105,7 +104,6 @@ func startSession(repo repository.Repository,workDir, sName string) error {
 	fmt.Printf("Session %v started at %v\n", sName, session.StartTime)
 	return nil
 }
-
 
 func endSession(repo repository.Repository) error {
 	session, err := repo.GetOpenSession()
@@ -120,7 +118,7 @@ func endSession(repo repository.Repository) error {
 	}
 
 	session.EndTime = time.Now()
-	
+
 	if err := repo.SaveSession(session); err != nil {
 		return err
 	}
@@ -130,9 +128,8 @@ func endSession(repo repository.Repository) error {
 	return nil
 }
 
-
 func listSessions(repo repository.Repository) error {
-	sessions, err := repo.ListSessions();
+	sessions, err := repo.ListSessions()
 
 	if err != nil {
 		return err

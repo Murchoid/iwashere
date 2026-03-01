@@ -8,15 +8,15 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type BranchCommand struct{
+type BranchCommand struct {
 	BaseCommand
 }
 
 func NewBranchCommandFactory() Command {
 	return &BranchCommand{
 		BaseCommand{
-			NameStr: "branch",
-			DescStr: "Shows all notes of the current branch",
+			NameStr:  "branch",
+			DescStr:  "Shows all notes of the current branch",
 			UsageStr: `iwashere branch  [argument]`,
 			ExamplesList: []string{
 				"iwashere branch",
@@ -33,7 +33,6 @@ func (a *BranchCommand) Name() string {
 func (a *BranchCommand) Description() string {
 	return a.BaseCommand.Description()
 }
-
 
 func (a *BranchCommand) Usage() string {
 	return a.BaseCommand.Usage()
@@ -58,7 +57,7 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 	var filters repository.NoteFilter
 	filters.ProjectPath = ctx.ProjectPath
 	filters.Tags = utils.ParseTags(ctx.Flags["--tags"])
-	
+
 	if ctx.Config.Git.AutoContext {
 		gitService := git.NewService(ctx.WorkDir)
 		if gitInfo, err := gitService.GetInfo(); err == nil && gitInfo != nil {
@@ -82,7 +81,7 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 	for idx := range notes {
 		howLongAgo := utils.HowLongAgo(notes[idx].UpdatedAt)
 		fmt.Printf("[%v](%v) %v: %v\n", howLongAgo, notes[idx].Branch, notes[idx].ID, notes[idx].Message)
-				if len(notes[idx].ModifiedFiles) > 0 {
+		if len(notes[idx].ModifiedFiles) > 0 {
 			fmt.Println("Modified files")
 			for mIdx := range notes[idx].ModifiedFiles {
 				fmt.Printf("[%v]\n", notes[idx].ModifiedFiles[mIdx])
@@ -90,7 +89,6 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 			fmt.Println()
 			fmt.Println()
 		}
-
 
 	}
 	return nil
