@@ -17,4 +17,4 @@ iwashere --help
 One-Liner Install
 
 ```
-curl -sSL https://raw.githubusercontent.com/Murchoid/iwashere/main/install.sh | bash
+curl -sSL https://github.com/Murchoid/iwashere/main/install.sh | bash
