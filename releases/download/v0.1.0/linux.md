@@ -13,8 +13,3 @@ sudo mv iwashere-linux-amd64 /usr/local/bin/iwashere
 ```
 iwashere --help
 ```
-
-One-Liner Install
-
-```
-curl -sSL https://github.com/Murchoid/iwashere/main/install.sh | bash

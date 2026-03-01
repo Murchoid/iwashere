@@ -18,11 +18,3 @@
 7. **Test** it:
    ```cmd
    iwashere --help
-
-One-Line Install (if you have curl)
-Open PowerShell as Administrator and run:
-
-
-```md C:\tools\iwashere -Force
-curl -L https://github.com/Murchoid/iwashere/releases/download/v0.1.0/iwashere-windows-amd64.exe -o C:\tools\iwashere\iwashere.exe
-setx PATH "$env:PATH;C:\tools\iwashere" /M```
