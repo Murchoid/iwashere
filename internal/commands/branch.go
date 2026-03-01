@@ -59,11 +59,10 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 	var filters repository.NoteFilter
 	filters.ProjectPath = ctx.ProjectPath
 	filters.Limit = a.getLimit(ctx)
-	
+
 	if ctx.Flags["--tags"] != "" {
 		filters.Tags = utils.ParseTags(ctx.Flags["--tags"])
 	}
-
 
 	if ctx.Config.Git.AutoContext {
 		gitService := git.NewService(ctx.WorkDir)

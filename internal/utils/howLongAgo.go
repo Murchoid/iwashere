@@ -6,21 +6,21 @@ import (
 )
 
 func HowLongAgo(t time.Time) string {
-    duration := time.Since(t)
-    
-    switch {
-    case duration < time.Minute:
-        return "just now"
-    case duration < time.Hour:
-        minutes := int(duration.Minutes())
-        return fmt.Sprintf("%dm ago", minutes)
-    case duration < 24*time.Hour:
-        hours := int(duration.Hours())
-        return fmt.Sprintf("%dh ago", hours)
-    case duration < 7*24*time.Hour:
-        days := int(duration.Hours() / 24)
-        return fmt.Sprintf("%dd ago", days)
-    default:
-        return t.Format("Jan 2")
-    }
+	duration := time.Since(t)
+
+	switch {
+	case duration < time.Minute:
+		return "just now"
+	case duration < time.Hour:
+		minutes := int(duration.Minutes())
+		return fmt.Sprintf("%dm ago", minutes)
+	case duration < 24*time.Hour:
+		hours := int(duration.Hours())
+		return fmt.Sprintf("%dh ago", hours)
+	case duration < 7*24*time.Hour:
+		days := int(duration.Hours() / 24)
+		return fmt.Sprintf("%dd ago", days)
+	default:
+		return t.Format("Jan 2")
+	}
 }
