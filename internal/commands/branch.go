@@ -95,7 +95,6 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 		}
 	}
 
-	// Use display package
 	format := "detailed"
 	if ctx.Flags["--short"] == "true" {
 		format = "short"

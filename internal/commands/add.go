@@ -51,9 +51,17 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	}
 
 	repo := ctx.Repo
+	if len(ctx.Args) == 0 {
+		fmt.Println("Note message must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+
+		return nil
+	}
 	message := ctx.Args[0]
 	if message == "" {
-		return fmt.Errorf("message required (use -m or provide as argument)")
+		fmt.Println("message Cannot be empty")
+		return nil
 	}
 
 	note := &models.Note{

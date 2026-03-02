@@ -43,6 +43,14 @@ func (a *ShowCommand) Examples() []string {
 func (a *ShowCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
+
+	if len(ctx.Args) == 0 {
+		fmt.Println("Id must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+	}
+
 	id := ctx.Args[0]
 
 	note, err := repo.GetNote(id)

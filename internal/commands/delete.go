@@ -2,6 +2,8 @@ package commands
 
 import (
 	"fmt"
+
+	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
 type DeleteCommand struct {
@@ -41,6 +43,13 @@ func (a *DeleteCommand) Examples() []string {
 func (a *DeleteCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
+
+	if len(ctx.Args) == 0 {
+		fmt.Println("Id must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+	}
 	id := ctx.Args[0]
 
 	if err := repo.DeleteNote(id); err != nil {

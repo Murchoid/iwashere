@@ -50,15 +50,33 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 	}
 
 	repo := ctx.Repo
+		if len(ctx.Args) == 0 {
+		fmt.Println("Option must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+	}
 	sessionTags := ctx.Args[0]
 	if sessionTags == "" {
-		return fmt.Errorf("tag name required (use tag or provide as argument)")
+		fmt.Println("Option must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
 	}
 
 	switch sessionTags {
 	case "start":
+
+		if len(ctx.Args) <= 1 {
+		fmt.Println("Title of session must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+		}
+
 		if ctx.Args[1] == "" {
-			return fmt.Errorf("You have to give a session name")
+			fmt.Println("You have to give a session name")
+			return nil
 		}
 
 		if err := startSession(repo, ctx.WorkDir, ctx.Args[1]); err != nil {

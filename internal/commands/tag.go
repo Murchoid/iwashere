@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"githum.com/Murchoid/iwashere/internal/repository"
+	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
 type TagCommand struct {
@@ -54,15 +55,26 @@ func (a *TagCommand) Execute(ctx *Context) error {
 	}
 
 	repo := ctx.Repo
+	if len(ctx.Args) == 0 {
+		
+		fmt.Println("Tag option must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+	}
 	tag := ctx.Args[0]
 	if tag == "" {
-		return fmt.Errorf("tag name required (use tag or provide as argument)")
+		fmt.Println("Cannot use an empty tag option")
+		return nil
 	}
 
-	for idx := range ctx.Args {
-		fmt.Println("arguments: ", ctx.Args[idx])
+	if len(ctx.Args) <= 1 {
+		fmt.Println("Tag names must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
 	}
-
+	
 	switch tag {
 	case "add":
 		if err := addNewTag(repo, ctx.Args[1:]); err != nil {

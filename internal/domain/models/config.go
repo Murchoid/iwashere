@@ -25,14 +25,9 @@ func DefaultConfig() *Config {
 	cfg := &Config{}
 	cfg.Storage.Type = "json"
 	cfg.Storage.Path = "./notes"
+	cfg.Project.InitDate = time.Now()
 	cfg.Git.AutoContext = true
 	cfg.Git.TrackBranches = true
 	return cfg
 }
 
-// func LoadConfig(filepath string) *Config {
-
-// 	if data, err := os.Open(filepath); err != nil {
-
-// 	}
-// }

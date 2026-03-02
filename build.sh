@@ -9,7 +9,7 @@ mkdir builds
 
 # Function to build for a platform
 build() {
-    GOOS=$1 GOARCH=$2 go build -o "builds/iwashere-$1-$2$3" ./cmd/iwashere
+    GOOS=$1 GOARCH=$2 go build -o "builds/iwashere-$1-$2$3" ./cmd
     echo "  ✅ Built for $1/$2"
 }
 

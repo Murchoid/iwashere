@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"githum.com/Murchoid/iwashere/internal/domain/models"
+	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
 type EditCommand struct {
@@ -42,7 +43,23 @@ func (a *EditCommand) Examples() []string {
 func (a *EditCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
+
+		if len(ctx.Args) == 0 {
+		fmt.Println("Id must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+	}
+
 	id := ctx.Args[0]
+
+		if ctx.Flags["--message"] == ""{
+		fmt.Println("Message must be provided")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+	}
+
 	newMsg := ctx.Flags["--message"]
 
 	newNote := models.Note{
