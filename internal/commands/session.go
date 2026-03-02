@@ -50,7 +50,7 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 	}
 
 	repo := ctx.Repo
-		if len(ctx.Args) == 0 {
+	if len(ctx.Args) == 0 {
 		fmt.Println("Option must be provided")
 		fmt.Println()
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
@@ -68,10 +68,10 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 	case "start":
 
 		if len(ctx.Args) <= 1 {
-		fmt.Println("Title of session must be provided")
-		fmt.Println()
-		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-		return nil
+			fmt.Println("Title of session must be provided")
+			fmt.Println()
+			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+			return nil
 		}
 
 		if ctx.Args[1] == "" {

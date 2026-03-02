@@ -1,4 +1,3 @@
-// // internal/repository/global.go
 package repository
 
 // import (
@@ -6,11 +5,10 @@ package repository
 // 	"path/filepath"
 // 	"time"
 
-// 	"githum.com/Murchoid/iwashere/internal/repository/jsonRepo"
 // )
 
 // type GlobalRepository struct {
-//     *jsonRepo.JSONRepository // Embed your JSON repo
+//     *JSONRepository // Embed your JSON repo
 // }
 
 // func NewGlobalRepository() (*GlobalRepository, error) {
@@ -22,7 +20,7 @@ package repository
 //     }
 
 //     return &GlobalRepository{
-//         &jsonRepo.JSONRepository{
+//         &JSONRepository{
 //             NotesBasePath: globalDir,
 //         },
 //     }, nil

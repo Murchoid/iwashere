@@ -56,7 +56,7 @@ func (a *TagCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
 	if len(ctx.Args) == 0 {
-		
+
 		fmt.Println("Tag option must be provided")
 		fmt.Println()
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
@@ -74,7 +74,7 @@ func (a *TagCommand) Execute(ctx *Context) error {
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 		return nil
 	}
-	
+
 	switch tag {
 	case "add":
 		if err := addNewTag(repo, ctx.Args[1:]); err != nil {

@@ -30,4 +30,3 @@ func DefaultConfig() *Config {
 	cfg.Git.TrackBranches = true
 	return cfg
 }
-

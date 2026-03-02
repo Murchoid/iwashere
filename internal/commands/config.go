@@ -11,35 +11,35 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type ConfigCommand struct{
+type ConfigCommand struct {
 	BaseCommand
 }
 
 func NewConfigCommand() Command {
 	return &ConfigCommand{
 		BaseCommand{
-			NameStr: "config",
-			DescStr: "Show, set, get or reset your configs",
+			NameStr:  "config",
+			DescStr:  "Show, set, get or reset your configs",
 			UsageStr: "iwashere config [options] [path]",
 			ExamplesList: []string{
 				"iwashere config",
-				"iwashere config set <file.config>",
-				"iwashere config get <file.config>",
-				"iwashere config reset <file.config>",
+				"iwashere config set <property.attribute>",
+				"iwashere config get <property.attribute>",
+				"iwashere config reset",
 			},
 		},
 	}
 }
 
-func (c *ConfigCommand) Name() string { 
+func (c *ConfigCommand) Name() string {
 	return c.BaseCommand.Name()
 }
 
-func (c *ConfigCommand) Description() string { 
+func (c *ConfigCommand) Description() string {
 	return c.BaseCommand.Description()
 }
 
-func (c *ConfigCommand) Examples() []string { 
+func (c *ConfigCommand) Examples() []string {
 	return c.BaseCommand.Examples()
 }
 
@@ -59,8 +59,19 @@ func (c *ConfigCommand) Execute(ctx *Context) error {
 
 	switch ctx.Args[0] {
 	case "set":
+		if len(ctx.Args) <= 1 {
+			fmt.Println("Set requires key value pair")
+			utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+			return nil
+		}
 		return c.setConfig(configPath, ctx.Args[1:])
+
 	case "get":
+		if len(ctx.Args) <= 1 {
+			fmt.Println("get requires a key")
+			utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+			return nil
+		}
 		return c.getConfig(configPath, ctx.Args[1:])
 	case "reset":
 		return c.resetConfig(configPath)
@@ -80,89 +91,92 @@ func (c *ConfigCommand) showConfig(path string) error {
 	return nil
 }
 
-
 func (c *ConfigCommand) setConfig(configPath string, args []string) error {
-    if len(args) != 2 {
-        return fmt.Errorf("set requires key and value")
-    }
-    
-    key := args[0]
-    value := args[1]
-    
-    // Load existing config
-    config, err := loadUserConfig(configPath)
-    if err != nil {
-        config = models.DefaultConfig()
-    }
-    
-    // Manual mapping of keys to fields
-    switch key {
-    case "project.name":
-        config.Project.Name = value
-    case "storage.type":
-        config.Storage.Type = value
-    case "storage.path":
-        config.Storage.Path = value
-    case "git.autocontext":
-        // Parse string to bool
-        boolVal, err := strconv.ParseBool(value)
-        if err != nil {
-            return fmt.Errorf("git.autocontext must be true/false")
-        }
-        config.Git.AutoContext = boolVal
-    case "git.trackbranches":
-        boolVal, err := strconv.ParseBool(value)
-        if err != nil {
-            return fmt.Errorf("git.trackbranches must be true/false")
-        }
-        config.Git.TrackBranches = boolVal
-    default:
-        return fmt.Errorf("unknown config key: %s", key)
-    }
-    
-    // Save config
-    return c.saveConfig(configPath, config)
+	if len(args) != 2 {
+		return fmt.Errorf("set requires key and value")
+	}
+
+	key := args[0]
+	value := args[1]
+
+	if value == "" {
+		fmt.Println("Cant set an empty attribute, if you meant to reset the config, use iwashere config reset instead")
+		return nil
+	}
+
+	// Load existing config
+	config, err := loadUserConfig(configPath)
+	if err != nil {
+		config = models.DefaultConfig()
+	}
+
+	// Manual mapping of keys to fields
+	switch key {
+	case "project.name":
+		config.Project.Name = value
+	case "storage.type":
+		config.Storage.Type = value
+	case "storage.path":
+		config.Storage.Path = value
+	case "git.autocontext":
+		// Parse string to bool
+		boolVal, err := strconv.ParseBool(value)
+		if err != nil {
+			return fmt.Errorf("git.autocontext must be true/false")
+		}
+		config.Git.AutoContext = boolVal
+	case "git.trackbranches":
+		boolVal, err := strconv.ParseBool(value)
+		if err != nil {
+			return fmt.Errorf("git.trackbranches must be true/false")
+		}
+		config.Git.TrackBranches = boolVal
+	default:
+		return fmt.Errorf("unknown config key: %s", key)
+	}
+
+	// Save config
+	return c.saveConfig(configPath, config)
 }
 
 func (c *ConfigCommand) getConfig(configPath string, args []string) error {
-    if len(args) != 1 {
-        return fmt.Errorf("get requires a key")
-    }
-    
-    key := args[0]
-    
-    config, err := loadUserConfig(configPath)
-    if err != nil {
-        config = models.DefaultConfig()
-    }
-    
-    switch key {
-    case "project.name":
-        fmt.Println(config.Project.Name)
-    case "storage.type":
-        fmt.Println(config.Storage.Type)
-    case "storage.path":
-        fmt.Println(config.Storage.Path)
-    case "git.autocontext":
-        fmt.Println(config.Git.AutoContext)
-    case "git.trackbranches":
-        fmt.Println(config.Git.TrackBranches)
-    default:
-        return fmt.Errorf("unknown config key: %s", key)
-    }
-    
-    return nil
-}
+	if len(args) != 1 {
+		return fmt.Errorf("get requires a key")
+	}
 
+	key := args[0]
+
+	config, err := loadUserConfig(configPath)
+	if err != nil {
+		config = models.DefaultConfig()
+	}
+
+	switch key {
+	case "project.name":
+		fmt.Println(config.Project.Name)
+	case "storage.type":
+		fmt.Println(config.Storage.Type)
+	case "storage.path":
+		fmt.Println(config.Storage.Path)
+	case "git.autocontext":
+		fmt.Println(config.Git.AutoContext)
+	case "git.trackbranches":
+		fmt.Println(config.Git.TrackBranches)
+	default:
+		return fmt.Errorf("unknown config key: %s", key)
+	}
+
+	return nil
+}
 
 func (c *ConfigCommand) resetConfig(path string) error {
 	config := models.DefaultConfig()
 
 	data, _ := json.MarshalIndent(config, "", "  ")
-	if err := c.saveConfig(path, config); err!=nil {
+	if err := c.saveConfig(path, config); err != nil {
 		fmt.Println("Config reset ....")
 	}
-	
+
 	fmt.Println(string(data))
 	return nil
 }

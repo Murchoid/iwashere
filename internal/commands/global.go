@@ -1,10 +1,16 @@
-// // internal/commands/global.go
 package commands
+
+// import "githum.com/Murchoid/iwashere/internal/repository"
 
 // type GlobalCommand struct{}
 
-// func (c *GlobalCommand) Name() string { return "global" }
-// func (c *GlobalCommand) Description() string { return "Manage global (non-project) notes" }
+// func (c *GlobalCommand) Name() string {
+// 	return "global"
+// }
+
+// func (c *GlobalCommand) Description() string {
+// 	return "Manage global (non-project) notes"
+// }
 
 // func (c *GlobalCommand) Execute(ctx *Context) error {
 //     // Create global repository
