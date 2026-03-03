@@ -45,7 +45,7 @@ nfpms:
     package_name: iwashere
     file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     
-    homepage: https://github.com/yourusername/iwashere
+    homepage: https://github.com/Murchoid/iwashere
     description: "iwashere - Context preservation tool"
     maintainer: Michael Kamau kamaucoder@gmail.com
     license: MIT
@@ -70,7 +70,7 @@ brews:
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     
     # This tells Homebrew where to find the binaries
-    url_template: "https://github.com/Murchoid/iwashere/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/Murchoid/iwashere/releases/tag/{{ .Tag }}/{{ .ArtifactName }}"
     
     commit_author:
       name: goreleaserbot
@@ -89,7 +89,7 @@ scoops:
       name: scoop-iwashere
       token: "{{ .Env.SCOOP_TOKEN }}"
     
-    url_template: "https://github.com/Murchoid/iwashere/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/Murchoid/iwashere/releases/tag/{{ .Tag }}/{{ .ArtifactName }}"
     
     commit_author:
       name: goreleaserbot
