@@ -160,9 +160,8 @@ func removeTag(repo repository.Repository, args []string) error {
 	return nil
 }
 
-func listTag(repo repository.Repository, args []string) error{
+func listTag(repo repository.Repository, args []string) error {
 	tags := utils.ParseTags(args[0])
-
 
 	notes, err := repo.ListNotes(&repository.NoteFilter{Tags: tags})
 

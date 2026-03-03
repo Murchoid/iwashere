@@ -16,22 +16,22 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type ShareCommand struct{
+type ShareCommand struct {
 	BaseCommand
 }
 
 func NewShareCommand() Command {
 	return &ShareCommand{
 		BaseCommand{
-			NameStr: "share",
-			DescStr: "Share notes with teammates",
+			NameStr:  "share",
+			DescStr:  "Share notes with teammates",
 			UsageStr: "iwashere share [note-id] --with <recipient>",
 			ExamplesList: []string{
-		"iwashere share --with alice@example.com              # Share latest note",
-		"iwashere share 123 --with alice@example.com          # Share specific note",
-		"iwashere share --with @backend-team                   # Share with team",
-		"iwashere share --with alice@example.com,bob@example.com # Multiple recipients",
-	},
+				"iwashere share --with alice@example.com              # Share latest note",
+				"iwashere share 123 --with alice@example.com          # Share specific note",
+				"iwashere share --with @backend-team                   # Share with team",
+				"iwashere share --with alice@example.com,bob@example.com # Multiple recipients",
+			},
 		},
 	}
 }
@@ -99,7 +99,7 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 
 	// Parse recipients
 	recipients := parseRecipients(ctx.Flags["--with"])
-	
+
 	// Track success/failure
 	successCount := 0
 	var errors []string
@@ -113,7 +113,7 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 			// Individual sharing - use encrypted payloads
 			err = c.shareWithIndividual(ctx, privateNote, recipient, currentEmail)
 		}
-		
+
 		if err != nil {
 			errors = append(errors, fmt.Sprintf("%s: %v", recipient, err))
 		} else {
@@ -221,7 +221,7 @@ func (c *ShareCommand) shareWithIndividual(ctx *Context, note *models.PrivateNot
 
 func (c *ShareCommand) shareWithTeam(ctx *Context, note *models.PrivateNote, teamFlag string, author string) error {
 	teamName := strings.TrimPrefix(teamFlag, "@")
-	
+
 	// Create team note (sanitized, no encryption for team)
 	teamNote := &models.TeamNote{
 		ID:        utils.GenerateId(),
@@ -253,21 +253,21 @@ func (c *ShareCommand) shareWithTeam(ctx *Context, note *models.PrivateNote, tea
 
 func (c *ShareCommand) updateShareIndex(ctx *Context, recipient, noteID string) {
 	indexPath := filepath.Join(ctx.ProjectPath, ".iwashere-shared", "index.json")
-	
+
 	var index models.EncryptedPayloadIndex
-	
+
 	// Read existing index if it exists
 	if data, err := os.ReadFile(indexPath); err == nil {
 		json.Unmarshal(data, &index)
 	}
-	
+
 	if index.Shares == nil {
 		index.Shares = make(map[string][]string)
 	}
-	
+
 	// Add to index
 	index.Shares[recipient] = append(index.Shares[recipient], noteID)
-	
+
 	// Save index
 	if data, err := json.MarshalIndent(index, "", "  "); err == nil {
 		os.WriteFile(indexPath, data, 0644)

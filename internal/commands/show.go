@@ -58,7 +58,7 @@ func (a *ShowCommand) Execute(ctx *Context) error {
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 		return nil
 	}
-	
+
 	id := ctx.Args[0]
 
 	note, err := repo.GetNote(id)

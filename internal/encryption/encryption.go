@@ -71,12 +71,12 @@ func EncryptKeyForRecipient(key []byte, recipient string) (string, error) {
 	// This is a SIMPLIFIED approach for v0.2.0
 	// In reality, you'd use the recipient's public key
 	recipientKey := sha256.Sum256([]byte(recipient))
-	
+
 	encrypted := make([]byte, len(key))
 	for i := range key {
 		encrypted[i] = key[i] ^ recipientKey[i%len(recipientKey)]
 	}
-	
+
 	return base64.StdEncoding.EncodeToString(encrypted), nil
 }
 
@@ -86,13 +86,13 @@ func DecryptKeyForRecipient(encryptedKeyB64 string, recipient string) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
-	
+
 	recipientKey := sha256.Sum256([]byte(recipient))
-	
+
 	key := make([]byte, len(encryptedKey))
 	for i := range encryptedKey {
 		key[i] = encryptedKey[i] ^ recipientKey[i%len(recipientKey)]
 	}
-	
+
 	return key, nil
 }

@@ -85,7 +85,6 @@ func (c *ListCommand) Execute(ctx *Context) error {
 	return nil
 }
 
-
 func (c *ListCommand) getLimit(ctx *Context) int {
 	if ctx.Flags["--limit"] != "" {
 		limit, err := strconv.Atoi(ctx.Flags["--limit"])

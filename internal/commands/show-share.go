@@ -13,20 +13,20 @@ import (
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
-type ShowSharedCommand struct{
+type ShowSharedCommand struct {
 	BaseCommand
 }
 
 func NewShowShareCommand() Command {
 	return &ShowSharedCommand{
 		BaseCommand{
-			NameStr: "show-share",
-			DescStr: "Show notes shared with you",
+			NameStr:  "show-share",
+			DescStr:  "Show notes shared with you",
 			UsageStr: "iwashere show-shared [note-id]",
 			ExamplesList: []string{
-		"iwashere show-shared           # List all shared notes",
-		"iwashere show-shared 123       # Show specific shared note",
-	},
+				"iwashere show-shared           # List all shared notes",
+				"iwashere show-shared 123       # Show specific shared note",
+			},
 		},
 	}
 }
@@ -46,7 +46,6 @@ func (c *ShowSharedCommand) Usage() string {
 func (c *ShowSharedCommand) Examples() []string {
 	return c.BaseCommand.Examples()
 }
-
 
 func (c *ShowSharedCommand) Execute(ctx *Context) error {
 	// Get current user's email from git
@@ -70,8 +69,8 @@ func (c *ShowSharedCommand) Execute(ctx *Context) error {
 		fmt.Println()
 		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
 		return nil
-	}	
-	
+	}
+
 	// If specific note ID provided
 	if len(ctx.Args) > 0 {
 		noteID := ctx.Args[0]
@@ -120,7 +119,7 @@ func (c *ShowSharedCommand) listSharedNotes(sharedDir string) error {
 
 func (c *ShowSharedCommand) showSpecificNote(sharedDir string, noteID string, currentEmail string) error {
 	payloadPath := filepath.Join(sharedDir, noteID+".share")
-	
+
 	data, err := os.ReadFile(payloadPath)
 	if err != nil {
 		return fmt.Errorf("shared note not found: %s", noteID)
@@ -154,15 +153,15 @@ func (c *ShowSharedCommand) showSpecificNote(sharedDir string, noteID string, cu
 	fmt.Println()
 	fmt.Printf("   %s\n", sharedNote.Message)
 	fmt.Println()
-	
+
 	if len(sharedNote.Tags) > 0 {
 		fmt.Printf("    %s\n", strings.Join(sharedNote.Tags, ", "))
 	}
-	
+
 	if sharedNote.Branch != "" {
 		fmt.Printf("   %s\n", sharedNote.Branch)
 	}
-	
+
 	if sharedNote.SessionName != "" {
 		fmt.Printf("   Session: %s\n", sharedNote.SessionName)
 	}

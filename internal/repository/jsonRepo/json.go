@@ -304,13 +304,13 @@ func (r *JSONRepository) GetNotesBySession(id string) ([]*models.PrivateNote, er
 		return nil, err
 	}
 
-	filter := repository.NoteFilter {
+	filter := repository.NoteFilter{
 		SessionID: session.ID,
-		Branch: session.Branch,
+		Branch:    session.Branch,
 	}
 
 	notes, err := r.ListNotes(&filter)
-	if  err == nil {
+	if err == nil {
 		return nil, err
 	}
 

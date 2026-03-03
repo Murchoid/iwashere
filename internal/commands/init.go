@@ -50,20 +50,20 @@ func (c *InitCommand) Examples() []string {
 
 func (c *InitCommand) Execute(ctx *Context) error {
 
-    if len(ctx.Args) > 0 {
-        fmt.Println("Unrecognized arguments")
-        fmt.Println()
-        utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-        return nil
-    }
-	
+	if len(ctx.Args) > 0 {
+		fmt.Println("Unrecognized arguments")
+		fmt.Println()
+		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+		return nil
+	}
+
 	// Check if already initialized
 	// Check for force flag
 	force := ctx.Flags["--force"] == "true"
 	if ctx.ProjectPath != "" && !force {
-			fmt.Println(".iwashere already exists (use --force to reinitialize)")
-			fmt.Println("use 'iwashere init --force' if you want to forcefully reinitialize (Use this if you know what you are doing)")
-			return nil
+		fmt.Println(".iwashere already exists (use --force to reinitialize)")
+		fmt.Println("use 'iwashere init --force' if you want to forcefully reinitialize (Use this if you know what you are doing)")
+		return nil
 	}
 
 	iwasherePath := filepath.Join(ctx.WorkDir, ".iwashere")

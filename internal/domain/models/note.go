@@ -23,19 +23,19 @@ type PrivateNote struct {
 
 // Team note (sanitized for collaboration)
 type TeamNote struct {
-    ID          string    `json:"id"`
-    Message     string    `json:"message"`
-    Author      string    `json:"author"`
-    CreatedAt   time.Time `json:"created_at"`
-    Tags        []string  `json:"tags"`
-    SessionName string    `json:"session_name,omitempty"`
-    // NO personal context (files, branches)
+	ID          string    `json:"id"`
+	Message     string    `json:"message"`
+	Author      string    `json:"author"`
+	CreatedAt   time.Time `json:"created_at"`
+	Tags        []string  `json:"tags"`
+	SessionName string    `json:"session_name,omitempty"`
+	// NO personal context (files, branches)
 }
 
 // Shared reference
 type SharedReference struct {
-    PrivateNoteID string    `json:"private_note_id"`
-    SharedBy      string    `json:"shared_by"`
-    SharedAt      time.Time `json:"shared_at"`
-    NotePreview   string    `json:"note_preview"` // First 100 chars
+	PrivateNoteID string    `json:"private_note_id"`
+	SharedBy      string    `json:"shared_by"`
+	SharedAt      time.Time `json:"shared_at"`
+	NotePreview   string    `json:"note_preview"` // First 100 chars
 }

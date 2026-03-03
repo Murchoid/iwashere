@@ -46,15 +46,14 @@ func (s *Service) GetInfo() (*Info, error) {
 		info.Branch = branch
 	}
 
-
 	if name, _ := s.getCurrentUser(); name != "" {
 		info.UserName = name
 	}
 
-	if _, email:= s.getCurrentUser(); email != "" {
+	if _, email := s.getCurrentUser(); email != "" {
 		info.UserEmail = email
 	}
-	
+
 	// Get commit hash
 	if hash, err := s.getCommitHash(); err == nil {
 		info.CommitHash = hash
@@ -149,15 +148,15 @@ func (s *Service) hasStaged() bool {
 	return err != nil
 }
 
-func (s *Service)getCurrentUser() (string, string) {
-    // Get from git config
-    nameCmd := exec.Command("git", "config", "user.name")
-    emailCmd := exec.Command("git", "config", "user.email")
-    
-    name, _ := nameCmd.Output()
-    email, _ := emailCmd.Output()
-    
-    return strings.TrimSpace(string(name)), strings.TrimSpace(string(email))
+func (s *Service) getCurrentUser() (string, string) {
+	// Get from git config
+	nameCmd := exec.Command("git", "config", "user.name")
+	emailCmd := exec.Command("git", "config", "user.email")
+
+	name, _ := nameCmd.Output()
+	email, _ := emailCmd.Output()
+
+	return strings.TrimSpace(string(name)), strings.TrimSpace(string(email))
 }
 
 // GetModifiedFiles returns list of files changed

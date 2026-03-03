@@ -30,5 +30,5 @@ type NoteFilter struct {
 	Tags        []string
 	Limit       int
 	Since       time.Time
-	SessionID	string
+	SessionID   string
 }
