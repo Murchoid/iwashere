@@ -1,31 +1,20 @@
 #!/bin/bash
-# build.sh - Run this to build for all platforms
+# test-build.sh
+MODULE=$(go list -m)  # This gets your module name
 
-echo "🔨 Building iwashere v0.1.0..."
+echo "Module: $MODULE"
+echo "Testing build with version info..."
 
-# Clean build directory
-rm -rf builds
-mkdir builds
+# Build with test values
+go build -ldflags="
+    -X $MODULE/internal/commands.Version=v0.2.0
+    -X $MODULE/internal/commands.Commit=$(git rev-parse --short HEAD)
+    -X $MODULE/internal/commands.BuildDate=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    -X $MODULE/internal/commands.BuiltBy=hand
+" -o iwashere-test ./cmd/
 
-$version=v0.2.0
-# Function to build for a platform
-build() {
-    GOOS=$1 GOARCH=$2 go build -o "builds/releases/download/$vesion/iwashere-$1-$2$3" ./cmd
-    echo "  ✅ Built for $1/$2"
-}
+# Run version command
+./iwashere-test version
 
-# Linux builds
-build linux amd64 ""
-build linux 386 ""
-
-# Windows builds  
-build windows amd64 ".exe"
-build windows 386 ".exe"
-
-# macOS builds
-build darwin amd64 ""
-build darwin arm64 ""
-
-echo ""
-echo "📦 Builds ready in ./builds/"
-ls -lh builds/
+# Clean up
+rm iwashere-test

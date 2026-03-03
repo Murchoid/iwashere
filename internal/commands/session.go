@@ -119,7 +119,7 @@ func startSession(repo repository.Repository, workDir, sName string) error {
 		return err
 	}
 
-	fmt.Printf("Session %v started at %v\n", sName, session.StartTime)
+	fmt.Printf("Session %v started at just now\n", sName)
 	return nil
 }
 

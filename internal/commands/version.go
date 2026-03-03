@@ -32,7 +32,7 @@ func (c *VersionCommand) Execute(ctx *Context) error {
 func printVersionInfo() {
     banner := `
     ╔══════════════════════════════════════╗
-    ║         🔖 iwashere v%s         	   ║
+    ║         🔖 iwashere %s           ║
     ║     Context Preservation Tool        ║
     ╚══════════════════════════════════════╝
     `
