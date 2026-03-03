@@ -61,7 +61,7 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
     }
     
     // Download zip
-    url := fmt.Sprintf("https://github.com/Murchoid/iwashere/releases/download/%s/iwashere_%s_Windows_%s.zip", 
+    url := fmt.Sprintf("https://github.com/Murchoid/iwashere/releases/tag/%s/iwashere_%s_Windows_%s.zip", 
         latest, latest, arch)
     
     zipPath := filepath.Join(tmpDir, "iwashere.zip")
@@ -114,6 +114,7 @@ func getLatestVersion() (string, error) {
 func downloadFile(url, path string) error {
     resp, err := http.Get(url)
     if err != nil {
+		fmt.Println("here")
         return err
     }
     defer resp.Body.Close()
