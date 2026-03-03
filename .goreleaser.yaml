@@ -45,19 +45,16 @@ nfpms:
     package_name: iwashere
     file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     
-    # This is just documentation - point to your repo
-    homepage: https://github.com/Murchoid/iwashere
+    homepage: https://github.com/yourusername/iwashere
     description: |-
       iwashere - Context preservation tool for developers
-      Never lose your train of thought again. Track your coding
-      context with git integration, sessions, and team sharing.
-    maintainer: Michael kamau kamaucoder@gmail.com
+    maintainer: Your Name <your.email@example.com>
     license: MIT
     
-    # These are the actual binaries to include
+    # FIX THIS PART - use the correct binary path
     contents:
-      - src: ./iwashere  # This is the built binary
-        dst: /usr/local/bin/iwashere
+      - src: "{{ .BinaryPath }}_{{ .Os }}_{{ .Arch }}{{ .Arm }}/{{ .Binary }}"  # This is the correct path
+        dst: /usr/local/bin/{{ .Binary }}
         file_info:
           mode: 0755
     
@@ -65,8 +62,7 @@ nfpms:
       - deb
       - rpm
       - apk
-      - archlinux
-
+      
 brews:
   - name: iwashere
     homepage: https://github.com/Murchoid/iwashere
