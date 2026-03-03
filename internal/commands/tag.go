@@ -84,6 +84,10 @@ func (a *TagCommand) Execute(ctx *Context) error {
 		if err := removeTag(repo, ctx.Args[1:]); err != nil {
 			return err
 		}
+	case "list":
+		if err := listTag(repo, ctx.Args[1:]); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -153,6 +157,21 @@ func removeTag(repo repository.Repository, args []string) error {
 	}
 
 	fmt.Printf("Tags %v removed from note #%v", tags, id)
+	return nil
+}
+
+func listTag(repo repository.Repository, args []string) error{
+	tags := utils.ParseTags(args[0])
+
+
+	notes, err := repo.ListNotes(&repository.NoteFilter{Tags: tags})
+
+	if err != nil {
+		return err
+	}
+
+	utils.PrintNotes(notes, nil, "short")
+
 	return nil
 }
 

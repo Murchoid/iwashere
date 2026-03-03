@@ -17,4 +17,4 @@ go build -ldflags="
 ./iwashere-test version
 
 # Clean up
-rm iwashere-test
+# rm iwashere-test
