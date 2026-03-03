@@ -7,9 +7,10 @@ echo "🔨 Building iwashere v0.1.0..."
 rm -rf builds
 mkdir builds
 
+$version=v0.2.0
 # Function to build for a platform
 build() {
-    GOOS=$1 GOARCH=$2 go build -o "builds/iwashere-$1-$2$3" ./cmd
+    GOOS=$1 GOARCH=$2 go build -o "builds/releases/download/$vesion/iwashere-$1-$2$3" ./cmd
     echo "  ✅ Built for $1/$2"
 }
 

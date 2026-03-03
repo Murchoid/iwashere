@@ -90,6 +90,10 @@ func normalizeCmdName(cmdName string) string {
 		return "help"
 	case "--help":
 		return "help"
+	case "-v":
+		return "version"
+	case "--version":
+		return "version"
 	}
 
 	return cmdName
