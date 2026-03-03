@@ -47,7 +47,7 @@ nfpms:
     
     homepage: https://github.com/yourusername/iwashere
     description: "iwashere - Context preservation tool"
-    maintainer: Your Name <your.email@example.com>
+    maintainer: Michael Kamau kamaucoder@gmail.com
     license: MIT
     
     # Simpler approach - use the build ID
