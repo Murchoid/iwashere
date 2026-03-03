@@ -46,23 +46,24 @@ nfpms:
     file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     
     homepage: https://github.com/yourusername/iwashere
-    description: |-
-      iwashere - Context preservation tool for developers
+    description: "iwashere - Context preservation tool"
     maintainer: Your Name <your.email@example.com>
     license: MIT
     
-    # FIX THIS PART - use the correct binary path
-    contents:
-      - src: "{{ .BinaryPath }}_{{ .Os }}_{{ .Arch }}{{ .Arm }}/{{ .Binary }}"  # This is the correct path
-        dst: /usr/local/bin/{{ .Binary }}
-        file_info:
-          mode: 0755
+    # Simpler approach - use the build ID
+    builds:
+      - iwashere  # This matches your build id
     
     formats:
       - deb
       - rpm
       - apk
-      
+    
+    formats:
+      - deb
+      - rpm
+      - apk
+
 brews:
   - name: iwashere
     homepage: https://github.com/Murchoid/iwashere
