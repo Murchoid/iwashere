@@ -24,11 +24,11 @@ builds:
         goarch: "386"
 
 ldflags:
-  - -s -w
-  - -X github.com/Murchoid/iwashere/internal/commands.Version={{.Version}}
-  - -X github.com/Murchoid/iwashere/internal/commands.Commit={{.Commit}}
-  - -X github.com/Murchoid/iwashere/internal/commands.BuildDate={{.Date}}
-  - -X github.com/Murchoid/iwashere/internal/commands.BuiltBy=goreleaser
+  -s -w
+  -X github.com/Murchoid/iwashere/internal/commands.Version={{.Version}}
+  -X github.com/Murchoid/iwashere/internal/commands.Commit={{.Commit}}
+  -X github.com/Murchoid/iwashere/internal/commands.BuildDate={{.Date}}
+  -X github.com/Murchoid/iwashere/internal/commands.BuiltBy=goreleaser
 
 archives:
   - id: archives
