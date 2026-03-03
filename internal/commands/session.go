@@ -19,9 +19,11 @@ func NewSessionCommandFactory() Command {
 		BaseCommand{
 			NameStr:  "session",
 			DescStr:  "create or end a session",
-			UsageStr: "iwashere session [option] [title]",
+			UsageStr: "iwashere session [option] <title>/<id>",
 			ExamplesList: []string{
-				"iwashere session start \"start debbuging\"",
+				"iwashere session start \"start debbuging\" #starts a session with the title given",
+				"iwashere session list #lists all sessions in the current project",
+				"iwashere session list 123 #lists all info about sessoin with id 123",
 				"iwashere session end",
 			},
 		},
