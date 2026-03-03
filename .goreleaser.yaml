@@ -58,11 +58,6 @@ nfpms:
       - deb
       - rpm
       - apk
-    
-    formats:
-      - deb
-      - rpm
-      - apk
 
 brews:
   - name: iwashere
