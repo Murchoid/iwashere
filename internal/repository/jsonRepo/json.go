@@ -137,6 +137,12 @@ func (r *JSONRepository) matchesFilter(note *models.PrivateNote, filter *reposit
 		return false
 	}
 
+	//Filter by session
+
+	if note.SessionID == filter.SessionID {
+		return true
+	}
+
 	return true
 }
 
@@ -278,6 +284,37 @@ func (r *JSONRepository) GetSession(id string) (*models.Session, error) {
 	}
 
 	return &session, nil
+}
+
+func (r *JSONRepository) GetNotesBySession(id string) ([]*models.PrivateNote, error) {
+	path := filepath.Join(r.sessionBasePath, id+".json")
+
+	// Check if exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return nil, errors.ErrSessionNotFound
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var session models.Session
+	if err := json.Unmarshal(data, &session); err != nil {
+		return nil, err
+	}
+
+	filter := repository.NoteFilter {
+		SessionID: session.ID,
+		Branch: session.Branch,
+	}
+
+	notes, err := r.ListNotes(&filter)
+	if  err == nil {
+		return nil, err
+	}
+
+	return notes, nil
 }
 
 func (r *JSONRepository) GetOpenSession() (*models.Session, error) {

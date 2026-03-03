@@ -88,9 +88,15 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 		}
 
 	case "list":
-		if err := listSessions(repo); err != nil {
+		if len(ctx.Args) > 1 {
+			if err := showSession(ctx); err != nil {
 			return err
 		}
+		}else {
+			if err := listSessions(repo); err != nil {
+			return err
+		}
+	}
 	default:
 		return fmt.Errorf("Unknown argument %v\n", sessionTags)
 	}
@@ -147,19 +153,47 @@ func endSession(repo repository.Repository) error {
 }
 
 func listSessions(repo repository.Repository) error {
-	sessions, err := repo.ListSessions()
+    sessions, err := repo.ListSessions()
+    if err != nil {
+        return err
+    }
+    
+    // Use the new display function
+    utils.PrintSessions(sessions, false, nil)
+    return nil
+}
 
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("All sessions")
-	for _, session := range sessions {
-		howLongAgo := utils.HowLongAgo(session.StartTime)
-		fmt.Printf("'%v' started %v\n", session.Title, howLongAgo)
-	}
-
-	return nil
+func showSession(ctx *Context) error {
+    if len(ctx.Args) < 2 {
+        // Show current active session
+        session, err := ctx.Repo.GetOpenSession()
+        if err != nil {
+            return fmt.Errorf("no active session and no session ID provided")
+        }
+        
+        notes, err := ctx.Repo.GetNotesBySession(session.ID)
+        if err != nil {
+            return err
+        }
+        
+        utils.PrintCurrentSession(session, notes)
+        return nil
+    }
+    
+    // Show specific session by ID
+    sessionID := ctx.Args[1]
+    session, err := ctx.Repo.GetSession(sessionID)
+    if err != nil {
+        return err
+    }
+    
+    notes, err := ctx.Repo.GetNotesBySession(session.ID)
+    if err != nil {
+        return err
+    }
+    
+    utils.PrintSessionDetails(session, notes)
+    return nil
 }
 
 func init() {

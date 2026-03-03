@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"githum.com/Murchoid/iwashere/internal/domain/models"
+	"githum.com/Murchoid/iwashere/internal/repository"
 )
 
 type NoteDisplay struct {
@@ -188,4 +189,177 @@ func (d *NoteDisplay) compactFormat() string {
 	return fmt.Sprintf("%s %s",
 		HowLongAgo(d.Note.CreatedAt),
 		d.Note.Message)
+}
+
+
+// PrintSessions displays sessions in a format consistent with notes
+func PrintSessions(sessions []*models.Session, showNotes bool, repo repository.Repository) {
+    if len(sessions) == 0 {
+        fmt.Println("No sessions found")
+        fmt.Println("   Start one with: iwashere session start \"session name\"")
+        return
+    }
+
+    fmt.Println(" Sessions")
+    fmt.Println("================")
+    fmt.Println()
+
+    for i, session := range sessions {
+        printSession(session, i == len(sessions)-1, showNotes, repo)
+    }
+}
+
+// PrintCurrentSession shows the active session prominently
+func PrintCurrentSession(session *models.Session, notes []*models.PrivateNote) {
+    fmt.Println(" Active Session")
+    fmt.Println("================")
+    fmt.Println()
+    
+    // Session header with duration
+    fmt.Printf("  📍 %s", session.Title)
+    if session.EndTime.IsZero() {
+        fmt.Printf(" (started %s, ongoing)\n", HowLongAgo(session.StartTime))
+    } else {
+        sessionDuration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
+        fmt.Printf(" (started %s, lasted %s)\n", 
+            HowLongAgo(session.StartTime), 
+            sessionDuration)
+    }
+    
+    // Session summary if exists
+    if session.Summary != "" {
+        fmt.Printf("   %s\n", session.Summary)
+    }
+    
+    fmt.Println()
+    
+    // Show notes in this session
+    if len(notes) > 0 {
+        fmt.Println("  Notes in this session:")
+        for i, note := range notes {
+            prefix := "  ├─ "
+            if i == len(notes)-1 {
+                prefix = "  └─ "
+            }
+            fmt.Printf("%s[%s] %s\n", 
+                prefix,
+                HowLongAgo(note.CreatedAt),
+                note.Message)
+            
+            // Show tags if any (indented)
+            if len(note.Tags) > 0 {
+                fmt.Printf("  %s    %s\n", 
+                    strings.Repeat(" ", len(prefix)-2),
+                    strings.Join(note.Tags, ", "))
+            }
+        }
+    }
+}
+
+func printSession(session *models.Session, isLast bool, showNotes bool, repo repository.Repository) {
+    // Choose the right tree character
+    prefix := "├─ "
+    if isLast {
+        prefix = "└─ "
+    }
+    
+    // Format duration
+    var durationStr string
+    if session.EndTime.IsZero() {
+        durationStr = fmt.Sprintf("(started %s, ongoing)", HowLongAgo(session.StartTime))
+    } else {
+        sessionDuration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
+        durationStr = fmt.Sprintf("(started %s, lasted %s)", 
+            HowLongAgo(session.StartTime),
+            sessionDuration)
+    }
+    
+    // Print session header
+    fmt.Printf("%s %s (%s) %s\n", prefix, session.ID,session.Title, durationStr)
+    
+    // Print session summary if exists (indented)
+    if session.Summary != "" {
+        fmt.Printf("  %s   %s\n", 
+            strings.Repeat(" ", len(prefix)-2),
+            session.Summary)
+    }
+    
+    // Print notes in this session if requested
+    if showNotes && len(session.Notes) > 0 && repo != nil {
+        notes, _ := repo.GetNotesBySession(session.ID)
+        if len(notes) > 0 {
+            for i, note := range notes {
+                notePrefix := "    ├─ "
+                if i == len(notes)-1 {
+                    notePrefix = "    └─ "
+                }
+                fmt.Printf("%s[%s] %s\n", 
+                    notePrefix,
+                    HowLongAgo(note.CreatedAt),
+                    note.Message)
+            }
+        }
+    }
+    
+    // Blank line between sessions for readability
+    if !isLast {
+        fmt.Println()
+    }
+}
+
+// PrintSessionDetails shows comprehensive session info
+func PrintSessionDetails(session *models.Session, notes []*models.PrivateNote) {
+    fmt.Printf("Session: %s\n", session.Title)
+    fmt.Println(strings.Repeat("=", len(session.Title)+10))
+    fmt.Println()
+    
+    // Timeline
+    fmt.Printf("Started:  %s (%s)\n", 
+        session.StartTime.Format("Jan 2, 2006 at 15:04"),
+        HowLongAgo(session.StartTime))
+    
+    if !session.EndTime.IsZero() {
+        fmt.Printf("Ended:    %s (%s)\n",
+            session.EndTime.Format("Jan 2, 2006 at 15:04"),
+            HowLongAgo(session.EndTime))
+        
+        duration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
+        fmt.Printf("Duration: %s\n", duration)
+    } else {
+        duration := time.Since(session.StartTime).Round(time.Minute)
+        fmt.Printf("Duration: %s (ongoing)\n", duration)
+    }
+    
+    fmt.Println()
+    
+    // Summary
+    if session.Summary != "" {
+        fmt.Printf("Summary: %s\n", session.Summary)
+        fmt.Println()
+    }
+    
+    // Notes in this session
+    if len(notes) > 0 {
+        fmt.Printf("Notes (%d):\n", len(notes))
+        fmt.Println()
+        
+        for i, note := range notes {
+            fmt.Printf("  %d. [%s] %s\n", 
+                i+1,
+                HowLongAgo(note.CreatedAt),
+                note.Message)
+            
+            if len(note.Tags) > 0 {
+                fmt.Printf("      %s\n", strings.Join(note.Tags, ", "))
+            }
+            
+            if note.Branch != "" {
+                fmt.Printf("     %s\n", note.Branch)
+            }
+            
+            if i < len(notes)-1 {
+                fmt.Println()
+            }
+        }
+    }
 }

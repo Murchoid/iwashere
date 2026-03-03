@@ -19,6 +19,7 @@ type Repository interface {
 	ListSessions() ([]*models.Session, error)
 	GetSession(id string) (*models.Session, error)
 	GetOpenSession() (*models.Session, error)
+	GetNotesBySession(id string) ([]*models.PrivateNote, error)
 
 	Close() error
 }
@@ -29,4 +30,5 @@ type NoteFilter struct {
 	Tags        []string
 	Limit       int
 	Since       time.Time
+	SessionID	string
 }
