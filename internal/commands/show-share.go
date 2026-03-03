@@ -65,6 +65,13 @@ func (c *ShowSharedCommand) Execute(ctx *Context) error {
 		return nil
 	}
 
+	if len(ctx.Args) > 1 {
+		fmt.Println("show-shared only accpets one argument")
+		fmt.Println()
+		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+		return nil
+	}	
+	
 	// If specific note ID provided
 	if len(ctx.Args) > 0 {
 		noteID := ctx.Args[0]

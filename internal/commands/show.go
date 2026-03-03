@@ -52,6 +52,13 @@ func (a *ShowCommand) Execute(ctx *Context) error {
 		return nil
 	}
 
+	if len(ctx.Args) > 1 {
+		fmt.Println("show only accepts one argument")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+	}
+	
 	id := ctx.Args[0]
 
 	note, err := repo.GetNote(id)

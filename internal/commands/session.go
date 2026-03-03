@@ -58,6 +58,7 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 		return nil
 	}
+	
 	sessionTags := ctx.Args[0]
 	if sessionTags == "" {
 		fmt.Println("Option must be provided")
@@ -186,7 +187,7 @@ func showSession(ctx *Context) error {
     sessionID := ctx.Args[1]
     session, err := ctx.Repo.GetSession(sessionID)
     if err != nil {
-        return err
+		return err
     }
     
     notes, err := ctx.Repo.GetNotesBySession(session.ID)

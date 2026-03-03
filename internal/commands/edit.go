@@ -44,6 +44,13 @@ func (a *EditCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
 
+	if len(ctx.Args) > 1 {
+		fmt.Println("Edit only accepts one arguement")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+	}
+
 	if len(ctx.Args) == 0 {
 		fmt.Println("Id must be provided")
 		fmt.Println()

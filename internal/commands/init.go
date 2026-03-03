@@ -10,6 +10,7 @@ import (
 
 	"githum.com/Murchoid/iwashere/internal/domain/models"
 	"githum.com/Murchoid/iwashere/internal/repository/jsonRepo"
+	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
 type InitCommand struct {
@@ -48,20 +49,27 @@ func (c *InitCommand) Examples() []string {
 }
 
 func (c *InitCommand) Execute(ctx *Context) error {
+
+    if len(ctx.Args) > 0 {
+        fmt.Println("Unrecognized arguments")
+        fmt.Println()
+        utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+        return nil
+    }
+	
 	// Check if already initialized
 	// Check for force flag
 	force := ctx.Flags["--force"] == "true"
 	if ctx.ProjectPath != "" && !force {
-		return fmt.Errorf("iwashere already initialized in %s", ctx.ProjectPath)
+			fmt.Println(".iwashere already exists (use --force to reinitialize)")
+			fmt.Println("use 'iwashere init --force' if you want to forcefully reinitialize (Use this if you know what you are doing)")
+			return nil
 	}
 
 	iwasherePath := filepath.Join(ctx.WorkDir, ".iwashere")
 
 	// Check if directory exists
 	if _, err := os.Stat(iwasherePath); err == nil {
-		if !force {
-			return fmt.Errorf(".iwashere already exists (use --force to reinitialize)")
-		}
 		// Remove existing directory if force
 		if err := os.RemoveAll(iwasherePath); err != nil {
 			return fmt.Errorf("failed to remove existing .iwashere: %w", err)

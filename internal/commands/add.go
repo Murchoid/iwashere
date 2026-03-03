@@ -58,6 +58,14 @@ func (a *AddCommand) Execute(ctx *Context) error {
 
 		return nil
 	}
+
+	if len(ctx.Args) > 1 {
+		fmt.Println("add only accepts one argument")
+		fmt.Println()
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return nil
+	}
+	
 	message := ctx.Args[0]
 	if message == "" {
 		fmt.Println("message Cannot be empty")

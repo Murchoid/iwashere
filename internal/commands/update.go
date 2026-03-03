@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"githum.com/Murchoid/iwashere/internal/utils"
 )
 
 type UpdateCommand struct{}
@@ -25,6 +27,13 @@ func (c *UpdateCommand) Examples() []string { return []string {"iwashere update"
 
 
 func (c *UpdateCommand) Execute(ctx *Context) error {
+
+    if len(ctx.Args) > 1 {
+        fmt.Println("Unrecognized arguments")
+        fmt.Println()
+        utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+        return nil
+    }
     fmt.Println("Checking for updates...")
     
     // Get current executable path

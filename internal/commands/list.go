@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"strconv"
 
 	"githum.com/Murchoid/iwashere/internal/domain/models"
@@ -45,6 +46,14 @@ func (a *ListCommand) Examples() []string {
 }
 
 func (c *ListCommand) Execute(ctx *Context) error {
+
+	if len(ctx.Args) > 0 {
+		fmt.Println("Unrecognized arguments")
+		fmt.Println()
+		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+		return nil
+	}
+
 	filter := &repository.NoteFilter{
 		ProjectPath: ctx.ProjectPath,
 		Limit:       c.getLimit(ctx),
