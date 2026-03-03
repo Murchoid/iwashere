@@ -76,6 +76,9 @@ func printVersionInfo() {
     }
 }
 
+func GetVersion() string {
+	return Version
+}
 
 // Simple pseudo-random for facts
 func getRandomFactIndex(max int) int {
