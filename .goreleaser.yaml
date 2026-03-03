@@ -7,7 +7,7 @@ before:
 
 builds:
   - id: iwashere
-    main: ./cmd/iwashere
+    main: ./cmd/
     binary: iwashere
     env:
       - CGO_ENABLED=0
