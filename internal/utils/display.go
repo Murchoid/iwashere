@@ -134,7 +134,7 @@ func (d *NoteDisplay) detailedFormat() string {
 
 	// ID (shortened)
 	if d.ShowID {
-		shortID := d.Note.ID[:8]
+		shortID := d.Note.ID
 		parts = append(parts, fmt.Sprintf("%s%s:%s",
 			ColorCyan, shortID, ColorReset))
 	}

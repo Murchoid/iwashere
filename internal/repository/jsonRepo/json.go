@@ -170,6 +170,23 @@ func (r *JSONRepository) SaveNote(note *models.PrivateNote) error {
 	return os.WriteFile(path, data, 0644)
 }
 
+func (r *JSONRepository) SaveTeamNote(note *models.TeamNote) error {
+	if note.ID == "" {
+		note.ID = utils.GenerateId()
+	}
+
+	if note.CreatedAt.IsZero() {
+		note.CreatedAt = time.Now()
+	}
+
+	path := filepath.Join(r.notesBasePath, note.ID+".json")
+	data, err := json.MarshalIndent(note, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal note: %w", err)
+	}
+
+	return os.WriteFile(path, data, 0644)
+}
 func (r *JSONRepository) GetNote(id string) (*models.PrivateNote, error) {
 	path := filepath.Join(r.notesBasePath, id+".json")
 
