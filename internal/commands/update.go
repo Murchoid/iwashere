@@ -9,9 +9,11 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"githum.com/Murchoid/iwashere/internal/utils"
 )
@@ -35,6 +37,20 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
         return nil
     }
     
+
+	// Check if running as root
+    if os.Geteuid() != 0 {
+        fmt.Println("Update requires root privileges. Re-running with sudo...")
+        
+        // Re-run self with sudo
+        exe, _ := os.Executable()
+        cmd := exec.Command("sudo", exe, "update")
+        cmd.Stdin = os.Stdin
+        cmd.Stdout = os.Stdout
+        cmd.Stderr = os.Stderr
+        return cmd.Run()
+    }
+	
     fmt.Println("Checking for updates...")
     
     // Get current executable path
@@ -315,8 +331,24 @@ func getLatestVersion() (string, error) {
 }
 
 func downloadFile(url, path string) error {
-    fmt.Printf("Downloading from: %s\n", url)
-    
+    maxRetries := 3
+    for attempt := 1; attempt <= maxRetries; attempt++ {
+        fmt.Printf("Download attempt %d/%d...\n", attempt, maxRetries)
+        
+        err := tryDownload(url, path)
+        if err == nil {
+            return nil
+        }
+        
+        if attempt < maxRetries {
+            fmt.Printf("Download failed, retrying in 2 seconds...\n")
+            time.Sleep(2 * time.Second)
+        }
+    }
+    return fmt.Errorf("failed after %d attempts", maxRetries)
+}
+
+func tryDownload(url, path string) error {
     resp, err := http.Get(url)
     if err != nil {
         return err
@@ -324,11 +356,14 @@ func downloadFile(url, path string) error {
     defer resp.Body.Close()
     
     if resp.StatusCode != 200 {
-        // Read error page
-        body, _ := io.ReadAll(io.LimitReader(resp.Body, 500))
-        return fmt.Errorf("download failed (HTTP %d): %s", resp.StatusCode, string(body))
+        return fmt.Errorf("HTTP %d", resp.StatusCode)
     }
     
+    // Verify it's actually a binary
+    contentType := resp.Header.Get("Content-Type")
+    if strings.Contains(contentType, "text/html") {
+        return fmt.Errorf("got HTML instead of binary")
+    }
     
     out, err := os.Create(path)
     if err != nil {
