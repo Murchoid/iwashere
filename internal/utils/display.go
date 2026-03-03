@@ -9,7 +9,7 @@ import (
 )
 
 type NoteDisplay struct {
-	Note        *models.Note
+	Note        *models.PrivateNote
 	Session     *models.Session
 	ShowSession bool
 	ShowFiles   bool
@@ -30,7 +30,7 @@ func (d *NoteDisplay) String() string {
 }
 
 // Main display function
-func PrintNotes(notes []*models.Note, sessions map[string]*models.Session, format string) {
+func PrintNotes(notes []*models.PrivateNote, sessions map[string]*models.Session, format string) {
 	if len(notes) == 0 {
 		fmt.Println("No notes found")
 		return
@@ -67,15 +67,15 @@ func PrintNotes(notes []*models.Note, sessions map[string]*models.Session, forma
 
 type noteGroup struct {
 	Session *models.Session
-	Notes   []*models.Note
+	Notes   []*models.PrivateNote
 }
 
-func groupNotesBySession(notes []*models.Note, sessions map[string]*models.Session) []noteGroup {
+func groupNotesBySession(notes []*models.PrivateNote, sessions map[string]*models.Session) []noteGroup {
 	var groups []noteGroup
 
 	// First, group by session
-	sessionMap := make(map[string][]*models.Note)
-	var standalone []*models.Note
+	sessionMap := make(map[string][]*models.PrivateNote)
+	var standalone []*models.PrivateNote
 
 	for _, note := range notes {
 		if note.SessionID != "" {

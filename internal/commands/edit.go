@@ -62,7 +62,7 @@ func (a *EditCommand) Execute(ctx *Context) error {
 
 	newMsg := ctx.Flags["--message"]
 
-	newNote := models.Note{
+	newNote := models.PrivateNote{
 		ID:          id,
 		Message:     newMsg,
 		ProjectPath: ctx.ProjectPath,

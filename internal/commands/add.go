@@ -64,7 +64,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		return nil
 	}
 
-	note := &models.Note{
+	note := &models.PrivateNote{
 		Message:     message,
 		ProjectPath: ctx.ProjectPath,
 	}
@@ -106,7 +106,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	return nil
 }
 
-func addNoteToCurrentSession(repo repository.Repository, note *models.Note) error {
+func addNoteToCurrentSession(repo repository.Repository, note *models.PrivateNote) error {
 	session, err := repo.GetOpenSession()
 
 	if err != nil {

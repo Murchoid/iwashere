@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Note struct {
+type PrivateNote struct {
 	ID          string    `json:"id"`
 	SessionID   string    `json:"session_id"`
 	Message     string    `json:"message"`
@@ -19,4 +19,23 @@ type Note struct {
 	ModifiedFiles []string `json:"modified_files,omitempty"`
 
 	Tags []string `json:"tags,omitempty"`
+}
+
+// Team note (sanitized for collaboration)
+type TeamNote struct {
+    ID          string    `json:"id"`
+    Message     string    `json:"message"`
+    Author      string    `json:"author"`
+    CreatedAt   time.Time `json:"created_at"`
+    Tags        []string  `json:"tags"`
+    SessionName string    `json:"session_name,omitempty"`
+    // NO personal context (files, branches)
+}
+
+// Shared reference
+type SharedReference struct {
+    PrivateNoteID string    `json:"private_note_id"`
+    SharedBy      string    `json:"shared_by"`
+    SharedAt      time.Time `json:"shared_at"`
+    NotePreview   string    `json:"note_preview"` // First 100 chars
 }

@@ -29,17 +29,17 @@ func NewJSONRepository(iwasherePath string) *JSONRepository {
 	return &JSONRepository{notesBasePath: notesPath, sessionBasePath: sessionPath}
 }
 
-func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.Note, error) {
+func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.PrivateNote, error) {
 	// Read all note files
 	files, err := os.ReadDir(r.notesBasePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return []*models.Note{}, nil // No notes yet
+			return []*models.PrivateNote{}, nil // No notes yet
 		}
 		return nil, fmt.Errorf("failed to read notes directory: %w", err)
 	}
 
-	var notes []*models.Note
+	var notes []*models.PrivateNote
 
 	for _, file := range files {
 		// Skip directories and non-JSON files
@@ -73,14 +73,14 @@ func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.Not
 	return notes, nil
 }
 
-func (r *JSONRepository) readNoteFile(filename string) (*models.Note, error) {
+func (r *JSONRepository) readNoteFile(filename string) (*models.PrivateNote, error) {
 	path := filepath.Join(r.notesBasePath, filename)
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	var note models.Note
+	var note models.PrivateNote
 	if err := json.Unmarshal(data, &note); err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (r *JSONRepository) readSessionFile(filename string) (*models.Session, erro
 	return &session, nil
 }
 
-func (r *JSONRepository) matchesFilter(note *models.Note, filter *repository.NoteFilter) bool {
+func (r *JSONRepository) matchesFilter(note *models.PrivateNote, filter *repository.NoteFilter) bool {
 	if filter == nil {
 		return true
 	}
@@ -140,7 +140,7 @@ func (r *JSONRepository) matchesFilter(note *models.Note, filter *repository.Not
 	return true
 }
 
-func (r *JSONRepository) sortNotesByTime(notes []*models.Note) {
+func (r *JSONRepository) sortNotesByTime(notes []*models.PrivateNote) {
 	// Simple bubble sort for now (optimize later if needed)
 	for i := 0; i < len(notes)-1; i++ {
 		for j := i + 1; j < len(notes); j++ {
@@ -151,7 +151,7 @@ func (r *JSONRepository) sortNotesByTime(notes []*models.Note) {
 	}
 }
 
-func (r *JSONRepository) SaveNote(note *models.Note) error {
+func (r *JSONRepository) SaveNote(note *models.PrivateNote) error {
 	if note.ID == "" {
 		note.ID = utils.GenerateId()
 	}
@@ -170,7 +170,7 @@ func (r *JSONRepository) SaveNote(note *models.Note) error {
 	return os.WriteFile(path, data, 0644)
 }
 
-func (r *JSONRepository) GetNote(id string) (*models.Note, error) {
+func (r *JSONRepository) GetNote(id string) (*models.PrivateNote, error) {
 	path := filepath.Join(r.notesBasePath, id+".json")
 
 	// Check if exists
@@ -183,7 +183,7 @@ func (r *JSONRepository) GetNote(id string) (*models.Note, error) {
 		return nil, err
 	}
 
-	var note models.Note
+	var note models.PrivateNote
 	if err := json.Unmarshal(data, &note); err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func (r *JSONRepository) GetNote(id string) (*models.Note, error) {
 	return &note, nil
 }
 
-func (r *JSONRepository) UpdateNote(note *models.Note) error {
+func (r *JSONRepository) UpdateNote(note *models.PrivateNote) error {
 	// First verify note exists
 	existing, err := r.GetNote(note.ID)
 	if err != nil {

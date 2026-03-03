@@ -8,10 +8,10 @@ import (
 
 type Repository interface {
 	// Notes
-	SaveNote(note *models.Note) error
-	GetNote(id string) (*models.Note, error)
-	ListNotes(filter *NoteFilter) ([]*models.Note, error)
-	UpdateNote(note *models.Note) error
+	SaveNote(note *models.PrivateNote) error
+	GetNote(id string) (*models.PrivateNote, error)
+	ListNotes(filter *NoteFilter) ([]*models.PrivateNote, error)
+	UpdateNote(note *models.PrivateNote) error
 	DeleteNote(id string) error
 
 	// Sessions
