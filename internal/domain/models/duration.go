@@ -11,7 +11,7 @@ type Duration time.Duration
 
 // UnmarshalJSON implements custom JSON unmarshaling
 func (d *Duration) UnmarshalJSON(b []byte) error {
-    var v interface{}
+    var v any
     if err := json.Unmarshal(b, &v); err != nil {
         return err
     }

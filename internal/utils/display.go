@@ -264,9 +264,9 @@ func printSession(session *models.Session, isLast bool, showNotes bool, repo rep
 
 	// Format duration
 	var durationStr string
-	if session.State == "ongoing" {
+	if session.State == models.Ongoing || session.State == models.Continued {
 		durationStr = fmt.Sprintf("(started %s, ongoing)", HowLongAgo(session.StartTime, 0))
-	} else if session.State == "paused" {
+	} else if session.State == models.Paused {
 		durationStr = fmt.Sprintf("(started %s, paused)", HowLongAgo(session.StartTime, 0))
 	} else {
 		sessionDuration := session.EndTime.Sub(session.StartTime).Round(time.Minute)

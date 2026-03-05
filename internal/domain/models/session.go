@@ -2,6 +2,13 @@ package models
 
 import "time"
 
+const (
+	Ongoing = "ongoing"
+	Paused = "paused"
+	Continued = "continued"
+	Ended = "ended"
+)
+
 type Session struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
