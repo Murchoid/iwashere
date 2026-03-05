@@ -5,6 +5,8 @@ import "time"
 type Session struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
+	State     string    `json:"state"`
+	TotalTime Duration    `json:"total_time"`
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
 	Notes     []string  `json:"note_ids"` // References to notes

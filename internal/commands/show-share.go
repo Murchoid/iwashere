@@ -109,7 +109,7 @@ func (c *ShowSharedCommand) listSharedNotes(sharedDir string) error {
 		// Show preview without decrypting full note
 		fmt.Printf(" [%s] from %s\n", payload.NoteID, payload.SharedBy)
 		fmt.Printf("     %s\n", payload.NotePreview)
-		fmt.Printf("     shared %s\n", utils.HowLongAgo(payload.SharedAt))
+		fmt.Printf("     shared %s\n", utils.HowLongAgo(payload.SharedAt, 0))
 		fmt.Println()
 	}
 
@@ -149,7 +149,7 @@ func (c *ShowSharedCommand) showSpecificNote(sharedDir string, noteID string, cu
 
 	// Display the note
 	fmt.Printf("Note from %s\n", payload.SharedBy)
-	fmt.Printf("   shared %s\n", utils.HowLongAgo(payload.SharedAt))
+	fmt.Printf("   shared %s\n", utils.HowLongAgo(payload.SharedAt, 0))
 	fmt.Println()
 	fmt.Printf("   %s\n", sharedNote.Message)
 	fmt.Println()

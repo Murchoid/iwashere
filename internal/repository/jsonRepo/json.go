@@ -341,7 +341,7 @@ func (r *JSONRepository) GetOpenSession() (*models.Session, error) {
 			continue
 		}
 
-		if s.ID != "" && s.EndTime.IsZero() {
+		if s.ID != "" && s.EndTime.IsZero() || s.State == "paused" || s.State == "continued" || s.State == "ongoing" {
 			session = *s
 			break
 		}

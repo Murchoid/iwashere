@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func HowLongAgo(t time.Time) string {
-	duration := time.Since(t)
+func HowLongAgo(since time.Time, duration time.Duration) string {
+	duration += time.Since(since)
 
 	switch {
 	case duration < time.Minute:
@@ -21,6 +21,6 @@ func HowLongAgo(t time.Time) string {
 		days := int(duration.Hours() / 24)
 		return fmt.Sprintf("%dd ago", days)
 	default:
-		return t.Format("Jan 2")
+		return since.Add(duration).Format("Jan 2")
 	}
 }

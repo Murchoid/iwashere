@@ -77,7 +77,7 @@ func printVersionInfo() {
 func GetVersion() string {
 
 	if Version != "dev" && Version != "" {
-		b,_,_ := strings.Cut(Version, "-")
+		b, _, _ := strings.Cut(Version, "-")
 		Version = b
 		return Version
 	}

@@ -101,9 +101,9 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 	} else {
 		fmt.Printf("You were working on '%s' (%s)\n",
 			session.Title,
-			utils.HowLongAgo(session.StartTime))
+			utils.HowLongAgo(session.StartTime, 0))
 
-		if session.EndTime.IsZero() {
+		if session.State == "ongoing" || session.State == "continued" {
 			fmt.Printf("Session ongoing")
 		} else {
 			duration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
@@ -196,7 +196,7 @@ func printRelatedNote(note *models.PrivateNote, isLast bool) {
 	}
 
 	// Format time
-	timeStr := utils.HowLongAgo(note.CreatedAt)
+	timeStr := utils.HowLongAgo(note.CreatedAt, 0)
 
 	// Format tags if any
 	tagsStr := ""

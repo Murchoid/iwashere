@@ -123,7 +123,7 @@ func (d *NoteDisplay) detailedFormat() string {
 	var parts []string
 
 	// Time with relative format
-	timeStr := HowLongAgo(d.Note.CreatedAt)
+	timeStr := HowLongAgo(d.Note.CreatedAt, 0)
 	parts = append(parts, fmt.Sprintf("%s[%s%s]",
 		ColorGray, timeStr, ColorReset))
 
@@ -169,7 +169,7 @@ func (d *NoteDisplay) detailedFormat() string {
 
 func (d *NoteDisplay) shortFormat() string {
 	// Compact, one-line format
-	timeStr := HowLongAgo(d.Note.CreatedAt)
+	timeStr := HowLongAgo(d.Note.CreatedAt,0)
 	branch := ""
 	if d.Note.Branch != "" {
 		branch = fmt.Sprintf("(%s) ", d.Note.Branch)
@@ -187,7 +187,7 @@ func (d *NoteDisplay) shortFormat() string {
 func (d *NoteDisplay) compactFormat() string {
 	// Super compact for lists
 	return fmt.Sprintf("%s %s",
-		HowLongAgo(d.Note.CreatedAt),
+		HowLongAgo(d.Note.CreatedAt, 0),
 		d.Note.Message)
 }
 
@@ -217,11 +217,11 @@ func PrintCurrentSession(session *models.Session, notes []*models.PrivateNote) {
 	// Session header with duration
 	fmt.Printf("  📍 %s", session.Title)
 	if session.EndTime.IsZero() {
-		fmt.Printf(" (started %s, ongoing)\n", HowLongAgo(session.StartTime))
+		fmt.Printf(" (started %s, ongoing)\n", HowLongAgo(session.StartTime, 0))
 	} else {
 		sessionDuration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
 		fmt.Printf(" (started %s, lasted %s)\n",
-			HowLongAgo(session.StartTime),
+			HowLongAgo(session.StartTime, 0),
 			sessionDuration)
 	}
 
@@ -242,7 +242,7 @@ func PrintCurrentSession(session *models.Session, notes []*models.PrivateNote) {
 			}
 			fmt.Printf("%s[%s] %s\n",
 				prefix,
-				HowLongAgo(note.CreatedAt),
+				HowLongAgo(note.CreatedAt, 0),
 				note.Message)
 
 			// Show tags if any (indented)
@@ -264,12 +264,14 @@ func printSession(session *models.Session, isLast bool, showNotes bool, repo rep
 
 	// Format duration
 	var durationStr string
-	if session.EndTime.IsZero() {
-		durationStr = fmt.Sprintf("(started %s, ongoing)", HowLongAgo(session.StartTime))
+	if session.State == "ongoing" {
+		durationStr = fmt.Sprintf("(started %s, ongoing)", HowLongAgo(session.StartTime, 0))
+	} else if session.State == "paused" {
+		durationStr = fmt.Sprintf("(started %s, paused)", HowLongAgo(session.StartTime, 0))
 	} else {
 		sessionDuration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
 		durationStr = fmt.Sprintf("(started %s, lasted %s)",
-			HowLongAgo(session.StartTime),
+			HowLongAgo(session.StartTime, 0),
 			sessionDuration)
 	}
 
@@ -294,7 +296,7 @@ func printSession(session *models.Session, isLast bool, showNotes bool, repo rep
 				}
 				fmt.Printf("%s[%s] %s\n",
 					notePrefix,
-					HowLongAgo(note.CreatedAt),
+					HowLongAgo(note.CreatedAt, 0),
 					note.Message)
 			}
 		}
@@ -315,12 +317,12 @@ func PrintSessionDetails(session *models.Session, notes []*models.PrivateNote) {
 	// Timeline
 	fmt.Printf("Started:  %s (%s)\n",
 		session.StartTime.Format("Jan 2, 2006 at 15:04"),
-		HowLongAgo(session.StartTime))
+		HowLongAgo(session.StartTime, 0))
 
 	if !session.EndTime.IsZero() {
 		fmt.Printf("Ended:    %s (%s)\n",
 			session.EndTime.Format("Jan 2, 2006 at 15:04"),
-			HowLongAgo(session.EndTime))
+			HowLongAgo(session.EndTime, 0))
 
 		duration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
 		fmt.Printf("Duration: %s\n", duration)
@@ -345,7 +347,7 @@ func PrintSessionDetails(session *models.Session, notes []*models.PrivateNote) {
 		for i, note := range notes {
 			fmt.Printf("  %d. [%s] %s\n",
 				i+1,
-				HowLongAgo(note.CreatedAt),
+				HowLongAgo(note.CreatedAt, 0),
 				note.Message)
 
 			if len(note.Tags) > 0 {
