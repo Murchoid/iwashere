@@ -126,7 +126,6 @@ func startSession(repo repository.Repository, workDir, sName string) error {
 		return nil
 	}
 
-
 	getRepoService := git.NewService(workDir)
 
 	info, err := getRepoService.GetInfo()
@@ -138,7 +137,7 @@ func startSession(repo repository.Repository, workDir, sName string) error {
 	branch := info.Branch
 	session := models.Session{
 		ID:        utils.GenerateId(),
-		State: models.Ongoing,
+		State:     models.Ongoing,
 		Title:     sName,
 		StartTime: time.Now(),
 		Branch:    branch,
@@ -153,96 +152,96 @@ func startSession(repo repository.Repository, workDir, sName string) error {
 }
 
 func pauseSession(repo repository.Repository) error {
-    session, err := repo.GetOpenSession()
-    if err != nil {
-        return err
-    }
+	session, err := repo.GetOpenSession()
+	if err != nil {
+		return err
+	}
 
-    if session.ID == "" {
-        fmt.Println("No active session to pause")
-        return nil
-    }
+	if session.ID == "" {
+		fmt.Println("No active session to pause")
+		return nil
+	}
 
-    // Can only pause ongoing or continued sessions
-    if session.State != models.Ongoing && session.State != models.Continued {
-        fmt.Printf("Cannot pause session in state: %s\n", session.State)
-        return nil
-    }
+	// Can only pause ongoing or continued sessions
+	if session.State != models.Ongoing && session.State != models.Continued {
+		fmt.Printf("Cannot pause session in state: %s\n", session.State)
+		return nil
+	}
 
-    // Calculate duration since last start/continue
-    now := time.Now()
-    session.TotalTime += models.Duration(now.Sub(session.StartTime))
-    session.EndTime = now
-    session.State = models.Paused
+	// Calculate duration since last start/continue
+	now := time.Now()
+	session.TotalTime += models.Duration(now.Sub(session.StartTime))
+	session.EndTime = now
+	session.State = models.Paused
 
-    if err := repo.SaveSession(session); err != nil {
-        return err
-    }
+	if err := repo.SaveSession(session); err != nil {
+		return err
+	}
 
-    fmt.Printf("Session '%s' paused (total: %s)\n", 
-        session.Title, 
-        session.TotalTime.Duration().Round(time.Second))
-    return nil
+	fmt.Printf("Session '%s' paused (total: %s)\n",
+		session.Title,
+		session.TotalTime.Duration().Round(time.Second))
+	return nil
 }
 
 func continueSession(repo repository.Repository) error {
-    session, err := repo.GetOpenSession()
-    if err != nil {
-        return err
-    }
+	session, err := repo.GetOpenSession()
+	if err != nil {
+		return err
+	}
 
-    if session.ID == "" {
-        fmt.Println("No paused session to continue")
-        return nil
-    }
+	if session.ID == "" {
+		fmt.Println("No paused session to continue")
+		return nil
+	}
 
-    // Can only continue paused sessions
-    if session.State != "paused" {
-        fmt.Printf("Cannot continue session in state: %s\n", session.State)
-        return nil
-    }
+	// Can only continue paused sessions
+	if session.State != "paused" {
+		fmt.Printf("Cannot continue session in state: %s\n", session.State)
+		return nil
+	}
 
-    // Restart the session
-    session.StartTime = time.Now()
-    session.State = models.Continued
+	// Restart the session
+	session.StartTime = time.Now()
+	session.State = models.Continued
 
-    if err := repo.SaveSession(session); err != nil {
-        return err
-    }
+	if err := repo.SaveSession(session); err != nil {
+		return err
+	}
 
-    fmt.Printf("Session '%s' continued\n", session.Title)
-    return nil
+	fmt.Printf("Session '%s' continued\n", session.Title)
+	return nil
 }
 
 func endSession(repo repository.Repository) error {
-    session, err := repo.GetOpenSession()
-    if err != nil {
-        return err
-    }
+	session, err := repo.GetOpenSession()
+	if err != nil {
+		return err
+	}
 
-    if session.ID == "" {
-        fmt.Println("No active session to end")
-        return nil
-    }
+	if session.ID == "" {
+		fmt.Println("No active session to end")
+		return nil
+	}
 
-    now := time.Now()
-    
-    // Add final segment if session was active
-    if session.State == models.Ongoing || session.State == models.Continued {
-        session.TotalTime += models.Duration(now.Sub(session.StartTime))
-    }
-    
-    session.EndTime = now
-    session.State = models.Ended
+	now := time.Now()
 
-    if err := repo.SaveSession(session); err != nil {
-        return err
-    }
+	// Add final segment if session was active
+	if session.State == models.Ongoing || session.State == models.Continued {
+		session.TotalTime += models.Duration(now.Sub(session.StartTime))
+	}
 
-    fmt.Printf("Session '%s' ended (total: %s)\n", 
-        session.Title, 
-        session.TotalTime.Duration().Round(time.Second))
-    return nil
+	session.EndTime = now
+	session.State = models.Ended
+
+	if err := repo.SaveSession(session); err != nil {
+		return err
+	}
+
+	fmt.Printf("Session '%s' ended (total: %s)\n",
+		session.Title,
+		session.TotalTime.Duration().Round(time.Second))
+	return nil
 }
 
 func listSessions(repo repository.Repository) error {

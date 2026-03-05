@@ -3,17 +3,17 @@ package models
 import "time"
 
 const (
-	Ongoing = "ongoing"
-	Paused = "paused"
+	Ongoing   = "ongoing"
+	Paused    = "paused"
 	Continued = "continued"
-	Ended = "ended"
+	Ended     = "ended"
 )
 
 type Session struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
 	State     string    `json:"state"`
-	TotalTime Duration    `json:"total_time"`
+	TotalTime Duration  `json:"total_time"`
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
 	Notes     []string  `json:"note_ids"` // References to notes

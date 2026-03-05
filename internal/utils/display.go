@@ -169,7 +169,7 @@ func (d *NoteDisplay) detailedFormat() string {
 
 func (d *NoteDisplay) shortFormat() string {
 	// Compact, one-line format
-	timeStr := HowLongAgo(d.Note.CreatedAt,0)
+	timeStr := HowLongAgo(d.Note.CreatedAt, 0)
 	branch := ""
 	if d.Note.Branch != "" {
 		branch = fmt.Sprintf("(%s) ", d.Note.Branch)
