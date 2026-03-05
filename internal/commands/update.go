@@ -64,7 +64,7 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
 		return fmt.Errorf("failed to check latest version: %w", err)
 	}
 
-	current := GetVersion()
+	current := fmt.Sprintf("%s%s","v",GetVersion())
 	if current == latest {
 		fmt.Println("Already up to date!")
 		return nil
@@ -122,10 +122,15 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
 		return fmt.Errorf("failed to replace binary: %w", err)
 	}
 
+	// Make it executable again, it keeps failing
+	if err := os.Chmod(exe, 0755); err != nil {
+		return fmt.Errorf("failed to set permissions: %w", err)
+	}
+
 	os.Remove(backup)
 	os.RemoveAll(tmpDir)
 
-	fmt.Println("Update complete!")
+	fmt.Println("Update complete!Here ", exe)
 	fmt.Printf("Run 'iwashere --version' to verify\n")
 	return nil
 }

@@ -10,7 +10,7 @@ import (
 // These will be set during build
 var (
 	// These can still be set by ldflags as fallback
-	Version = "dev"
+	Version = "0.2.7"
 	Commit  = "none"
 )
 
@@ -33,7 +33,7 @@ func (c *VersionCommand) Execute(ctx *Context) error {
 func printVersionInfo() {
 	banner := `
     ╔══════════════════════════════════════╗
-    ║        🔖 iwashere %s            ║
+    ║        🔖 iwashere v%s            ║
     ║     Context Preservation Tool        ║
     ╚══════════════════════════════════════╝
     `
@@ -54,7 +54,7 @@ func printVersionInfo() {
 	fmt.Println()
 
 	// Detailed info
-	fmt.Printf("iwashere version %s\n", GetInfo())
+	fmt.Printf("iwashere version v%s\n", GetInfo())
 	fmt.Printf("  built with %s\n", runtime.Version())
 	fmt.Printf("  on %s/%s\n", runtime.GOOS, runtime.GOARCH)
 	fmt.Println()
@@ -77,7 +77,7 @@ func printVersionInfo() {
 func GetVersion() string {
 
 	if Version != "dev" && Version != "" {
-		b, _, _ := strings.Cut(Version, "-")
+		b, _, _ :=strings.Cut(Version, "-")
 		Version = b
 		return Version
 	}

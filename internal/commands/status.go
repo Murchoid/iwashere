@@ -103,7 +103,7 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 			session.Title,
 			utils.HowLongAgo(session.StartTime, 0))
 
-		if session.State == "ongoing" || session.State == "continued" {
+		if session.State == models.Ongoing || session.State == models.Continued {
 			fmt.Printf("Session ongoing")
 		} else {
 			duration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
