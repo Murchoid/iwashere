@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"githum.com/Murchoid/iwashere/internal/utils"
+	"github.com/Murchoid/iwashere/internal/utils"
 )
 
 type UpdateCommand struct{}

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"githum.com/Murchoid/iwashere/internal/domain/models"
-	"githum.com/Murchoid/iwashere/internal/repository"
-	"githum.com/Murchoid/iwashere/internal/services/git"
-	"githum.com/Murchoid/iwashere/internal/utils"
+	"github.com/Murchoid/iwashere/internal/domain/models"
+	"github.com/Murchoid/iwashere/internal/repository"
+	"github.com/Murchoid/iwashere/internal/services/git"
+	"github.com/Murchoid/iwashere/internal/utils"
 )
 
 type SessionCommand struct {

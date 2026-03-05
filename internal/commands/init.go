@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"githum.com/Murchoid/iwashere/internal/domain/models"
-	"githum.com/Murchoid/iwashere/internal/repository/jsonRepo"
-	"githum.com/Murchoid/iwashere/internal/utils"
+	"github.com/Murchoid/iwashere/internal/domain/models"
+	"github.com/Murchoid/iwashere/internal/repository/jsonRepo"
+	"github.com/Murchoid/iwashere/internal/utils"
 )
 
 type InitCommand struct {

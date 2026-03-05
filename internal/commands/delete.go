@@ -3,7 +3,7 @@ package commands
 import (
 	"fmt"
 
-	"githum.com/Murchoid/iwashere/internal/utils"
+	"github.com/Murchoid/iwashere/internal/utils"
 )
 
 type DeleteCommand struct {

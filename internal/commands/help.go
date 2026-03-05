@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sort"
 
-	"githum.com/Murchoid/iwashere/internal/utils"
+	"github.com/Murchoid/iwashere/internal/utils"
 )
 
 type HelpCommand struct{}

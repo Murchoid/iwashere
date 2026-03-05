@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"githum.com/Murchoid/iwashere/internal/domain/models"
+	"github.com/Murchoid/iwashere/internal/domain/models"
 )
 
 type Repository interface {

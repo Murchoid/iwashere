@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"githum.com/Murchoid/iwashere/internal/domain/models"
-	"githum.com/Murchoid/iwashere/internal/repository"
+	"github.com/Murchoid/iwashere/internal/domain/models"
+	"github.com/Murchoid/iwashere/internal/repository"
 )
 
 type Context struct {

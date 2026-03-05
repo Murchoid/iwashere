@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"githum.com/Murchoid/iwashere/internal/commands"
-	"githum.com/Murchoid/iwashere/internal/domain/models"
-	"githum.com/Murchoid/iwashere/internal/repository"
-	"githum.com/Murchoid/iwashere/internal/repository/jsonRepo"
+	"github.com/Murchoid/iwashere/internal/commands"
+	"github.com/Murchoid/iwashere/internal/domain/models"
+	"github.com/Murchoid/iwashere/internal/repository"
+	"github.com/Murchoid/iwashere/internal/repository/jsonRepo"
 )
 
 func main() {

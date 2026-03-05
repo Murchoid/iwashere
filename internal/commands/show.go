@@ -3,8 +3,8 @@ package commands
 import (
 	"fmt"
 
-	"githum.com/Murchoid/iwashere/internal/domain/models"
-	"githum.com/Murchoid/iwashere/internal/utils"
+	"github.com/Murchoid/iwashere/internal/domain/models"
+	"github.com/Murchoid/iwashere/internal/utils"
 )
 
 type ShowCommand struct {

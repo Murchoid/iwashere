@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"githum.com/Murchoid/iwashere/internal/domain/models"
-	"githum.com/Murchoid/iwashere/internal/utils"
+	"github.com/Murchoid/iwashere/internal/domain/models"
+	"github.com/Murchoid/iwashere/internal/utils"
 )
 
 type ConfigCommand struct {

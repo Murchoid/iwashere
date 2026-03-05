@@ -1,4 +1,3 @@
-// internal/domain/errors/errors.go
 package errors
 
 import "fmt"
