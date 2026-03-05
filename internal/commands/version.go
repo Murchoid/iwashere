@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"os/exec"
 	"runtime"
 	"strings"
 	"time"
@@ -38,7 +37,7 @@ func printVersionInfo() {
     ║     Context Preservation Tool        ║
     ╚══════════════════════════════════════╝
     `
-	fmt.Printf(banner, Version)
+	fmt.Printf(banner, GetVersion())
 
 	// Fun facts
 	facts := []string{
@@ -76,42 +75,18 @@ func printVersionInfo() {
 
 // Get returns the version string, trying multiple strategies
 func GetVersion() string {
-	// 1. If we have a real version from ldflags, use it
+
 	if Version != "dev" && Version != "" {
+		b,_,_ := strings.Cut(Version, "-")
+		Version = b
 		return Version
 	}
 
-	// 2. Try to get from git describe
-	if v := getFromGitDescribe(); v != "" {
-		return v
-	}
-
-	// 3. Try to get from git tag
-	if v := getFromGitTag(); v != "" {
-		return v
-	}
-
-	// 4. Try to get from git commit
-	if v := getFromGitCommit(); v != "" {
-		return v + "-dev"
-	}
-
-	// 5. Fallback
 	return "dev"
 }
 
-// GetCommit returns the git commit hash
 func GetCommit() string {
-	if Commit != "none" {
-		return Commit
-	}
-
-	cmd := exec.Command("git", "rev-parse", "--short", "HEAD")
-	output, err := cmd.Output()
-	if err != nil {
-		return "unknown"
-	}
-	return strings.TrimSpace(string(output))
+	return Commit
 }
 
 // GetInfo returns formatted version info
@@ -123,33 +98,6 @@ func GetInfo() string {
 		return fmt.Sprintf("%s (%s)", version, commit)
 	}
 	return version
-}
-
-func getFromGitDescribe() string {
-	cmd := exec.Command("git", "describe", "--tags", "--always")
-	output, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(output))
-}
-
-func getFromGitTag() string {
-	cmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
-	output, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(output))
-}
-
-func getFromGitCommit() string {
-	cmd := exec.Command("git", "rev-parse", "--short", "HEAD")
-	output, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(output))
 }
 
 // IsReleaseBuild returns true if this is a proper release
