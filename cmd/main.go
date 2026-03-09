@@ -24,7 +24,6 @@ func main() {
 
 	// Parse command
 	cmdName := normalizeCmdName(args[0])
-
 	cmdArgs, flags := parseFlags(args[1:])
 
 	// Get working directory
@@ -64,11 +63,12 @@ func main() {
 	if cmd, exists := commands.GetFactory(cmdName); exists {
 		command := cmd()
 
+		CheckAndShowReminders(ctx)
+		fmt.Println()
 		if err := command.Execute(ctx); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-		CheckAndShowReminders(ctx)
 	} else {
 		fmt.Printf("Unknown command: %s\n", cmdName)
 		commands.ShowGlobalHelp()
@@ -100,6 +100,7 @@ func normalizeCmdName(cmdName string) string {
 
 	return cmdName
 }
+
 func parseFlags(args []string) ([]string, map[string]string) {
 	var positional []string
 	flags := make(map[string]string)
@@ -142,7 +143,7 @@ func loadConfig(projectPath string) (*models.Config, error) {
 		return models.DefaultConfig(), nil
 	}
 
-	// Define config path (using lowercase 'config' for consistency)
+	// Define config path 
 	configDir := filepath.Join(projectPath, ".iwashere", "config")
 	configPath := filepath.Join(configDir, "config.json")
 

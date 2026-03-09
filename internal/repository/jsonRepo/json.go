@@ -33,6 +33,8 @@ func NewJSONRepository(iwasherePath string) *JSONRepository {
 	return &JSONRepository{notesBasePath: notesPath, sessionBasePath: sessionPath, reminderBasePath: reminderPath}
 }
 
+
+//Notes
 func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.PrivateNote, error) {
 	// Read all note files
 	files, err := os.ReadDir(r.notesBasePath)
@@ -77,104 +79,6 @@ func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.Pri
 	return notes, nil
 }
 
-func (r *JSONRepository) readNoteFile(filename string) (*models.PrivateNote, error) {
-	path := filepath.Join(r.notesBasePath, filename)
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	var note models.PrivateNote
-	if err := json.Unmarshal(data, &note); err != nil {
-		return nil, err
-	}
-
-	return &note, nil
-}
-
-func (r *JSONRepository) readSessionFile(filename string) (*models.Session, error) {
-	path := filepath.Join(r.sessionBasePath, filename)
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	var session models.Session
-	if err := json.Unmarshal(data, &session); err != nil {
-		return nil, err
-	}
-
-	return &session, nil
-}
-
-func (r *JSONRepository) readReminderFile(filename string) (*models.Reminder, error) {
-	path := filepath.Join(r.reminderBasePath, filename)
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	var reminder models.Reminder
-	if err := json.Unmarshal(data, &reminder); err != nil {
-		return nil, err
-	}
-
-	return &reminder, nil
-}
-
-func (r *JSONRepository) matchesFilter(note *models.PrivateNote, filter *repository.NoteFilter) bool {
-	if filter == nil {
-		return true
-	}
-
-	// Filter by project path
-	if filter.ProjectPath != "" && note.ProjectPath != filter.ProjectPath {
-		return false
-	}
-
-	// Filter by branch
-	if filter.Branch != "" && note.Branch != filter.Branch {
-		return false
-	}
-
-	// Filter by tags (note has ALL specified tags)
-	if len(filter.Tags) > 0 {
-		tagMap := make(map[string]bool)
-		for _, tag := range note.Tags {
-			tagMap[tag] = true
-		}
-
-		for _, requiredTag := range filter.Tags {
-			if !tagMap[requiredTag] {
-				return false
-			}
-		}
-	}
-
-	// Filter by time
-	if !filter.Since.IsZero() && note.CreatedAt.Before(filter.Since) {
-		return false
-	}
-
-	//Filter by session
-
-	if note.SessionID == filter.SessionID {
-		return true
-	}
-
-	return true
-}
-
-func (r *JSONRepository) sortNotesByTime(notes []*models.PrivateNote) {
-	// Simple bubble sort for now (optimize later if needed)
-	for i := 0; i < len(notes)-1; i++ {
-		for j := i + 1; j < len(notes); j++ {
-			if notes[i].CreatedAt.Before(notes[j].CreatedAt) {
-				notes[i], notes[j] = notes[j], notes[i]
-			}
-		}
-	}
-}
 
 func (r *JSONRepository) SaveNote(note *models.PrivateNote) error {
 	if note.ID == "" {
@@ -212,6 +116,7 @@ func (r *JSONRepository) SaveTeamNote(note *models.TeamNote) error {
 
 	return os.WriteFile(path, data, 0644)
 }
+
 func (r *JSONRepository) GetNote(id string) (*models.PrivateNote, error) {
 	path := filepath.Join(r.notesBasePath, id+".json")
 
@@ -261,11 +166,9 @@ func (r *JSONRepository) DeleteNote(id string) error {
 	return nil
 }
 
-func (r *JSONRepository) Close() error {
-	// Nothing to close for JSON
-	return nil
-}
 
+
+//Sessions
 func (r *JSONRepository) SaveSession(session *models.Session) error {
 	if session.ID == "" {
 		session.ID = utils.GenerateId()
@@ -399,6 +302,9 @@ func (r *JSONRepository) ListSessions() ([]*models.Session, error) {
 	return sessions, nil
 }
 
+
+
+//Reminders
 func (r *JSONRepository) SaveReminder(reminder *models.Reminder) error {
 	if reminder.ID == "" {
 		reminder.ID = utils.GenerateId()
@@ -525,5 +431,116 @@ func (r *JSONRepository) DeleteReminder(id string) error {
 		return err
 	}
 
+	return nil
+}
+
+
+
+
+//Helpers
+func (r *JSONRepository) readNoteFile(filename string) (*models.PrivateNote, error) {
+	path := filepath.Join(r.notesBasePath, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var note models.PrivateNote
+	if err := json.Unmarshal(data, &note); err != nil {
+		return nil, err
+	}
+
+	return &note, nil
+}
+
+func (r *JSONRepository) readSessionFile(filename string) (*models.Session, error) {
+	path := filepath.Join(r.sessionBasePath, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var session models.Session
+	if err := json.Unmarshal(data, &session); err != nil {
+		return nil, err
+	}
+
+	return &session, nil
+}
+
+func (r *JSONRepository) readReminderFile(filename string) (*models.Reminder, error) {
+	path := filepath.Join(r.reminderBasePath, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var reminder models.Reminder
+	if err := json.Unmarshal(data, &reminder); err != nil {
+		return nil, err
+	}
+
+	return &reminder, nil
+}
+
+func (r *JSONRepository) matchesFilter(note *models.PrivateNote, filter *repository.NoteFilter) bool {
+	if filter == nil {
+		return true
+	}
+
+	// Filter by project path
+	if filter.ProjectPath != "" && note.ProjectPath != filter.ProjectPath {
+		return false
+	}
+
+	// Filter by branch
+	if filter.Branch != "" && note.Branch != filter.Branch {
+		return false
+	}
+
+	// Filter by tags (note has ALL specified tags)
+	if len(filter.Tags) > 0 {
+		tagMap := make(map[string]bool)
+		for _, tag := range note.Tags {
+			tagMap[tag] = true
+		}
+
+		for _, requiredTag := range filter.Tags {
+			if !tagMap[requiredTag] {
+				return false
+			}
+		}
+	}
+
+	// Filter by time
+	if !filter.Since.IsZero() && note.CreatedAt.Before(filter.Since) {
+		return false
+	}
+
+	//Filter by session
+
+	if note.SessionID == filter.SessionID {
+		return true
+	}
+
+	return true
+}
+
+func (r *JSONRepository) sortNotesByTime(notes []*models.PrivateNote) {
+	// Simple bubble sort for now (optimize later if needed)
+	for i := 0; i < len(notes)-1; i++ {
+		for j := i + 1; j < len(notes); j++ {
+			if notes[i].CreatedAt.Before(notes[j].CreatedAt) {
+				notes[i], notes[j] = notes[j], notes[i]
+			}
+		}
+	}
+}
+
+
+
+//Close
+func (r *JSONRepository) Close() error {
+	// Nothing to close for JSON
 	return nil
 }
