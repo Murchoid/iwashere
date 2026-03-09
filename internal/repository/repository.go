@@ -21,6 +21,14 @@ type Repository interface {
 	GetOpenSession() (*models.Session, error)
 	GetNotesBySession(id string) ([]*models.PrivateNote, error)
 
+	//Reminders
+	SaveReminder(reminder *models.Reminder) error
+	GetReminder(id string) (*models.Reminder, error)
+	ListReminders() ([]*models.Reminder, error)
+	ListDueReminders() ([]*models.Reminder, error)
+	DeactivateReminder(id string) error
+	DeleteReminder(id string) error
+
 	Close() error
 }
 

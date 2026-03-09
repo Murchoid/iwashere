@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Murchoid/iwashere/internal/commands"
 	"github.com/Murchoid/iwashere/internal/domain/models"
@@ -67,6 +68,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+		CheckAndShowReminders(ctx)
 	} else {
 		fmt.Printf("Unknown command: %s\n", cmdName)
 		commands.ShowGlobalHelp()
@@ -210,4 +212,43 @@ func createRepository(projectPath string, cfg *models.Config) (repository.Reposi
 	default:
 		return jsonRepo.NewJSONRepository(iwasherePath), nil // default to json
 	}
+}
+
+func CheckAndShowReminders(ctx *commands.Context) {
+	reminders, err := getDueReminders(ctx)
+	if err != nil {
+		return //for now
+	}
+
+	if len(reminders) == 0 {
+		return
+	}
+
+	fmt.Println("\nDUE REMINDERS")
+	fmt.Println("================")
+	for _, r := range reminders {
+		overdue := time.Since(r.DueAt).Round(time.Minute)
+		fmt.Printf("  • %s (overdue by %s)\n", r.Message, overdue)
+		fmt.Printf("    Note: %s\n", r.NoteID[:8])
+
+		deactivateReminder(ctx, r.ID)
+	}
+	fmt.Println()
+}
+
+func getDueReminders(ctx *commands.Context) ([]*models.Reminder, error) {
+	repo := ctx.Repo
+
+	reminders, err := repo.ListDueReminders()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return reminders, nil
+}
+
+func deactivateReminder(ctx *commands.Context, id string) error {
+	repo := ctx.Repo
+	return repo.DeactivateReminder(id)
 }

@@ -64,7 +64,7 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
 		return fmt.Errorf("failed to check latest version: %w", err)
 	}
 
-	current := fmt.Sprintf("%s%s","v",GetVersion())
+	current := fmt.Sprintf("%s%s", "v", GetVersion())
 	if current == latest {
 		fmt.Println("Already up to date!")
 		return nil

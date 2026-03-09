@@ -364,3 +364,56 @@ func PrintSessionDetails(session *models.Session, notes []*models.PrivateNote) {
 		}
 	}
 }
+
+// PrintReminders displays sessions in a format consistent with notes
+func PrintReminders(reminders []*models.Reminder, showNotes bool, repo repository.Repository) {
+	if len(reminders) == 0 {
+		fmt.Println("No reminders found")
+		fmt.Println("   create one with: iwashere remind 123 \"reminder message\"")
+		return
+	}
+
+	fmt.Println(" Reminders")
+	fmt.Println("================")
+	fmt.Println()
+
+	for i, reminder := range reminders {
+		printReminder(reminder, i == len(reminders)-1, showNotes, repo)
+	}
+}
+
+func printReminder(reminder *models.Reminder, isLast bool, showNotes bool, repo repository.Repository) {
+
+	prefix := "├─ "
+	if isLast {
+		prefix = "└─ "
+	}
+
+	// Format duration
+	var durationStr string
+	if reminder.Active {
+		durationStr = fmt.Sprintf("(Created %s, Due at %s)", HowLongAgo(reminder.CreatedAt, 0), reminder.DueAt)
+	} else if !reminder.Active {
+		durationStr = fmt.Sprintf("(Created %s, Done)", HowLongAgo(reminder.CreatedAt, 0))
+	}
+
+	// Print session header
+	fmt.Printf("%s %s (%s) %s\n", prefix, reminder.ID, reminder.Message, durationStr)
+
+	// Print notes in this reminder if requested
+	if showNotes && reminder.NoteID != "" && repo != nil {
+		note, _ := repo.GetNote(reminder.NoteID)
+
+		notePrefix := "    └─ "
+		fmt.Printf("%s[%s] %s\n",
+			notePrefix,
+			HowLongAgo(note.CreatedAt, 0),
+			note.Message)
+
+	}
+
+	// Blank line between sessions for readability
+	if !isLast {
+		fmt.Println()
+	}
+}

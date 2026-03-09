@@ -16,17 +16,21 @@ import (
 
 // Json implementation as a storage option
 type JSONRepository struct {
-	notesBasePath   string // .iwashere/notes/
-	sessionBasePath string // .iwashere/sessions/
+	notesBasePath    string // .iwashere/notes/
+	sessionBasePath  string // .iwashere/sessions/
+	reminderBasePath string // .iwashere/reminder/
 }
 
 func NewJSONRepository(iwasherePath string) *JSONRepository {
 	notesPath := filepath.Join(iwasherePath, "notes")
 	sessionPath := filepath.Join(iwasherePath, "sessions")
+	reminderPath := filepath.Join(iwasherePath, "reminders")
 	// Ensure directory exists
 	os.MkdirAll(notesPath, 0755)
 	os.MkdirAll(sessionPath, 0755)
-	return &JSONRepository{notesBasePath: notesPath, sessionBasePath: sessionPath}
+	os.MkdirAll(reminderPath, 0755)
+
+	return &JSONRepository{notesBasePath: notesPath, sessionBasePath: sessionPath, reminderBasePath: reminderPath}
 }
 
 func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.PrivateNote, error) {
@@ -101,6 +105,21 @@ func (r *JSONRepository) readSessionFile(filename string) (*models.Session, erro
 	}
 
 	return &session, nil
+}
+
+func (r *JSONRepository) readReminderFile(filename string) (*models.Reminder, error) {
+	path := filepath.Join(r.reminderBasePath, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var reminder models.Reminder
+	if err := json.Unmarshal(data, &reminder); err != nil {
+		return nil, err
+	}
+
+	return &reminder, nil
 }
 
 func (r *JSONRepository) matchesFilter(note *models.PrivateNote, filter *repository.NoteFilter) bool {
@@ -378,4 +397,133 @@ func (r *JSONRepository) ListSessions() ([]*models.Session, error) {
 		sessions = append(sessions, session)
 	}
 	return sessions, nil
+}
+
+func (r *JSONRepository) SaveReminder(reminder *models.Reminder) error {
+	if reminder.ID == "" {
+		reminder.ID = utils.GenerateId()
+	}
+
+	if reminder.CreatedAt.IsZero() {
+		reminder.CreatedAt = time.Now()
+	}
+
+	path := filepath.Join(r.reminderBasePath, reminder.ID+".json")
+	data, err := json.MarshalIndent(reminder, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal note: %w", err)
+	}
+
+	return os.WriteFile(path, data, 0644)
+}
+
+func (r *JSONRepository) GetReminder(id string) (*models.Reminder, error) {
+	path := filepath.Join(r.reminderBasePath, id+".json")
+
+	// Check if exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return nil, errors.ErrNoteNotFound
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var reminder models.Reminder
+	if err := json.Unmarshal(data, &reminder); err != nil {
+		return nil, err
+	}
+
+	return &reminder, nil
+}
+
+func (r *JSONRepository) DeactivateReminder(id string) error {
+	// First verify note exists
+	existing, err := r.GetReminder(id)
+	if err != nil {
+		return err
+	}
+
+	// Preserve creation time
+	existing.Active = false
+	// Save (overwrite)
+	return r.SaveReminder(existing)
+}
+
+func (r *JSONRepository) ListReminders() ([]*models.Reminder, error) {
+	// Read all reminder files
+	files, err := os.ReadDir(r.reminderBasePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []*models.Reminder{}, nil // No reminders yet
+		}
+		return nil, fmt.Errorf("failed to read reminder directory: %w", err)
+	}
+
+	var reminders []*models.Reminder
+
+	for _, file := range files {
+		// Skip directories and non-JSON files
+		if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
+			continue
+		}
+
+		// Read and parse each note
+		reminder, err := r.readReminderFile(file.Name())
+		if err != nil {
+			// Log but don't stop - could be corrupted file
+			fmt.Fprintf(os.Stderr, "Warning: failed to read note %s: %v\n", file.Name(), err)
+			continue
+		}
+		reminders = append(reminders, reminder)
+	}
+	return reminders, nil
+}
+
+func (r *JSONRepository) ListDueReminders() ([]*models.Reminder, error) {
+	// Read all reminder files
+	files, err := os.ReadDir(r.reminderBasePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []*models.Reminder{}, nil // No reminders yet
+		}
+		return nil, fmt.Errorf("failed to read reminder directory: %w", err)
+	}
+
+	var reminders []*models.Reminder
+
+	for _, file := range files {
+		// Skip directories and non-JSON files
+		if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
+			continue
+		}
+
+		// Read and parse each note
+		reminder, err := r.readReminderFile(file.Name())
+		if err != nil {
+			// Log but don't stop - could be corrupted file
+			fmt.Fprintf(os.Stderr, "Warning: failed to read note %s: %v\n", file.Name(), err)
+			continue
+		}
+
+		//only append due reminders
+		if reminder.Active && (reminder.DueAt.Compare(time.Now()) == -1 || reminder.DueAt.Compare(time.Now()) == 0) {
+			reminders = append(reminders, reminder)
+		}
+	}
+	return reminders, nil
+}
+
+func (r *JSONRepository) DeleteReminder(id string) error {
+	path := filepath.Join(r.reminderBasePath, id+".json")
+
+	if err := os.Remove(path); err != nil {
+		if os.IsNotExist(err) {
+			return errors.ErrNoteNotFound
+		}
+		return err
+	}
+
+	return nil
 }
