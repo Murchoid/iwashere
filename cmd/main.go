@@ -216,6 +216,12 @@ func createRepository(projectPath string, cfg *models.Config) (repository.Reposi
 }
 
 func CheckAndShowReminders(ctx *commands.Context) {
+
+	//if not in a project jus return
+	if ctx.ProjectPath == "" {
+		return
+	}
+
 	reminders, err := getDueReminders(ctx)
 	if err != nil {
 		return //for now
