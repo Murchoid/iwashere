@@ -37,8 +37,8 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
 		return nil
 	}
 
-	// Check if running as root
-	if os.Geteuid() != 0 {
+	// Check if running as root if in linux
+	if os.Geteuid() != 0 && runtime.GOOS == "linux"{
 		fmt.Println("Update requires root privileges. Re-running with sudo...")
 
 		// Re-run self with sudo
@@ -130,7 +130,7 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
 	os.Remove(backup)
 	os.RemoveAll(tmpDir)
 
-	fmt.Println("Update complete!Here ", exe)
+	fmt.Println("Update complete!")
 	fmt.Printf("Run 'iwashere --version' to verify\n")
 	return nil
 }
@@ -166,15 +166,15 @@ func getPlatformFileInfo(version string) (*PlatformFileInfo, error) {
 	case "windows":
 		info.binaryName = "iwashere.exe"
 		info.archiveExt = ".zip"
-		info.osName = "windows" // lowercase!
+		info.osName = "windows" 
 	case "linux":
 		info.binaryName = "iwashere"
 		info.archiveExt = ".tar.gz"
-		info.osName = "linux" // lowercase!
+		info.osName = "linux" 
 	case "darwin":
 		info.binaryName = "iwashere"
 		info.archiveExt = ".tar.gz"
-		info.osName = "darwin" // lowercase! (not macOS)
+		info.osName = "darwin" 
 	default:
 		return nil, fmt.Errorf("unsupported platform: %s", runtime.GOOS)
 	}
