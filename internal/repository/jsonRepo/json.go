@@ -33,8 +33,7 @@ func NewJSONRepository(iwasherePath string) *JSONRepository {
 	return &JSONRepository{notesBasePath: notesPath, sessionBasePath: sessionPath, reminderBasePath: reminderPath}
 }
 
-
-//Notes
+// Notes
 func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.PrivateNote, error) {
 	// Read all note files
 	files, err := os.ReadDir(r.notesBasePath)
@@ -78,7 +77,6 @@ func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.Pri
 
 	return notes, nil
 }
-
 
 func (r *JSONRepository) SaveNote(note *models.PrivateNote) error {
 	if note.ID == "" {
@@ -166,9 +164,7 @@ func (r *JSONRepository) DeleteNote(id string) error {
 	return nil
 }
 
-
-
-//Sessions
+// Sessions
 func (r *JSONRepository) SaveSession(session *models.Session) error {
 	if session.ID == "" {
 		session.ID = utils.GenerateId()
@@ -302,9 +298,7 @@ func (r *JSONRepository) ListSessions() ([]*models.Session, error) {
 	return sessions, nil
 }
 
-
-
-//Reminders
+// Reminders
 func (r *JSONRepository) SaveReminder(reminder *models.Reminder) error {
 	if reminder.ID == "" {
 		reminder.ID = utils.GenerateId()
@@ -434,10 +428,7 @@ func (r *JSONRepository) DeleteReminder(id string) error {
 	return nil
 }
 
-
-
-
-//Helpers
+// Helpers
 func (r *JSONRepository) readNoteFile(filename string) (*models.PrivateNote, error) {
 	path := filepath.Join(r.notesBasePath, filename)
 	data, err := os.ReadFile(path)
@@ -537,9 +528,7 @@ func (r *JSONRepository) sortNotesByTime(notes []*models.PrivateNote) {
 	}
 }
 
-
-
-//Close
+// Close
 func (r *JSONRepository) Close() error {
 	// Nothing to close for JSON
 	return nil

@@ -38,7 +38,7 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
 	}
 
 	// Check if running as root if in linux
-	if os.Geteuid() != 0 && runtime.GOOS == "linux"{
+	if os.Geteuid() != 0 && runtime.GOOS == "linux" {
 		fmt.Println("Update requires root privileges. Re-running with sudo...")
 
 		// Re-run self with sudo
@@ -166,15 +166,15 @@ func getPlatformFileInfo(version string) (*PlatformFileInfo, error) {
 	case "windows":
 		info.binaryName = "iwashere.exe"
 		info.archiveExt = ".zip"
-		info.osName = "windows" 
+		info.osName = "windows"
 	case "linux":
 		info.binaryName = "iwashere"
 		info.archiveExt = ".tar.gz"
-		info.osName = "linux" 
+		info.osName = "linux"
 	case "darwin":
 		info.binaryName = "iwashere"
 		info.archiveExt = ".tar.gz"
-		info.osName = "darwin" 
+		info.osName = "darwin"
 	default:
 		return nil, fmt.Errorf("unsupported platform: %s", runtime.GOOS)
 	}

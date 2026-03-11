@@ -131,6 +131,17 @@ func parseNaturalTime(input string) (time.Time, error) {
 		), nil
 	}
 
+	if strings.HasPrefix(input, "today ") {
+		t, err := time.Parse("15:04", strings.TrimPrefix(input, "today "))
+		if err != nil {
+			return time.Time{}, err
+		}
+		return time.Date(
+			now.Year(), now.Month(), now.Day(),
+			t.Hour(), t.Minute(), 0, 0, now.Location(),
+		), nil
+	}
+
 	// Handle "Friday 5pm"
 	// This is complex - for v1, use a library or simplify
 	return time.Parse("2006-01-02 15:04", input)

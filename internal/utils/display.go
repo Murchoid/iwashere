@@ -60,7 +60,7 @@ func PrintNotes(notes []*models.PrivateNote, sessions map[string]*models.Session
 			display := &NoteDisplay{
 				Note:        note,
 				Session:     group.Session,
-				ShowSession: false, 
+				ShowSession: false,
 				ShowFiles:   true,
 				ShowTags:    true,
 				ShowID:      true,
@@ -70,7 +70,6 @@ func PrintNotes(notes []*models.PrivateNote, sessions map[string]*models.Session
 		}
 	}
 }
-
 
 //Session display function
 
@@ -195,7 +194,7 @@ func PrintSessionDetails(session *models.Session, notes []*models.PrivateNote) {
 	}
 }
 
-//Reminder display
+// Reminder display
 // PrintReminders displays sessions in a format consistent with notes
 func PrintReminders(reminders []*models.Reminder, showNotes bool, repo repository.Repository) {
 	if len(reminders) == 0 {
@@ -213,8 +212,7 @@ func PrintReminders(reminders []*models.Reminder, showNotes bool, repo repositor
 	}
 }
 
-
-//Helpers
+// Helpers
 func groupNotesBySession(notes []*models.PrivateNote, sessions map[string]*models.Session) []noteGroup {
 	var groups []noteGroup
 
@@ -335,7 +333,6 @@ func (d *NoteDisplay) compactFormat() string {
 		d.Note.Message)
 }
 
-
 func printSession(session *models.Session, isLast bool, showNotes bool, repo repository.Repository) {
 	// Choose the right tree character
 	prefix := "├─ "
@@ -388,7 +385,6 @@ func printSession(session *models.Session, isLast bool, showNotes bool, repo rep
 		fmt.Println()
 	}
 }
-
 
 func printReminder(reminder *models.Reminder, isLast bool, showNotes bool, repo repository.Repository) {
 

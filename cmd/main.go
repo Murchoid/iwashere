@@ -143,7 +143,7 @@ func loadConfig(projectPath string) (*models.Config, error) {
 		return models.DefaultConfig(), nil
 	}
 
-	// Define config path 
+	// Define config path
 	configDir := filepath.Join(projectPath, ".iwashere", "config")
 	configPath := filepath.Join(configDir, "config.json")
 

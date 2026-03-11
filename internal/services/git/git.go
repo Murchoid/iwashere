@@ -6,15 +6,16 @@ import (
 )
 
 type Info struct {
-	Branch     string
-	CommitHash string
-	CommitMsg  string
-	Remote     string
-	HasChanges bool   // Unstaged changes
-	HasStaged  bool   // Staged changes
-	RootPath   string // Root of git repo
-	UserEmail  string
-	UserName   string
+	Branch      string
+	Allbranches []string
+	CommitHash  string
+	CommitMsg   string
+	Remote      string
+	HasChanges  bool   // Unstaged changes
+	HasStaged   bool   // Staged changes
+	RootPath    string // Root of git repo
+	UserEmail   string
+	UserName    string
 }
 
 type Service struct {
@@ -41,9 +42,12 @@ func (s *Service) GetInfo() (*Info, error) {
 
 	info := &Info{}
 
-	// Get current branch
 	if branch, err := s.getBranch(); err == nil {
 		info.Branch = branch
+	}
+
+	if branches, err := s.getAllBranches(); err == nil {
+		info.Allbranches = branches
 	}
 
 	if name, _ := s.getCurrentUser(); name != "" {
@@ -90,6 +94,26 @@ func (s *Service) getBranch() (string, error) {
 		return "", err
 	}
 	return strings.TrimSpace(string(out)), nil
+}
+
+func (s *Service) getAllBranches() ([]string, error) {
+	cmd := exec.Command("git", "branch")
+	cmd.Dir = s.workDir
+	out, err := cmd.Output()
+	if err != nil {
+		return []string{}, err
+	}
+
+	var branches []string
+
+	for _, branch := range out {
+		if branch == '*' {
+			continue
+		}
+		branches = append(branches, strings.TrimSpace(string(branch)))
+	}
+
+	return branches, nil
 }
 
 func (s *Service) getCommitHash() (string, error) {

@@ -92,6 +92,22 @@ func (a *AddCommand) Execute(ctx *Context) error {
 			if mFiles, err := gitService.GetModifiedFiles(); err == nil && mFiles != nil {
 				note.ModifiedFiles = mFiles
 			}
+			if ctx.Flags["--branch"] != "" {
+				branchName := ctx.Flags["--branch"]
+				branchIsThere := false
+				fmt.Println(gitInfo.Allbranches)
+				for _, branch := range gitInfo.Allbranches {
+					if branch != branchName {
+						branchIsThere = true
+					}
+				}
+
+				if branchIsThere {
+					note.Branch = branchName
+				} else {
+					return fmt.Errorf("Branch %s does not exist in your git", branchName)
+				}
+			}
 
 			fmt.Printf("Git context: %s @ %s\n", gitInfo.Branch, gitInfo.CommitHash)
 			if gitInfo.HasChanges {
