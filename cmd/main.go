@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
+	argparser "github.com/Murchoid/iwashere/internal/argParser"
 	"github.com/Murchoid/iwashere/internal/commands"
 	"github.com/Murchoid/iwashere/internal/domain/models"
 	"github.com/Murchoid/iwashere/internal/repository"
@@ -23,8 +23,11 @@ func main() {
 	}
 
 	// Parse command
-	cmdName := normalizeCmdName(args[0])
-	cmdArgs, flags := parseFlags(args[1:])
+	argument := argparser.NewArgParser()
+	parsedArguments := argument.ParseArguments(args)
+	cmdName := parsedArguments.Name
+	cmdArgs := parsedArguments.Args
+	flags := parsedArguments.Flags
 
 	// Get working directory
 	workDir, err := os.Getwd()
@@ -99,28 +102,6 @@ func normalizeCmdName(cmdName string) string {
 	}
 
 	return cmdName
-}
-
-func parseFlags(args []string) ([]string, map[string]string) {
-	var positional []string
-	flags := make(map[string]string)
-
-	for i := 0; i < len(args); i++ {
-		arg := args[i]
-		if strings.HasPrefix(arg, "-") {
-			// Handle flags
-			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-				flags[arg] = args[i+1]
-				i++ // Skip next arg
-			} else {
-				flags[arg] = "true" // boolean flag
-			}
-		} else {
-			positional = append(positional, arg)
-		}
-	}
-
-	return positional, flags
 }
 
 func findProjectRoot(path string) string {

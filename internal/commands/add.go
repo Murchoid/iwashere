@@ -81,6 +81,19 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		note.Tags = utils.ParseTags(ctx.Flags["--tags"])
 	}
 
+	if ctx.Flags["--session"] != "" {
+		if ctx.Flags["--session"] == "true" {
+			if err := addNoteToCurrentSession(repo, note); err != nil {
+				return err
+			}
+		} else {
+			fmt.Println("Unrecognized argument after --session")
+			fmt.Println()
+			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+			return nil
+		}
+	}
+
 	if ctx.Config.Git.AutoContext {
 		gitService := git.NewService(ctx.WorkDir)
 		if gitInfo, err := gitService.GetInfo(); err == nil && gitInfo != nil {
@@ -92,6 +105,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 			if mFiles, err := gitService.GetModifiedFiles(); err == nil && mFiles != nil {
 				note.ModifiedFiles = mFiles
 			}
+
 			if ctx.Flags["--branch"] != "" {
 				branchName := ctx.Flags["--branch"]
 				branchIsThere := false
@@ -118,12 +132,6 @@ func (a *AddCommand) Execute(ctx *Context) error {
 
 	if err := repo.SaveNote(note); err != nil {
 		return fmt.Errorf("failed to save note: %w", err)
-	}
-
-	if ctx.Flags["--session"] != "" {
-		if err := addNoteToCurrentSession(repo, note); err != nil {
-			return err
-		}
 	}
 
 	fmt.Printf("Note saved (ID: %s)\n", note.ID)

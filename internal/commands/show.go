@@ -65,7 +65,31 @@ func (a *ShowCommand) Execute(ctx *Context) error {
 	if err != nil {
 		return err
 	}
-	utils.PrintNotes([]*models.PrivateNote{note}, nil, "short")
+
+	format := "detailed"
+
+	if ctx.Flags["--short"] != "" {
+		if ctx.Flags["--short"] == "true" {
+			format = "short"
+		} else {
+			fmt.Println("Unrecognized argument after short")
+			fmt.Println()
+			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+			return nil
+		}
+	}
+
+	if ctx.Flags["--compact"] != "" {
+		if ctx.Flags["--compact"] == "true" {
+			format = "compact"
+		} else {
+			fmt.Println("Unrecognized argument after compact")
+			fmt.Println()
+			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+			return nil
+		}
+	}
+	utils.PrintNotes([]*models.PrivateNote{note}, nil, format)
 
 	return nil
 }
