@@ -77,8 +77,26 @@ func (c *ListCommand) Execute(ctx *Context) error {
 
 	// Use display package
 	format := "detailed"
-	if ctx.Flags["--short"] == "true" {
-		format = "short"
+if ctx.Flags["--short"] != "" {
+		if ctx.Flags["--short"] == "true" {
+			format = "short"
+		} else {
+			fmt.Println("Unrecognized argument after short")
+			fmt.Println()
+			utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+			return nil
+		}
+	}
+
+	if ctx.Flags["--compact"] != "" {
+		if ctx.Flags["--compact"] == "true" {
+			format = "compact"
+		} else {
+			fmt.Println("Unrecognized argument after compact")
+			fmt.Println()
+			utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+			return nil
+		}
 	}
 
 	utils.PrintNotes(notes, sessions, format)

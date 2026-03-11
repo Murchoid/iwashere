@@ -105,9 +105,14 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 
 		if session.State == models.Ongoing || session.State == models.Continued {
 			fmt.Printf("Session ongoing")
+			fmt.Println()
+		} else if session.State == models.Paused  {
+			fmt.Printf("Session paused")
+			fmt.Println()
 		} else {
 			duration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
 			fmt.Printf("Session lasted %s\n", duration)
+			fmt.Println()
 		}
 	}
 	fmt.Println()
@@ -119,8 +124,10 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 
 		// Show tags if any
 		if len(lastNote.Tags) > 0 {
-			fmt.Printf("%s\n", strings.Join(lastNote.Tags, ", "))
+			fmt.Print("Tags: ")
+			fmt.Printf("%s ", strings.Join(lastNote.Tags, ", "))
 		}
+		fmt.Println()
 		fmt.Println()
 	}
 
