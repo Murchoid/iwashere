@@ -77,7 +77,7 @@ func (c *ListCommand) Execute(ctx *Context) error {
 
 	// Use display package
 	format := "detailed"
-if ctx.Flags["--short"] != "" {
+	if ctx.Flags["--short"] != "" {
 		if ctx.Flags["--short"] == "true" {
 			format = "short"
 		} else {

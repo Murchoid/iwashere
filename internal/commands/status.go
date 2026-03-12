@@ -106,7 +106,7 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 		if session.State == models.Ongoing || session.State == models.Continued {
 			fmt.Printf("Session ongoing")
 			fmt.Println()
-		} else if session.State == models.Paused  {
+		} else if session.State == models.Paused {
 			fmt.Printf("Session paused")
 			fmt.Println()
 		} else {

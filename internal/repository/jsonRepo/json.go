@@ -345,8 +345,19 @@ func (r *JSONRepository) DeactivateReminder(id string) error {
 		return err
 	}
 
-	// Preserve creation time
 	existing.Active = false
+	// Save (overwrite)
+	return r.SaveReminder(existing)
+}
+
+func (r *JSONRepository) UpdateReminderTime(id string) error {
+	// First verify note exists
+	existing, err := r.GetReminder(id)
+	if err != nil {
+		return err
+	}
+
+	existing.DueAt = getNextTimeDependingOnRepeat(existing.Repeats, existing.DueAt)
 	// Save (overwrite)
 	return r.SaveReminder(existing)
 }
@@ -525,6 +536,21 @@ func (r *JSONRepository) sortNotesByTime(notes []*models.PrivateNote) {
 				notes[i], notes[j] = notes[j], notes[i]
 			}
 		}
+	}
+}
+
+func getNextTimeDependingOnRepeat(repeat string, currentTime time.Time) time.Time {
+	switch repeat {
+	case "daily":
+		return currentTime.Add(24 * time.Hour)
+	case "weekly":
+		return currentTime.Add(7 * 24 * time.Hour)
+	case "monthly":
+		return currentTime.AddDate(0, 1, 0)
+	case "yearly":
+		return currentTime.AddDate(1, 0, 0)
+	default:
+		return currentTime
 	}
 }
 

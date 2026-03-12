@@ -28,6 +28,7 @@ type Repository interface {
 	ListDueReminders() ([]*models.Reminder, error)
 	DeactivateReminder(id string) error
 	DeleteReminder(id string) error
+	UpdateReminderTime(id string) error
 
 	Close() error
 }

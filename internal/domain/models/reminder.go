@@ -8,5 +8,6 @@ type Reminder struct {
 	Message   string
 	DueAt     time.Time
 	CreatedAt time.Time
+	Repeats   string
 	Active    bool
 }

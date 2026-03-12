@@ -81,19 +81,6 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		note.Tags = utils.ParseTags(ctx.Flags["--tags"])
 	}
 
-	if ctx.Flags["--session"] != "" {
-		if ctx.Flags["--session"] == "true" {
-			if err := addNoteToCurrentSession(repo, note); err != nil {
-				return err
-			}
-		} else {
-			fmt.Println("Unrecognized argument after --session")
-			fmt.Println()
-			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-			return nil
-		}
-	}
-
 	if ctx.Config.Git.AutoContext {
 		gitService := git.NewService(ctx.WorkDir)
 		if gitInfo, err := gitService.GetInfo(); err == nil && gitInfo != nil {
@@ -127,6 +114,19 @@ func (a *AddCommand) Execute(ctx *Context) error {
 			if gitInfo.HasChanges {
 				fmt.Printf("You have uncommitted changes\n")
 			}
+		}
+	}
+
+	if ctx.Flags["--session"] != "" {
+		if ctx.Flags["--session"] == "true" {
+			if err := addNoteToCurrentSession(repo, note); err != nil {
+				return err
+			}
+		} else {
+			fmt.Println("Unrecognized argument after --session")
+			fmt.Println()
+			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+			return nil
 		}
 	}
 

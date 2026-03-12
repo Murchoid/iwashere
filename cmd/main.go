@@ -79,31 +79,6 @@ func main() {
 	}
 }
 
-func normalizeCmdName(cmdName string) string {
-	switch cmdName {
-	case "a":
-		return "add"
-	case "s":
-		return "show"
-	case "ls":
-		return "list"
-	case "rm":
-		return "delete"
-	case "b":
-		return "branch"
-	case "-h":
-		return "help"
-	case "--help":
-		return "help"
-	case "-v":
-		return "version"
-	case "--version":
-		return "version"
-	}
-
-	return cmdName
-}
-
 func findProjectRoot(path string) string {
 	for {
 		if _, err := os.Stat(filepath.Join(path, ".iwashere")); err == nil {
@@ -216,10 +191,17 @@ func CheckAndShowReminders(ctx *commands.Context) {
 	fmt.Println("================")
 	for _, r := range reminders {
 		overdue := time.Since(r.DueAt).Round(time.Minute)
+		noteid := r.NoteID
 		fmt.Printf("  • %s (overdue by %s)\n", r.Message, overdue)
-		fmt.Printf("    Note: %s\n", r.NoteID[:8])
+		if noteid != "" {
+			fmt.Printf("    Note: %s\n", r.NoteID[:8])
+		}
 
-		deactivateReminder(ctx, r.ID)
+		if r.Repeats == "none" {
+			deactivateReminder(ctx, r.ID)
+		} else {
+			updateReminder(ctx, r.ID)
+		}
 	}
 	fmt.Println()
 }
@@ -239,4 +221,10 @@ func getDueReminders(ctx *commands.Context) ([]*models.Reminder, error) {
 func deactivateReminder(ctx *commands.Context, id string) error {
 	repo := ctx.Repo
 	return repo.DeactivateReminder(id)
+}
+
+func updateReminder(ctx *commands.Context, id string) error {
+	repo := ctx.Repo
+
+	return repo.UpdateReminderTime(id)
 }
