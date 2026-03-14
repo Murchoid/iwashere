@@ -7,7 +7,7 @@ import (
 )
 
 type DeleteCommand struct {
-	spec *CommandSpec
+	spec        *CommandSpec
 	baseCommand BaseCommand
 }
 
@@ -46,7 +46,7 @@ func (a *DeleteCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
 	parseArgs, err := a.spec.Parse(ctx.Args)
-	if err!= nil {
+	if err != nil {
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 		return fmt.Errorf("invalid arguments: %w", err)
 	}

@@ -11,7 +11,10 @@ type Repository interface {
 	SaveNote(note *models.PrivateNote) error
 	GetNote(id string) (*models.PrivateNote, error)
 	ListNotes(filter *NoteFilter) ([]*models.PrivateNote, error)
-	UpdateNote(note *models.PrivateNote) error
+	UpdateMessage(note *models.PrivateNote) error
+	UpdateTags(note *models.PrivateNote) error
+	AddTagsToNote(note *models.PrivateNote) error
+	RemoveTagsFromNote(note *models.PrivateNote) error
 	DeleteNote(id string) error
 
 	// Sessions

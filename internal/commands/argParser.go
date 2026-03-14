@@ -39,7 +39,6 @@ func (c *CommandSpec) Parse(args []string) (*ParsedArgs, error) {
 		Flags:   make(map[string]FlagValue),
 	}
 
-	// Initialize defaults
 	for _, flag := range c.Flags {
 		if flag.Default != nil {
 			result.Flags[flag.Name] = FlagValue{
@@ -50,10 +49,8 @@ func (c *CommandSpec) Parse(args []string) (*ParsedArgs, error) {
 		}
 	}
 
-	// Parse arguments
 	remaining := args
 
-	// Check for subcommand first
 	if len(c.Subcommands) > 0 && len(remaining) > 0 {
 		if subSpec, ok := c.Subcommands[remaining[0]]; ok {
 			result.Subcommand = remaining[0]
@@ -69,11 +66,9 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 
-		// Handle flags
 		if strings.HasPrefix(arg, "-") {
 			flagName := strings.TrimLeft(arg, "-")
 
-			// Find flag spec
 			var flagSpec *FlagSpec
 			for _, f := range c.Flags {
 				if f.Name == flagName || f.Short == flagName {
@@ -86,7 +81,6 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 				return nil, fmt.Errorf("unknown flag: %s", arg)
 			}
 
-			// Parse flag value based on type
 			var value any
 			var present bool
 
@@ -100,17 +94,20 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 					return nil, fmt.Errorf("flag %s requires a value", arg)
 				}
 				val := args[i+1]
-				i++ // Consume next arg
+				i++
 
 				switch flagSpec.Type {
+
 				case FlagTypeString:
 					value = val
+
 				case FlagTypeTime:
 					t, err := parseNaturalTime(val)
 					if err != nil {
 						return nil, fmt.Errorf("invalid time format for %s: %w", arg, err)
 					}
 					value = t
+
 				case FlagTypeDuration:
 					d, err := time.ParseDuration(val)
 					if err != nil {
@@ -124,12 +121,15 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 				if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
 					return nil, fmt.Errorf("flag %s requires a value", arg)
 				}
+
 				val := args[i+1]
 				i++
+
 				intVal, err := strconv.Atoi(val)
 				if err != nil {
 					return nil, fmt.Errorf("invalid integer for %s: %w", arg, err)
 				}
+
 				value = intVal
 				present = true
 			}
@@ -141,12 +141,11 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 			}
 
 		} else {
-			// Positional argument
+
 			result.Positional = append(result.Positional, arg)
 		}
 	}
 
-	// Validate required flags
 	for _, flag := range c.Flags {
 		if flag.Required {
 			if val, ok := result.Flags[flag.Name]; !ok || !val.Present {
@@ -155,7 +154,6 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 		}
 	}
 
-	// Validate required positional args
 	for i, argSpec := range c.Args {
 		if argSpec.Required && i >= len(result.Positional) {
 			return nil, fmt.Errorf("missing required argument: %s", argSpec.Name)
@@ -165,7 +163,6 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 	return result, nil
 }
 
-// Helper methods for type-safe access
 func (f FlagValue) String() (string, error) {
 	if !f.Present && f.Spec.Default == nil {
 		return "", fmt.Errorf("flag --%s not provided", f.Spec.Name)
@@ -227,6 +224,7 @@ func parseNaturalTime(val string) (time.Time, error) {
 			dueDate.Year(), dueDate.Month(), dueDate.Day(),
 			t.Hour(), t.Minute(), 0, 0, dueDate.Location(),
 		), nil
+
 	} else if strings.HasPrefix("today ", val) {
 		t, err := time.Parse("15:00", strings.TrimPrefix(val, "today "))
 		dueDate := time.Now()

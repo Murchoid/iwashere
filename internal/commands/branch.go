@@ -11,7 +11,7 @@ import (
 )
 
 type BranchCommand struct {
-	spec *CommandSpec
+	spec        *CommandSpec
 	baseCommand BaseCommand
 }
 
@@ -54,7 +54,7 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 	repo := ctx.Repo
 	parsedArgs, err := a.spec.Parse(ctx.Args)
 
-	if err!= nil {
+	if err != nil {
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 		return fmt.Errorf("invalid arguments: %w", err)
 	}
@@ -68,8 +68,8 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 	filters.ProjectPath = ctx.ProjectPath
 	filters.Limit = a.getLimit(parsedArgs)
 
-	tags:= parsedArgs.Flags["tags"]
-	pTags,err := tags.String()
+	tags := parsedArgs.Flags["tags"]
+	pTags, err := tags.String()
 
 	if tags.Present && err == nil {
 		filters.Tags = utils.ParseTags(pTags)
@@ -77,25 +77,28 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 
 	if ctx.Config.Git.AutoContext {
 		gitService := git.NewService(ctx.WorkDir)
-		gitInfo, err := gitService.GetInfo();
-		if  err == nil && gitInfo != nil {
+		gitInfo, err := gitService.GetInfo()
+
+		if err == nil && gitInfo != nil {
 			filters.Branch = gitInfo.Branch
 
 			fmt.Printf("Git context: %s @ %s\n", gitInfo.Branch, gitInfo.CommitHash)
 			if gitInfo.HasChanges {
 				fmt.Printf("You have uncommitted changes\n")
 			}
+
 		}
-			if branch != "" {
-				branchName := branch
-				branchIsThere := slices.Contains(gitInfo.Allbranches, branchName)
-				if branchIsThere {
-					filters.Branch = branchName
-				} else {
-					fmt.Println()
-					return fmt.Errorf("Branch '%s' does not exist in your git", branchName)
-				}
+
+		if branch != "" {
+			branchName := branch
+			branchIsThere := slices.Contains(gitInfo.Allbranches, branchName)
+			if branchIsThere {
+				filters.Branch = branchName
+			} else {
+				fmt.Println()
+				return fmt.Errorf("Branch '%s' does not exist in your git", branchName)
 			}
+		}
 	}
 
 	notes, err := repo.ListNotes(&filters)
@@ -103,7 +106,6 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 		return err
 	}
 
-	// Get sessions for grouping
 	sessions := make(map[string]*models.Session)
 	for _, note := range notes {
 		if note.SessionID != "" {
@@ -117,7 +119,7 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 	format := "detailed"
 	if ok, err := parsedArgs.Flags["short"].Bool(); ok && err == nil {
 		format = "short"
-	}else if ok, err := parsedArgs.Flags["compact"].Bool(); ok && err == nil {
+	} else if ok, err := parsedArgs.Flags["compact"].Bool(); ok && err == nil {
 		format = "compact"
 	}
 
@@ -126,7 +128,7 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 }
 
 func (c *BranchCommand) getLimit(parsedArgs *ParsedArgs) int {
-	if  num, err:= parsedArgs.Flags["limit"].Int(); err == nil {
+	if num, err := parsedArgs.Flags["limit"].Int(); err == nil {
 		return num
 	}
 	return 5

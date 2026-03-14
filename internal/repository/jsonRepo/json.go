@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -87,6 +88,7 @@ func (r *JSONRepository) SaveNote(note *models.PrivateNote) error {
 		note.CreatedAt = time.Now()
 	}
 	note.UpdatedAt = time.Now()
+	note.Tags = slices.Compact(note.Tags)
 
 	path := filepath.Join(r.notesBasePath, note.ID+".json")
 	data, err := json.MarshalIndent(note, "", "  ")
@@ -105,6 +107,7 @@ func (r *JSONRepository) SaveTeamNote(note *models.TeamNote) error {
 	if note.CreatedAt.IsZero() {
 		note.CreatedAt = time.Now()
 	}
+	note.Tags = slices.Compact(note.Tags)
 
 	path := filepath.Join(r.notesBasePath, note.ID+".json")
 	data, err := json.MarshalIndent(note, "", "  ")
@@ -136,15 +139,100 @@ func (r *JSONRepository) GetNote(id string) (*models.PrivateNote, error) {
 	return &note, nil
 }
 
-func (r *JSONRepository) UpdateNote(note *models.PrivateNote) error {
+func (r *JSONRepository) UpdateMessage(note *models.PrivateNote) error {
 	// First verify note exists
 	existing, err := r.GetNote(note.ID)
 	if err != nil {
 		return err
 	}
 
-	// Preserve creation time
 	note.CreatedAt = existing.CreatedAt
+	note.Branch = existing.Branch
+	note.SessionID = existing.SessionID
+	note.Tags = existing.Tags
+	note.CommitHash = existing.CommitHash
+	note.CommitMsg = existing.CommitMsg
+	note.ModifiedFiles = existing.ModifiedFiles
+	note.ProjectPath = existing.ProjectPath
+	note.UpdatedAt = time.Now()
+
+	// Save (overwrite)
+	return r.SaveNote(note)
+}
+
+func (r *JSONRepository) UpdateTags(note *models.PrivateNote) error {
+	// First verify note exists
+	existing, err := r.GetNote(note.ID)
+	if err != nil {
+		return err
+	}
+
+	note.Tags = slices.Compact(note.Tags)
+	note.CreatedAt = existing.CreatedAt
+	note.Branch = existing.Branch
+	note.Message = existing.Message
+	note.SessionID = existing.SessionID
+	note.CommitHash = existing.CommitHash
+	note.CommitMsg = existing.CommitMsg
+	note.ModifiedFiles = existing.ModifiedFiles
+	note.ProjectPath = existing.ProjectPath
+	note.UpdatedAt = time.Now()
+
+	// Save (overwrite)
+	return r.SaveNote(note)
+}
+
+func (r *JSONRepository) AddTagsToNote(note *models.PrivateNote) error {
+	// First verify note exists
+	existing, err := r.GetNote(note.ID)
+	if err != nil {
+		return err
+	}
+
+	note.CreatedAt = existing.CreatedAt
+	note.Branch = existing.Branch
+	note.Message = existing.Message
+	note.Tags = append(note.Tags, existing.Tags...)
+	note.Tags = slices.Compact(note.Tags)
+	note.SessionID = existing.SessionID
+	note.CommitHash = existing.CommitHash
+	note.CommitMsg = existing.CommitMsg
+	note.ModifiedFiles = existing.ModifiedFiles
+	note.ProjectPath = existing.ProjectPath
+	note.UpdatedAt = time.Now()
+
+	// Save (overwrite)
+	return r.SaveNote(note)
+}
+
+func (r *JSONRepository) RemoveTagsFromNote(note *models.PrivateNote) error {
+	// First verify note exists
+	existing, err := r.GetNote(note.ID)
+	if err != nil {
+		return err
+	}
+
+	removeSet := make(map[string]struct{})
+	for _, rTag := range note.Tags {
+		removeSet[rTag] = struct{}{}
+	}
+
+	var newTags []string
+	for _, tag := range existing.Tags {
+		if _, found := removeSet[tag]; !found {
+			newTags = append(newTags, tag)
+		}
+	}
+
+	note.Tags = newTags
+	note.CreatedAt = existing.CreatedAt
+	note.Branch = existing.Branch
+	note.Message = existing.Message
+	note.SessionID = existing.SessionID
+	note.CommitHash = existing.CommitHash
+	note.CommitMsg = existing.CommitMsg
+	note.ModifiedFiles = existing.ModifiedFiles
+	note.ProjectPath = existing.ProjectPath
 	note.UpdatedAt = time.Now()
 
 	// Save (overwrite)

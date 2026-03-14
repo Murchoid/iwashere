@@ -112,7 +112,7 @@ func addNewTag(repo repository.Repository, args []string) error {
 
 	note.Tags = append(note.Tags, tags...)
 
-	if err := repo.UpdateNote(note); err != nil {
+	if err := repo.AddTagsToNote(note); err != nil {
 		return err
 	}
 
@@ -152,7 +152,7 @@ func removeTag(repo repository.Repository, args []string) error {
 	note.Tags = newTags
 	note.UpdatedAt = time.Now()
 
-	if err := repo.UpdateNote(note); err != nil {
+	if err := repo.RemoveTagsFromNote(note); err != nil {
 		return err
 	}
 

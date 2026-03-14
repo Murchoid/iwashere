@@ -8,12 +8,14 @@ import (
 )
 
 type EditCommand struct {
-	BaseCommand
+	spec        *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewEditCommandFactory() Command {
 	return &EditCommand{
-		BaseCommand{
+		spec: EditCommandSpec,
+		baseCommand: BaseCommand{
 			NameStr:  "edit",
 			DescStr:  "Edits a note",
 			UsageStr: "iwashere edit <id> --message <message>",
@@ -25,56 +27,56 @@ func NewEditCommandFactory() Command {
 }
 
 func (a *EditCommand) Name() string {
-	return a.BaseCommand.Name()
+	return a.baseCommand.Name()
 }
 
 func (a *EditCommand) Description() string {
-	return a.BaseCommand.Description()
+	return a.baseCommand.Description()
 }
 
 func (a *EditCommand) Usage() string {
-	return a.BaseCommand.Usage()
+	return a.baseCommand.Usage()
 }
 
 func (a *EditCommand) Examples() []string {
-	return a.BaseCommand.Examples()
+	return a.baseCommand.Examples()
 }
 
 func (a *EditCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
 
-	if len(ctx.Args) > 1 {
-		fmt.Println("Edit only accepts one arguement")
-		fmt.Println()
+	parseArgs, err := a.spec.Parse(ctx.Args)
+	if err != nil {
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-		return nil
+		return fmt.Errorf("invalid arguments: %w", err)
 	}
 
-	if len(ctx.Args) == 0 {
-		fmt.Println("Id must be provided")
-		fmt.Println()
-		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-		return nil
+	id := parseArgs.Positional[0]
+
+	newMsg, err := parseArgs.Flags["--message"].String()
+	if err != nil {
+		return err
 	}
-
-	id := ctx.Args[0]
-
-	if ctx.Flags["--message"] == "" {
-		fmt.Println("Message must be provided")
-		fmt.Println()
-		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-		return nil
-	}
-
-	newMsg := ctx.Flags["--message"]
 
 	newNote := models.PrivateNote{
 		ID:          id,
 		Message:     newMsg,
 		ProjectPath: ctx.ProjectPath,
 	}
-	if err := repo.UpdateNote(&newNote); err != nil {
+	if err := repo.UpdateMessage(&newNote); err != nil {
+		return err
+	}
+
+	tags := parseArgs.Flags["tags"]
+	pTags, err := tags.String()
+
+	if err != nil && tags.Present {
+		return err
+	}
+
+	newNote.Tags = utils.ParseTags(pTags)
+	if err := repo.UpdateTags(&newNote); err != nil {
 		return err
 	}
 

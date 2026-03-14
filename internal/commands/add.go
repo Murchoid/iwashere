@@ -86,7 +86,9 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	}
 
 	if ctx.Config.Git.AutoContext {
+
 		gitService := git.NewService(ctx.WorkDir)
+
 		if gitInfo, err := gitService.GetInfo(); err == nil && gitInfo != nil {
 			note.Branch = gitInfo.Branch
 			note.CommitHash = gitInfo.CommitHash
@@ -100,7 +102,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 			branch, err := parsed.Flags["branch"].String()
 			if branch != "" && err == nil && parsed.Flags["branch"].Present {
 				branchName := branch
-				branchIsThere:= slices.Contains(gitInfo.Allbranches, branchName)
+				branchIsThere := slices.Contains(gitInfo.Allbranches, branchName)
 				if branchIsThere {
 					note.Branch = branchName
 				} else {
@@ -113,6 +115,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 			if gitInfo.HasChanges {
 				fmt.Printf("You have uncommitted changes\n")
 			}
+
 		}
 	}
 

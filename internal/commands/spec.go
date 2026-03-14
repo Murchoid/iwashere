@@ -72,30 +72,30 @@ var AddCommandSpec = &CommandSpec{
 	},
 }
 
-//config spec
+// config spec
 var ConfigCommandSpec = &CommandSpec{
 	Name:        "config",
 	Description: "Show, set, get or reset your configs",
 	Usage:       "iwashere config [options] [path]",
 	Subcommands: map[string]*CommandSpec{
-		"set": &CommandSpec{
-			Name: "set",
-			Usage: "set <proptery.attribute>",
+		"set": {
+			Name:        "set",
+			Usage:       "set <proptery.attribute>",
 			Description: "set a value for a particullar attribute",
 			Args: []ArgSpec{
 				{
-					Name: "property_attribute",
+					Name:     "property_attribute",
 					Required: true,
 				},
 			},
 		},
-		"get": &CommandSpec{
-			Name: "get",
-			Usage: "get <proptery.attribute>",
+		"get": {
+			Name:        "get",
+			Usage:       "get <proptery.attribute>",
 			Description: "get a value for a particullar attribute",
 			Args: []ArgSpec{
 				{
-					Name: "property_attribute",
+					Name:     "property_attribute",
 					Required: true,
 				},
 			},
@@ -103,16 +103,15 @@ var ConfigCommandSpec = &CommandSpec{
 	},
 }
 
-
-//delete spec
+// delete spec
 var DeleteCommandSpec = &CommandSpec{
 	Name:        "delete",
 	Description: "deletes a note",
 	Usage:       "iwashere delete/rm <id>",
 	Args: []ArgSpec{
 		{
-			Name: "note-id",
-			Usage: "iwashere delete <note-id>",
+			Name:     "note-id",
+			Usage:    "iwashere delete <note-id>",
 			Required: true,
 		},
 	},
@@ -165,6 +164,50 @@ var BranchCommandSpec = &CommandSpec{
 			Usage:    "Displays notes in 'compact' format",
 			Required: false,
 			Short:    "cm",
+		},
+	},
+}
+
+// Edit command spec
+var EditCommandSpec = &CommandSpec{
+	Name:        "edit",
+	Description: "Edits a note",
+	Usage:       "iwashere edit <id> --message <message>",
+	Args: []ArgSpec{
+		{
+			Name:     "note-id",
+			Usage:    "ID of the note to edit",
+			Required: true,
+		},
+	},
+	Flags: []FlagSpec{
+		{
+			Name:     "message",
+			Type:     FlagTypeTime,
+			Usage:    "the new message to replace a note with",
+			Required: true,
+			Short:    "m",
+		},
+		{
+			Name:     "tag",
+			Type:     FlagTypeString,
+			Usage:    "tags to overwrite with",
+			Required: false,
+			Short:    "t",
+		},
+		{
+			Name:     "add-tags",
+			Type:     FlagTypeString,
+			Usage:    "tags to add to existing ones",
+			Required: false,
+			Short:    "at",
+		},
+		{
+			Name:     "remove-tags",
+			Type:     FlagTypeString,
+			Usage:    "tags to overemove from existing ones",
+			Required: false,
+			Short:    "rt",
 		},
 	},
 }
@@ -274,4 +317,5 @@ func init() {
 	RegisterSpec("branch", BranchCommandSpec)
 	RegisterSpec("config", ConfigCommandSpec)
 	RegisterSpec("delete", DeleteCommandSpec)
+	RegisterSpec("edit", EditCommandSpec)
 }

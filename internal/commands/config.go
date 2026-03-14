@@ -12,14 +12,14 @@ import (
 )
 
 type ConfigCommand struct {
-	spec *CommandSpec
+	spec        *CommandSpec
 	baseCommand BaseCommand
 }
 
 func NewConfigCommand() Command {
 	return &ConfigCommand{
 		spec: ConfigCommandSpec,
-		baseCommand:BaseCommand{
+		baseCommand: BaseCommand{
 			NameStr:  "config",
 			DescStr:  "Show, set, get or reset your configs",
 			UsageStr: "iwashere config [options] [path]",
@@ -65,7 +65,7 @@ func (c *ConfigCommand) Execute(ctx *Context) error {
 
 	parsedArgs, err := c.spec.Parse(ctx.Args)
 
-	if err!= nil {
+	if err != nil {
 		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
 		return fmt.Errorf("invalid arguments: %w", err)
 	}
@@ -139,7 +139,7 @@ func (c *ConfigCommand) setConfig(configPath string, args []string) error {
 	}
 
 	// Save config
-	res:= c.saveConfig(configPath, config)
+	res := c.saveConfig(configPath, config)
 	fmt.Printf("Successfully set value '%v' for '%v'\n", value, key)
 
 	return res
