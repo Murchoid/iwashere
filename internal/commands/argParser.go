@@ -28,7 +28,7 @@ type ParsedArgs struct {
 }
 
 type FlagValue struct {
-	Value   interface{}
+	Value   any
 	Present bool
 	Spec    FlagSpec
 }
@@ -87,7 +87,7 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 			}
 
 			// Parse flag value based on type
-			var value interface{}
+			var value any
 			var present bool
 
 			switch flagSpec.Type {

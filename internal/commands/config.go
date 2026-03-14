@@ -12,12 +12,14 @@ import (
 )
 
 type ConfigCommand struct {
-	BaseCommand
+	spec *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewConfigCommand() Command {
 	return &ConfigCommand{
-		BaseCommand{
+		spec: ConfigCommandSpec,
+		baseCommand:BaseCommand{
 			NameStr:  "config",
 			DescStr:  "Show, set, get or reset your configs",
 			UsageStr: "iwashere config [options] [path]",
@@ -32,15 +34,19 @@ func NewConfigCommand() Command {
 }
 
 func (c *ConfigCommand) Name() string {
-	return c.BaseCommand.Name()
+	return c.baseCommand.Name()
 }
 
 func (c *ConfigCommand) Description() string {
-	return c.BaseCommand.Description()
+	return c.baseCommand.Description()
+}
+
+func (c *ConfigCommand) Usage() string {
+	return c.baseCommand.Usage()
 }
 
 func (c *ConfigCommand) Examples() []string {
-	return c.BaseCommand.Examples()
+	return c.baseCommand.Examples()
 }
 
 func (c *ConfigCommand) Execute(ctx *Context) error {
@@ -57,22 +63,19 @@ func (c *ConfigCommand) Execute(ctx *Context) error {
 		return c.showConfig(configPath)
 	}
 
-	switch ctx.Args[0] {
+	parsedArgs, err := c.spec.Parse(ctx.Args)
+
+	if err!= nil {
+		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+		return fmt.Errorf("invalid arguments: %w", err)
+	}
+
+	switch parsedArgs.Subcommand {
 	case "set":
-		if len(ctx.Args) <= 1 {
-			fmt.Println("Set requires key value pair")
-			utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-			return nil
-		}
-		return c.setConfig(configPath, ctx.Args[1:])
+		return c.setConfig(configPath, parsedArgs.Positional[0:])
 
 	case "get":
-		if len(ctx.Args) <= 1 {
-			fmt.Println("get requires a key")
-			utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-			return nil
-		}
-		return c.getConfig(configPath, ctx.Args[1:])
+		return c.getConfig(configPath, parsedArgs.Positional[0:])
 	case "reset":
 		return c.resetConfig(configPath)
 	default:
@@ -118,14 +121,14 @@ func (c *ConfigCommand) setConfig(configPath string, args []string) error {
 		config.Storage.Type = value
 	case "storage.path":
 		config.Storage.Path = value
-	case "git.autocontext":
+	case "git.auto_context":
 		// Parse string to bool
 		boolVal, err := strconv.ParseBool(value)
 		if err != nil {
 			return fmt.Errorf("git.autocontext must be true/false")
 		}
 		config.Git.AutoContext = boolVal
-	case "git.trackbranches":
+	case "git.track_branches":
 		boolVal, err := strconv.ParseBool(value)
 		if err != nil {
 			return fmt.Errorf("git.trackbranches must be true/false")
@@ -136,12 +139,15 @@ func (c *ConfigCommand) setConfig(configPath string, args []string) error {
 	}
 
 	// Save config
-	return c.saveConfig(configPath, config)
+	res:= c.saveConfig(configPath, config)
+	fmt.Printf("Successfully set value '%v' for '%v'\n", value, key)
+
+	return res
 }
 
 func (c *ConfigCommand) getConfig(configPath string, args []string) error {
 	if len(args) != 1 {
-		return fmt.Errorf("get requires a key")
+		return fmt.Errorf("Unknown arguments")
 	}
 
 	key := args[0]

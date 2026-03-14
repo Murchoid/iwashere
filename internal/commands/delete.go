@@ -7,12 +7,14 @@ import (
 )
 
 type DeleteCommand struct {
-	BaseCommand
+	spec *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewDeleteCommandFactory() Command {
 	return &DeleteCommand{
-		BaseCommand{
+		spec: DeleteCommandSpec,
+		baseCommand: BaseCommand{
 			NameStr:  "delete",
 			DescStr:  "deletes a note",
 			UsageStr: "iwashere delete/rm <id>",
@@ -25,32 +27,34 @@ func NewDeleteCommandFactory() Command {
 }
 
 func (a *DeleteCommand) Name() string {
-	return a.BaseCommand.Name()
+	return a.baseCommand.Name()
 }
 
 func (a *DeleteCommand) Description() string {
-	return a.BaseCommand.Description()
+	return a.baseCommand.Description()
 }
 
 func (a *DeleteCommand) Usage() string {
-	return a.BaseCommand.Usage()
+	return a.baseCommand.Usage()
 }
 
 func (a *DeleteCommand) Examples() []string {
-	return a.BaseCommand.Examples()
+	return a.baseCommand.Examples()
 }
 
 func (a *DeleteCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
-
-	if len(ctx.Args) == 0 {
-		fmt.Println("Id must be provided")
-		fmt.Println()
+	parseArgs, err := a.spec.Parse(ctx.Args)
+	if err!= nil {
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-		return nil
+		return fmt.Errorf("invalid arguments: %w", err)
 	}
-	id := ctx.Args[0]
+
+	var id string
+	if len(parseArgs.Positional) > 0 {
+		id = parseArgs.Positional[0]
+	}
 
 	if err := repo.DeleteNote(id); err != nil {
 		return err

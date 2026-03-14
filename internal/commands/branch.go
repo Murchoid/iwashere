@@ -2,7 +2,7 @@ package commands
 
 import (
 	"fmt"
-	"strconv"
+	"slices"
 
 	"github.com/Murchoid/iwashere/internal/domain/models"
 	"github.com/Murchoid/iwashere/internal/repository"
@@ -11,12 +11,14 @@ import (
 )
 
 type BranchCommand struct {
-	BaseCommand
+	spec *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewBranchCommandFactory() Command {
 	return &BranchCommand{
-		BaseCommand{
+		spec: BranchCommandSpec,
+		baseCommand: BaseCommand{
 			NameStr:  "branch",
 			DescStr:  "Shows all notes of the current branch",
 			UsageStr: `iwashere branch  [argument]`,
@@ -29,19 +31,19 @@ func NewBranchCommandFactory() Command {
 }
 
 func (a *BranchCommand) Name() string {
-	return a.BaseCommand.Name()
+	return a.baseCommand.Name()
 }
 
 func (a *BranchCommand) Description() string {
-	return a.BaseCommand.Description()
+	return a.baseCommand.Description()
 }
 
 func (a *BranchCommand) Usage() string {
-	return a.BaseCommand.Usage()
+	return a.baseCommand.Usage()
 }
 
 func (a *BranchCommand) Examples() []string {
-	return a.BaseCommand.Examples()
+	return a.baseCommand.Examples()
 }
 
 func (a *BranchCommand) Execute(ctx *Context) error {
@@ -50,23 +52,33 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 	}
 
 	repo := ctx.Repo
-	branch := ""
-	if len(ctx.Args) > 0 {
-		branch = ctx.Args[0]
+	parsedArgs, err := a.spec.Parse(ctx.Args)
 
+	if err!= nil {
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return fmt.Errorf("invalid arguments: %w", err)
+	}
+
+	branch := ""
+	if len(parsedArgs.Positional) > 0 {
+		branch = parsedArgs.Positional[0]
 	}
 
 	var filters repository.NoteFilter
 	filters.ProjectPath = ctx.ProjectPath
-	filters.Limit = a.getLimit(ctx)
+	filters.Limit = a.getLimit(parsedArgs)
 
-	if ctx.Flags["--tags"] != "" {
-		filters.Tags = utils.ParseTags(ctx.Flags["--tags"])
+	tags:= parsedArgs.Flags["tags"]
+	pTags,err := tags.String()
+
+	if tags.Present && err == nil {
+		filters.Tags = utils.ParseTags(pTags)
 	}
 
 	if ctx.Config.Git.AutoContext {
 		gitService := git.NewService(ctx.WorkDir)
-		if gitInfo, err := gitService.GetInfo(); err == nil && gitInfo != nil {
+		gitInfo, err := gitService.GetInfo();
+		if  err == nil && gitInfo != nil {
 			filters.Branch = gitInfo.Branch
 
 			fmt.Printf("Git context: %s @ %s\n", gitInfo.Branch, gitInfo.CommitHash)
@@ -74,9 +86,16 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 				fmt.Printf("You have uncommitted changes\n")
 			}
 		}
-		if branch != "" {
-			filters.Branch = branch
-		}
+			if branch != "" {
+				branchName := branch
+				branchIsThere := slices.Contains(gitInfo.Allbranches, branchName)
+				if branchIsThere {
+					filters.Branch = branchName
+				} else {
+					fmt.Println()
+					return fmt.Errorf("Branch '%s' does not exist in your git", branchName)
+				}
+			}
 	}
 
 	notes, err := repo.ListNotes(&filters)
@@ -96,21 +115,19 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 	}
 
 	format := "detailed"
-	if ctx.Flags["--short"] == "true" {
+	if ok, err := parsedArgs.Flags["short"].Bool(); ok && err == nil {
 		format = "short"
+	}else if ok, err := parsedArgs.Flags["compact"].Bool(); ok && err == nil {
+		format = "compact"
 	}
 
 	utils.PrintNotes(notes, sessions, format)
 	return nil
 }
 
-func (c *BranchCommand) getLimit(ctx *Context) int {
-	if ctx.Flags["--limit"] != "" {
-		limit, err := strconv.Atoi(ctx.Flags["--limit"])
-		if err != nil {
-			return 5
-		}
-		return limit
+func (c *BranchCommand) getLimit(parsedArgs *ParsedArgs) int {
+	if  num, err:= parsedArgs.Flags["limit"].Int(); err == nil {
+		return num
 	}
 	return 5
 }

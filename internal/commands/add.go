@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/Murchoid/iwashere/internal/domain/models"
 	"github.com/Murchoid/iwashere/internal/repository"
@@ -48,7 +49,6 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	repo := ctx.Repo
 	parsed, err := a.spec.Parse(ctx.Args)
 	if err != nil {
-		// Show help on parse error
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 		return fmt.Errorf("invalid arguments: %w", err)
 	}
@@ -100,18 +100,12 @@ func (a *AddCommand) Execute(ctx *Context) error {
 			branch, err := parsed.Flags["branch"].String()
 			if branch != "" && err == nil && parsed.Flags["branch"].Present {
 				branchName := branch
-				branchIsThere := false
-				fmt.Println(gitInfo.Allbranches)
-				for _, branch := range gitInfo.Allbranches {
-					if branch != branchName {
-						branchIsThere = true
-					}
-				}
-
+				branchIsThere:= slices.Contains(gitInfo.Allbranches, branchName)
 				if branchIsThere {
 					note.Branch = branchName
 				} else {
-					return fmt.Errorf("Branch %s does not exist in your git", branchName)
+					fmt.Println()
+					return fmt.Errorf("Branch '%s' does not exist in your git", branchName)
 				}
 			}
 

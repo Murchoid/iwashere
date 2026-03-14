@@ -39,7 +39,7 @@ type ArgSpec struct {
 var AddCommandSpec = &CommandSpec{
 	Name:        "add",
 	Description: "Add a new note",
-	Usage:       "iwashere add/a <message> [options]",
+	Usage:       "iwashere add <message> [options]",
 	Args: []ArgSpec{
 		{
 			Name:     "message",
@@ -68,6 +68,103 @@ var AddCommandSpec = &CommandSpec{
 			Usage:    "The branch to which to relate the current note with",
 			Required: false,
 			Short:    "b",
+		},
+	},
+}
+
+//config spec
+var ConfigCommandSpec = &CommandSpec{
+	Name:        "config",
+	Description: "Show, set, get or reset your configs",
+	Usage:       "iwashere config [options] [path]",
+	Subcommands: map[string]*CommandSpec{
+		"set": &CommandSpec{
+			Name: "set",
+			Usage: "set <proptery.attribute>",
+			Description: "set a value for a particullar attribute",
+			Args: []ArgSpec{
+				{
+					Name: "property_attribute",
+					Required: true,
+				},
+			},
+		},
+		"get": &CommandSpec{
+			Name: "get",
+			Usage: "get <proptery.attribute>",
+			Description: "get a value for a particullar attribute",
+			Args: []ArgSpec{
+				{
+					Name: "property_attribute",
+					Required: true,
+				},
+			},
+		},
+	},
+}
+
+
+//delete spec
+var DeleteCommandSpec = &CommandSpec{
+	Name:        "delete",
+	Description: "deletes a note",
+	Usage:       "iwashere delete/rm <id>",
+	Args: []ArgSpec{
+		{
+			Name: "note-id",
+			Usage: "iwashere delete <note-id>",
+			Required: true,
+		},
+	},
+}
+
+// branch command spec
+var BranchCommandSpec = &CommandSpec{
+	Name:        "branch",
+	Description: "list notes from a branch",
+	Usage:       "iwashere branch [options]",
+	Args: []ArgSpec{
+		{
+			Name:     "branchName",
+			Usage:    "The specific branch to list notes from",
+			Required: false,
+		},
+	},
+	Flags: []FlagSpec{
+		{
+			Name:     "limit",
+			Type:     FlagTypeInt,
+			Usage:    "Number of notes to show",
+			Required: false,
+			Short:    "l",
+		},
+		{
+			Name:     "tags",
+			Type:     FlagTypeString,
+			Usage:    "tags to attach to the current note",
+			Required: false,
+			Short:    "t",
+		},
+		{
+			Name:     "short",
+			Type:     FlagTypeBool,
+			Usage:    "Displays notes in 'short' format",
+			Required: false,
+			Short:    "sh",
+		},
+		{
+			Name:     "detailed",
+			Type:     FlagTypeBool,
+			Usage:    "Displays notes in 'detailed' format",
+			Required: false,
+			Short:    "dt",
+		},
+		{
+			Name:     "compact",
+			Type:     FlagTypeBool,
+			Usage:    "Displays notes in 'compact' format",
+			Required: false,
+			Short:    "cm",
 		},
 	},
 }
@@ -174,4 +271,7 @@ func GetSpec(name string) *CommandSpec {
 func init() {
 	RegisterSpec("remind", RemindCommandSpec)
 	RegisterSpec("add", AddCommandSpec)
+	RegisterSpec("branch", BranchCommandSpec)
+	RegisterSpec("config", ConfigCommandSpec)
+	RegisterSpec("delete", DeleteCommandSpec)
 }
