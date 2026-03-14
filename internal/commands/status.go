@@ -70,13 +70,18 @@ func (a *StatusCommand) Execute(ctx *Context) error {
 	var notes []*models.PrivateNote
 	if session != nil && len(session.Notes) > 0 {
 		for _, noteId := range session.Notes {
-			note, err := repo.GetNote(noteId)
+			var note *models.PrivateNote
+			var err error
+			if noteId != "" {
+				note, err = repo.GetNote(noteId)
+				notes = append(notes, note)
+			}
 			if err != nil {
 				// Log but don't fail - just skip corrupted notes
+				fmt.Println("Note id: ", noteId)
 				fmt.Fprintf(os.Stderr, "Warning: failed to fetch note %s: %v\n", noteId, err)
 				continue
 			}
-			notes = append(notes, note)
 		}
 	}
 

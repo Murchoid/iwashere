@@ -10,39 +10,34 @@ import (
 )
 
 type AddCommand struct {
-	BaseCommand
+	spec *CommandSpec
 }
 
 func NewAddCommandFactory() Command {
 	return &AddCommand{
-		BaseCommand{
-			NameStr:  "add",
-			DescStr:  "Add a new note",
-			UsageStr: "iwashere add/a <message> [options]",
-			ExamplesList: []string{
-				"iwashere add \"Working on authentication\"",
-				"iwashere a \"Fix memory leak\" --tags bug,performance",
-				"iwashere add \"Update README\" --branch main",
-				"iwashere add \"Add current note in current session\" --session",
-			},
-		},
+		spec: AddCommandSpec,
 	}
 }
 
 func (a *AddCommand) Name() string {
-	return a.BaseCommand.Name()
+	return "add"
 }
 
 func (a *AddCommand) Description() string {
-	return a.BaseCommand.Description()
+	return "Add a new note"
 }
 
 func (a *AddCommand) Usage() string {
-	return a.BaseCommand.Usage()
+	return "iwashere add/a <message> [options]"
 }
 
 func (a *AddCommand) Examples() []string {
-	return a.BaseCommand.Examples()
+	return []string{
+		"iwashere add \"Working on authentication\"",
+		"iwashere a \"Fix memory leak\" --tags bug,performance",
+		"iwashere add \"Update README\" --branch main",
+		"iwashere add \"Add current note in current session\" --session",
+	}
 }
 
 func (a *AddCommand) Execute(ctx *Context) error {
@@ -51,7 +46,14 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	}
 
 	repo := ctx.Repo
-	if len(ctx.Args) == 0 {
+	parsed, err := a.spec.Parse(ctx.Args)
+	if err != nil {
+		// Show help on parse error
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return fmt.Errorf("invalid arguments: %w", err)
+	}
+
+	if len(parsed.Positional) == 0 {
 		fmt.Println("Note message must be provided")
 		fmt.Println()
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
@@ -59,14 +61,14 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		return nil
 	}
 
-	if len(ctx.Args) > 1 {
+	if len(parsed.Positional) > 1 {
 		fmt.Println("add only accepts one argument")
 		fmt.Println()
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 		return nil
 	}
 
-	message := ctx.Args[0]
+	message := parsed.Positional[0]
 	if message == "" {
 		fmt.Println("message Cannot be empty")
 		return nil
@@ -77,8 +79,10 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		ProjectPath: ctx.ProjectPath,
 	}
 
-	if ctx.Flags["--tags"] != "" {
-		note.Tags = utils.ParseTags(ctx.Flags["--tags"])
+	tags := parsed.Flags["tags"]
+	pTag, err := tags.String()
+	if err == nil && tags.Present {
+		note.Tags = utils.ParseTags(pTag)
 	}
 
 	if ctx.Config.Git.AutoContext {
@@ -93,8 +97,9 @@ func (a *AddCommand) Execute(ctx *Context) error {
 				note.ModifiedFiles = mFiles
 			}
 
-			if ctx.Flags["--branch"] != "" {
-				branchName := ctx.Flags["--branch"]
+			branch, err := parsed.Flags["branch"].String()
+			if branch != "" && err == nil && parsed.Flags["branch"].Present {
+				branchName := branch
 				branchIsThere := false
 				fmt.Println(gitInfo.Allbranches)
 				for _, branch := range gitInfo.Allbranches {
@@ -117,16 +122,10 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		}
 	}
 
-	if ctx.Flags["--session"] != "" {
-		if ctx.Flags["--session"] == "true" {
-			if err := addNoteToCurrentSession(repo, note); err != nil {
-				return err
-			}
-		} else {
-			fmt.Println("Unrecognized argument after --session")
-			fmt.Println()
-			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-			return nil
+	session, err := parsed.Flags["session"].Bool()
+	if session && err == nil && parsed.Flags["session"].Present {
+		if err := addNoteToCurrentSession(repo, note); err != nil {
+			return err
 		}
 	}
 

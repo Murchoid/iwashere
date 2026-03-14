@@ -338,27 +338,18 @@ func (r *JSONRepository) GetReminder(id string) (*models.Reminder, error) {
 	return &reminder, nil
 }
 
-func (r *JSONRepository) DeactivateReminder(id string) error {
-	// First verify note exists
+func (r *JSONRepository) DeactivateOrUpdateReminder(id string) error {
 	existing, err := r.GetReminder(id)
 	if err != nil {
 		return err
 	}
 
-	existing.Active = false
-	// Save (overwrite)
-	return r.SaveReminder(existing)
-}
-
-func (r *JSONRepository) UpdateReminderTime(id string) error {
-	// First verify note exists
-	existing, err := r.GetReminder(id)
-	if err != nil {
-		return err
+	if existing.Repeats == "none" || existing.Repeats == "" {
+		existing.Active = false
+	} else {
+		existing.DueAt = getNextTimeDependingOnRepeat(existing.Repeats, existing.DueAt)
 	}
 
-	existing.DueAt = getNextTimeDependingOnRepeat(existing.Repeats, existing.DueAt)
-	// Save (overwrite)
 	return r.SaveReminder(existing)
 }
 

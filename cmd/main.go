@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
+	"strings"
 
-	argparser "github.com/Murchoid/iwashere/internal/argParser"
 	"github.com/Murchoid/iwashere/internal/commands"
 	"github.com/Murchoid/iwashere/internal/domain/models"
 	"github.com/Murchoid/iwashere/internal/repository"
 	"github.com/Murchoid/iwashere/internal/repository/jsonRepo"
+	"github.com/Murchoid/iwashere/internal/utils"
 )
 
 func main() {
@@ -21,13 +21,6 @@ func main() {
 		commands.ShowGlobalHelp()
 		os.Exit(1)
 	}
-
-	// Parse command
-	argument := argparser.NewArgParser()
-	parsedArguments := argument.ParseArguments(args)
-	cmdName := parsedArguments.Name
-	cmdArgs := parsedArguments.Args
-	flags := parsedArguments.Flags
 
 	// Get working directory
 	workDir, err := os.Getwd()
@@ -53,9 +46,10 @@ func main() {
 		os.Exit(1)
 	}
 	// Create command context
+	cmdName := args[0]
+	cmdArgs := args[1:]
 	ctx := &commands.Context{
 		Args:        cmdArgs,
-		Flags:       flags,
 		WorkDir:     workDir,
 		ProjectPath: projectPath,
 		Config:      config,
@@ -190,18 +184,14 @@ func CheckAndShowReminders(ctx *commands.Context) {
 	fmt.Println("\nDUE REMINDERS")
 	fmt.Println("================")
 	for _, r := range reminders {
-		overdue := time.Since(r.DueAt).Round(time.Minute)
+		overdue := strings.TrimLeft(utils.HowLongAgo(r.DueAt, 0), " ")
 		noteid := r.NoteID
 		fmt.Printf("  • %s (overdue by %s)\n", r.Message, overdue)
 		if noteid != "" {
 			fmt.Printf("    Note: %s\n", r.NoteID[:8])
 		}
 
-		if r.Repeats == "none" {
-			deactivateReminder(ctx, r.ID)
-		} else {
-			updateReminder(ctx, r.ID)
-		}
+		updateReminder(ctx, r.ID)
 	}
 	fmt.Println()
 }
@@ -218,13 +208,7 @@ func getDueReminders(ctx *commands.Context) ([]*models.Reminder, error) {
 	return reminders, nil
 }
 
-func deactivateReminder(ctx *commands.Context, id string) error {
-	repo := ctx.Repo
-	return repo.DeactivateReminder(id)
-}
-
 func updateReminder(ctx *commands.Context, id string) error {
 	repo := ctx.Repo
-
-	return repo.UpdateReminderTime(id)
+	return repo.DeactivateOrUpdateReminder(id)
 }

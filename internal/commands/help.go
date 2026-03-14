@@ -38,14 +38,16 @@ func (c *HelpCommand) Execute(ctx *Context) error {
 	// If they specified a command, show help for that command
 	if len(ctx.Args) > 0 {
 		cmdName := ctx.Args[0]
-		return showCommandHelp(cmdName)
+		showCommandHelp(cmdName)
 	}
 
 	// Otherwise show global help
-	return ShowGlobalHelp()
+	ShowGlobalHelp()
+
+	return nil
 }
 
-func ShowGlobalHelp() error {
+func ShowGlobalHelp() {
 	fmt.Println("iwashere - Context preservation tool")
 	fmt.Println("========================================")
 	fmt.Println()
@@ -81,24 +83,58 @@ func ShowGlobalHelp() error {
 	fmt.Println("Use 'iwashere help <command>' for more details about a specific command.")
 	fmt.Println("Examples: iwashere help add, iwashere help session")
 
-	return nil
 }
 
-func showCommandHelp(cmdName string) error {
-	factory, exists := GetFactory(cmdName)
-	if !exists {
-		return fmt.Errorf("unknown command: %s", cmdName)
+func showCommandHelp(cmdName string) {
+	spec := getCommandSpec(cmdName)
+	if spec == nil {
+		return
 	}
-	cmd := factory()
-	utils.PrintCommandHelp(cmd.Name(), cmd.Description(), cmd.Usage(), cmd.Examples())
-	fmt.Println()
 
-	// Could add more sections here like:
-	// - Options/Flags
-	// - See Also
-	// - Notes
+	fmt.Printf("Usage: %s\n", spec.Usage)
+	fmt.Printf("\nDescription:\n  %s\n", spec.Description)
 
-	return nil
+	if len(spec.Args) > 0 {
+		fmt.Printf("\nArguments:\n")
+		for _, arg := range spec.Args {
+			req := ""
+			if arg.Required {
+				req = " (required)"
+			}
+			fmt.Printf("  %s%s\n    %s\n", arg.Name, req, arg.Usage)
+		}
+	}
+
+	if len(spec.Flags) > 0 {
+		fmt.Printf("\nFlags:\n")
+		for _, flag := range spec.Flags {
+			short := ""
+			if flag.Short != "" {
+				short = fmt.Sprintf(" -%s", flag.Short)
+			}
+			req := ""
+			if flag.Required {
+				req = " (required)"
+			}
+			def := ""
+			if flag.Default != nil {
+				def = fmt.Sprintf(" (default: %v)", flag.Default)
+			}
+			fmt.Printf("  --%s%s%s\n    %s%s\n",
+				flag.Name, short, req, flag.Usage, def)
+		}
+	}
+
+	if len(spec.Subcommands) > 0 {
+		fmt.Printf("\nSubcommands:\n")
+		for name, sub := range spec.Subcommands {
+			fmt.Printf("  %s\n    %s\n", name, sub.Description)
+		}
+	}
+}
+
+func getCommandSpec(name string) *CommandSpec {
+	return GetSpec(name)
 }
 
 func init() {

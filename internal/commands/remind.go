@@ -2,72 +2,31 @@ package commands
 
 import (
 	"fmt"
-	"math"
-	"strings"
 	"time"
 
 	"github.com/Murchoid/iwashere/internal/domain/models"
 	"github.com/Murchoid/iwashere/internal/utils"
 )
 
-type WeekDays int
-
-const (
-	Sunday WeekDays = iota
-	Monday
-	Tuesday
-	Wednesday
-	Thursday
-	Friday
-	Saturday
-)
-
-type Repeatition string
-
-const (
-	Daily   Repeatition = "daily"
-	Weekly  Repeatition = "weekly"
-	Monthly Repeatition = "monthly"
-	None    Repeatition = "none"
-)
-
 type RemindCommand struct {
-	BaseCommand
+	spec *CommandSpec
 }
 
-func NewRemindCommand() Command {
+func NewRemindCommandFactory() Command {
 	return &RemindCommand{
-		BaseCommand{
-			NameStr: "remind",
-			DescStr: "Set reminders for notes",
-			UsageStr: `iwashere remind <note-id> --at <when>
-iwashere remind list
-iwashere remind delete <reminder-id>`,
-			ExamplesList: []string{
-				"iwashere remind 123 --at 'tomorrow 9am'",
-				"iwashere remind 123 --at 'in 2h'",
-				"iwashere remind 123 --at 'in 2h45m'",
-				"iwashere remind list",
-				"iwashere remind delete <reminder-id>",
-			},
-		},
+		spec: RemindCommandSpec,
 	}
 }
 
-func (c *RemindCommand) Name() string {
-	return c.BaseCommand.Name()
-}
-
-func (c *RemindCommand) Description() string {
-	return c.BaseCommand.Description()
-}
-
-func (c *RemindCommand) Usage() string {
-	return c.BaseCommand.Usage()
-}
-
+func (c *RemindCommand) Name() string        { return "remind" }
+func (c *RemindCommand) Description() string { return "Set reminders for notes" }
+func (c *RemindCommand) Usage() string       { return c.spec.Usage }
 func (c *RemindCommand) Examples() []string {
-	return c.BaseCommand.Examples()
+	return []string{
+		"iwashere remind 123 --at 'tomorrow 9:00'",
+		"iwashere remind list",
+		"iwashere remind delete rmd_abc123",
+	}
 }
 
 func (c *RemindCommand) Execute(ctx *Context) error {
@@ -75,72 +34,70 @@ func (c *RemindCommand) Execute(ctx *Context) error {
 		return fmt.Errorf("not in an iwashere project (run iwashere init first)")
 	}
 
-	if len(ctx.Args) == 0 && ctx.Flags["--message"] == "" {
-		return c.listReminders(ctx)
+	parsed, err := c.spec.Parse(ctx.Args)
+	if err != nil {
+		// Show help on parse error
+		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+		return fmt.Errorf("invalid arguments: %w", err)
 	}
 
-	if len(ctx.Args) > 0 {
-		switch ctx.Args[0] {
-		case "list":
-			return c.listReminders(ctx)
-		case "delete":
-			return c.deleteReminder(ctx)
-		}
-	} else {
-		return c.addReminder(ctx)
+	// Handle subcommands
+	switch parsed.Subcommand {
+	case "list":
+		return c.listReminders(ctx, parsed)
+	case "delete":
+		return c.deleteReminder(ctx, parsed)
+	case "done":
+		return c.markAsDone(ctx, parsed)
+	default:
+		// No subcommand = add reminder
+		return c.addReminder(ctx, parsed)
 	}
-
-	return nil
 }
 
-func (c *RemindCommand) addReminder(ctx *Context) error {
+func (c *RemindCommand) addReminder(ctx *Context, parsed *ParsedArgs) error {
+	// Get note ID from positional args
 	var noteID string
-	if len(ctx.Args) > 0 {
-		noteID = ctx.Args[0]
+	if len(parsed.Positional) > 0 {
+		noteID = parsed.Positional[0]
 	}
 
-	when := ctx.Flags["--at"]
-	if when == "" {
-		return fmt.Errorf("--at is required (e.g., --at 'tomorrow 9am')")
+	// Get --at flag (required)
+	atFlag := parsed.Flags["at"]
+	dueTime, err := atFlag.Time()
+	if err != nil {
+		return fmt.Errorf("--at flag required")
 	}
 
-	var note *models.PrivateNote
-	if noteID != "" {
-		var err error
-		note, err = ctx.Repo.GetNote(noteID)
+	// Get message
+	var message string
+	if msgFlag, ok := parsed.Flags["message"]; ok && msgFlag.Present {
+		msg, _ := msgFlag.String()
+		message = msg
+	} else if noteID != "" {
+		note, err := ctx.Repo.GetNote(noteID)
 		if err != nil {
 			return err
 		}
-	}
-
-	dueTime, err := parseNaturalTime(when)
-	if err != nil {
-		return fmt.Errorf("could not parse time: %s %w", when, err)
-	}
-
-	var message string
-	if noteID == "" && note == nil {
-		if ctx.Flags["--message"] != "" {
-			message = ctx.Flags["--message"]
-		} else {
-			return fmt.Errorf("A message or note id must be provided")
-		}
-	} else if note != nil {
 		message = note.Message
+	} else {
+		return fmt.Errorf("either note-id or --message is required")
 	}
 
-	repeats := None
-
-	if ctx.Flags["--repeat"] != "" {
-		repeats = Repeatition(strings.ToLower(ctx.Flags["--repeat"]))
+	// Get repeat (optional)
+	repeats := "none"
+	if repeatFlag, ok := parsed.Flags["repeat"]; ok && repeatFlag.Present {
+		rep, _ := repeatFlag.String()
+		repeats = rep
 	}
 
+	// Create reminder
 	reminder := &models.Reminder{
 		ID:        utils.GenerateId(),
 		NoteID:    noteID,
 		Message:   message,
 		DueAt:     dueTime,
-		Repeats:   string(repeats),
+		Repeats:   repeats,
 		CreatedAt: time.Now(),
 		Active:    true,
 	}
@@ -150,178 +107,106 @@ func (c *RemindCommand) addReminder(ctx *Context) error {
 	}
 
 	fmt.Printf("Reminder set for %s\n", dueTime.Format("Mon Jan 2 at 15:04"))
-	fmt.Printf("   Note: %s\n", truncate(message, 50))
-	fmt.Printf("   Repeats: %s\n", reminder.Repeats)
+	fmt.Printf("  Message: %s\n", truncate(message, 50))
+	if repeats != "none" {
+		fmt.Printf("   Repeats: %s\n", repeats)
+	}
 
 	return nil
 }
 
-func parseNaturalTime(input string) (time.Time, error) {
-	now := time.Now()
+func (c *RemindCommand) listReminders(ctx *Context, parsed *ParsedArgs) error {
+	// Get filter options
+	all, _ := parsed.Flags["all"].Bool()
+	noteFilter, _ := parsed.Flags["note"].String()
 
-	// Handle "in X minutes/hours/days"
-	if strings.HasPrefix(input, "in ") {
-		duration, err := time.ParseDuration(strings.TrimPrefix(input, "in "))
-		if err != nil {
-			return time.Time{}, err
+	reminders, _ := getReminders(ctx)
+
+	fmt.Println("Reminders")
+	fmt.Println("===========")
+
+	for _, r := range reminders {
+		if !all && !r.Active {
+			continue
 		}
-		return now.Add(duration), nil
+		if noteFilter != "" && r.NoteID != noteFilter {
+			continue
+		}
+
+		status := "Active"
+		if !r.Active {
+			status = "Done"
+		}
+
+		fmt.Printf("%s [%s] %s\n", status, r.ID[:8], r.Message)
+		fmt.Printf("   Due: %s (%s)\n",
+			r.DueAt.Format("Mon Jan 2 15:04"),
+			utils.HowLongAgo(r.CreatedAt, 0))
+		if r.Repeats != "none" {
+			fmt.Printf("   Repeats: %s\n", r.Repeats)
+		}
+		fmt.Println()
 	}
 
-	// Handle "tomorrow 9am"
-	if strings.HasPrefix(input, "tomorrow") {
-		t, err := time.Parse("15:04", strings.TrimPrefix(input, "tomorrow "))
-		if err != nil {
-			return time.Time{}, err
-		}
-		tomorrow := now.Add(24 * time.Hour)
-		return time.Date(
-			tomorrow.Year(), tomorrow.Month(), tomorrow.Day(),
-			t.Hour(), t.Minute(), 0, 0, now.Location(),
-		), nil
-	}
-
-	if strings.HasPrefix(input, "today ") {
-		t, err := time.Parse("15:04", strings.TrimPrefix(input, "today "))
-		if err != nil {
-			return time.Time{}, err
-		}
-		return time.Date(
-			now.Year(), now.Month(), now.Day(),
-			t.Hour(), t.Minute(), 0, 0, now.Location(),
-		), nil
-	}
-
-	// Handle "Friday 5pm"
-	return parseDayTime(input)
+	return nil
 }
 
-func (c *RemindCommand) listReminders(ctx *Context) error {
-	repo := ctx.Repo
-
-	if len(ctx.Args) > 1 {
-		fmt.Println("Unknown arguments")
-		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-		return nil
+func (c *RemindCommand) deleteReminder(ctx *Context, parsed *ParsedArgs) error {
+	if len(parsed.Positional) == 0 {
+		return fmt.Errorf("reminder-id required")
 	}
+
+	reminderID := parsed.Positional[0]
+	if err := deleteReminder(ctx, reminderID); err != nil {
+		return err
+	}
+
+	fmt.Printf("Reminder %s deleted\n", reminderID[:8])
+	return nil
+}
+
+func (c *RemindCommand) markAsDone(ctx *Context, parsed *ParsedArgs) error {
+	if len(parsed.Positional) == 0 {
+		return fmt.Errorf("reminder-id required")
+	}
+
+	reminderID := parsed.Positional[0]
+	if err := markReminderDone(ctx, reminderID); err != nil {
+		return fmt.Errorf("error marking reminder as done: %w", err)
+	}
+
+	fmt.Printf("Reminder %s marked as done!\n", reminderID[:8])
+	return nil
+}
+
+// helper functions
+func saveReminder(ctx *Context, reminder *models.Reminder) error {
+	repo := ctx.Repo
+	return repo.SaveReminder(reminder)
+}
+
+func getReminders(ctx *Context) ([]*models.Reminder, error) {
+	repo := ctx.Repo
 
 	reminders, err := repo.ListReminders()
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	utils.PrintReminders(reminders, true, repo)
-
-	return nil
+	return reminders, nil
 }
 
-func (c *RemindCommand) deleteReminder(ctx *Context) error {
+func deleteReminder(ctx *Context, reminderID string) error {
 	repo := ctx.Repo
-
-	if len(ctx.Args) < 1 {
-		fmt.Println("Too few arguments")
-		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-		return nil
-	}
-
-	if len(ctx.Args) > 2 {
-		fmt.Println("Unknown arguments")
-		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-		return nil
-	}
-
-	id := ctx.Args[1]
-	err := repo.DeleteReminder(id)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return repo.DeleteReminder(reminderID)
 }
 
-func saveReminder(ctx *Context, reminder *models.Reminder) error {
+func markReminderDone(ctx *Context, reminderID string) error {
 	repo := ctx.Repo
-
-	if len(ctx.Args) < 1 && ctx.Flags["--message"] == "" {
-		fmt.Println("Too few arguments")
-		return nil
-	}
-
-	err := repo.SaveReminder(reminder)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func parseDayTime(dayTime string) (time.Time, error) {
-	day, t, _ := strings.Cut(dayTime, " ")
-	today := int(time.Now().Weekday())
-
-	switch day {
-	case "Sunday":
-		diff := int(Sunday) - today
-		return getReminderFullDateTime(diff, t)
-	case "Monday":
-		diff := int(Monday) - today
-		return getReminderFullDateTime(diff, t)
-	case "Tuesday":
-		diff := int(Tuesday) - today
-		return getReminderFullDateTime(diff, t)
-	case "Wednesday":
-		diff := int(Wednesday) - today
-		return getReminderFullDateTime(diff, t)
-	case "Thursday":
-		diff := int(Thursday) - today
-		return getReminderFullDateTime(diff, t)
-	case "Friday":
-		diff := int(Friday) - today
-		return getReminderFullDateTime(diff, t)
-	case "Saturday":
-		diff := int(Saturday) - today
-		return getReminderFullDateTime(diff, t)
-	}
-
-	return time.Now(), nil
-}
-
-func getReminderFullDateTime(diff int, t string) (time.Time, error) {
-
-	rTime, err := time.Parse("15:00", t)
-	if diff != 0 {
-		daysAhead := math.Abs(float64(diff))
-		now := time.Now()
-
-		if err != nil {
-			return time.Time{}, err
-		}
-
-		specificDay := 24 * daysAhead
-		remindDate := now.Add(time.Duration(specificDay) * time.Hour)
-		setDate := time.Date(
-			remindDate.Year(), remindDate.Month(), remindDate.Day(),
-			rTime.Hour(), rTime.Minute(), 0, 0, now.Location(),
-		)
-
-		return setDate, nil
-	}
-
-	//if the difference is 0, means the days are 7days apart, i.e Monday = 1, 1 - 1 is 0
-	now := time.Now()
-	specificDay := 24 * 7
-	remindDate := now.Add(time.Duration(specificDay) * time.Hour)
-	setDate := time.Date(
-		remindDate.Year(), remindDate.Month(), remindDate.Day(),
-		rTime.Hour(), rTime.Minute(), 0, 0, now.Location(),
-	)
-
-	return setDate, nil
+	return repo.DeactivateOrUpdateReminder(reminderID)
 }
 
 func init() {
-	Register("remind", NewRemindCommand)
+	Register("remind", NewRemindCommandFactory)
 }
