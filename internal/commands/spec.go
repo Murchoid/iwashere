@@ -294,6 +294,30 @@ var RemindCommandSpec = &CommandSpec{
 	},
 }
 
+
+// init spec
+var InitCommandSpec = &CommandSpec{
+	Name:        "init",
+	Description: "initialize a iwashere in a project",
+	Usage:       "iwashere init [options]",
+	Flags: []FlagSpec{
+		{
+			Name: "force",
+			Type: FlagTypeBool,
+			Usage: "iwashere init --force",
+			Required: false,
+			Short: "f",
+		},
+		{
+			Name: "no-ignore",
+			Type: FlagTypeBool,
+			Usage: "iwashere init --no-ignore",
+			Required: false,
+			Short: "ni",
+		},
+	},
+}
+
 var comandSpecRegestry = map[string]CommandSpec{}
 
 func RegisterSpec(name string, spec *CommandSpec) {
@@ -318,4 +342,5 @@ func init() {
 	RegisterSpec("config", ConfigCommandSpec)
 	RegisterSpec("delete", DeleteCommandSpec)
 	RegisterSpec("edit", EditCommandSpec)
+	RegisterSpec("init", InitCommandSpec)
 }

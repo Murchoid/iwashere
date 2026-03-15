@@ -75,6 +75,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	}
 
 	note := &models.PrivateNote{
+		ID: utils.GenerateId(),
 		Message:     message,
 		ProjectPath: ctx.ProjectPath,
 	}
@@ -157,6 +158,7 @@ func addNoteToCurrentSession(repo repository.Repository, note *models.PrivateNot
 		return err
 	}
 
+	fmt.Println("Note saved in session: ", session.Title)
 	return nil
 }
 

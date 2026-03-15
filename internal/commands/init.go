@@ -14,12 +14,14 @@ import (
 )
 
 type InitCommand struct {
-	BaseCommand
+	spec *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewInitCommand() Command {
 	return &InitCommand{
-		BaseCommand: BaseCommand{
+		spec: InitCommandSpec,
+		baseCommand: BaseCommand{
 			NameStr:  "init",
 			DescStr:  "Initialize iwashere in current directory",
 			UsageStr: "iwashere init [--force] [--no-ignore]",
@@ -33,19 +35,19 @@ func NewInitCommand() Command {
 }
 
 func (c *InitCommand) Name() string {
-	return c.BaseCommand.Name()
+	return c.baseCommand.Name()
 }
 
 func (c *InitCommand) Description() string {
-	return c.BaseCommand.Description()
+	return c.baseCommand.Description()
 }
 
 func (c *InitCommand) Usage() string {
-	return c.BaseCommand.Usage()
+	return c.baseCommand.Usage()
 }
 
 func (c *InitCommand) Examples() []string {
-	return c.BaseCommand.Examples()
+	return c.baseCommand.Examples()
 }
 
 func (c *InitCommand) Execute(ctx *Context) error {
@@ -57,10 +59,18 @@ func (c *InitCommand) Execute(ctx *Context) error {
 		return nil
 	}
 
-	// Check if already initialized
-	// Check for force flag
-	force := ctx.Flags["--force"] == "true"
-	if ctx.ProjectPath != "" && !force {
+	parseArgs, err := c.spec.Parse(ctx.Args)
+	if err != nil {
+		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+		return fmt.Errorf("invalid arguments: %w", err)
+	}
+
+	force := parseArgs.Flags["force"]
+	pForce, err := force.Bool()
+	if err!= nil && force.Present {
+		return err
+	}
+	if ctx.ProjectPath != "" && pForce {
 		fmt.Println(".iwashere already exists (use --force to reinitialize)")
 		fmt.Println("use 'iwashere init --force' if you want to forcefully reinitialize (Use this if you know what you are doing)")
 		return nil
@@ -103,7 +113,13 @@ func (c *InitCommand) Execute(ctx *Context) error {
 	os.WriteFile(configPath, data, 0644)
 
 	// Create .gitignore entry
-	if ctx.Flags["--no-ignore"] != "true" {
+	noIgnore := parseArgs.Flags["no-ignore"]
+	pNoIgnore, err := noIgnore.Bool()
+	if err != nil && noIgnore.Present {
+		return err
+	}
+
+	if pNoIgnore {
 		if err := c.updateGitignore(ctx.WorkDir); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to update .gitignore: %v\n", err)
 		}

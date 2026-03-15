@@ -39,10 +39,11 @@ func (c *HelpCommand) Execute(ctx *Context) error {
 	if len(ctx.Args) > 0 {
 		cmdName := ctx.Args[0]
 		showCommandHelp(cmdName)
+	}else {// Otherwise show global help
+		ShowGlobalHelp()
 	}
 
-	// Otherwise show global help
-	ShowGlobalHelp()
+	
 
 	return nil
 }
