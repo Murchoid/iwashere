@@ -183,13 +183,13 @@ var EditCommandSpec = &CommandSpec{
 	Flags: []FlagSpec{
 		{
 			Name:     "message",
-			Type:     FlagTypeTime,
+			Type:     FlagTypeString,
 			Usage:    "the new message to replace a note with",
-			Required: true,
+			Required: false,
 			Short:    "m",
 		},
 		{
-			Name:     "tag",
+			Name:     "tags",
 			Type:     FlagTypeString,
 			Usage:    "tags to overwrite with",
 			Required: false,

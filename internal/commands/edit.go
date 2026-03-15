@@ -45,7 +45,10 @@ func (a *EditCommand) Examples() []string {
 func (a *EditCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
-
+	if len(ctx.Args) <= 1 {
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return fmt.Errorf("Missing arguments")
+	}
 	parseArgs, err := a.spec.Parse(ctx.Args)
 	if err != nil {
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
@@ -54,20 +57,26 @@ func (a *EditCommand) Execute(ctx *Context) error {
 
 	id := parseArgs.Positional[0]
 
-	newMsg, err := parseArgs.Flags["--message"].String()
-	if err != nil {
-		return err
-	}
-
 	newNote := models.PrivateNote{
 		ID:          id,
-		Message:     newMsg,
 		ProjectPath: ctx.ProjectPath,
 	}
-	if err := repo.UpdateMessage(&newNote); err != nil {
+
+	//check for message
+	msg := parseArgs.Flags["message"]
+	newMsg, err := msg.String()
+	if err != nil && msg.Present {
 		return err
 	}
 
+	if msg.Present {
+		newNote.Message = newMsg
+		if err := repo.UpdateMessage(&newNote); err != nil {
+			return err
+		}
+	}
+
+	//check for tags
 	tags := parseArgs.Flags["tags"]
 	pTags, err := tags.String()
 
@@ -75,9 +84,39 @@ func (a *EditCommand) Execute(ctx *Context) error {
 		return err
 	}
 
-	newNote.Tags = utils.ParseTags(pTags)
-	if err := repo.UpdateTags(&newNote); err != nil {
+	if tags.Present {
+		newNote.Tags = utils.ParseTags(pTags)
+		if err := repo.UpdateTags(&newNote); err != nil {
+			return err
+		}
+	}
+
+	//check for appended tags
+	appendTags := parseArgs.Flags["add-tags"]
+	aTags, err := appendTags.String()
+	if err != nil && appendTags.Present {
 		return err
+	}
+
+	if appendTags.Present {
+		newNote.Tags = utils.ParseTags(aTags)
+		if err := repo.AddTagsToNote(&newNote); err != nil {
+			return err
+		}
+	}
+
+	//check for tags being removed
+	removeTags := parseArgs.Flags["remove-tags"]
+	rTags, err := removeTags.String()
+	if err != nil && removeTags.Present {
+		return err
+	}
+
+	if removeTags.Present {
+		newNote.Tags = utils.ParseTags(rTags)
+		if err := repo.RemoveTagsFromNote(&newNote); err != nil {
+			return err
+		}
 	}
 
 	fmt.Printf("Edited #%v note\n", id)
