@@ -221,6 +221,7 @@ func groupNotesBySession(notes []*models.PrivateNote, sessions map[string]*model
 	var standalone []*models.PrivateNote
 
 	for _, note := range notes {
+		
 		if note.SessionID != "" {
 			sessionMap[note.SessionID] = append(sessionMap[note.SessionID], note)
 		} else {

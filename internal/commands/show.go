@@ -8,15 +8,17 @@ import (
 )
 
 type ShowCommand struct {
-	BaseCommand
+	spec *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewShowCommandFactory() Command {
 	return &ShowCommand{
-		BaseCommand{
+		spec: ShowCommandSpec,
+		baseCommand: BaseCommand{
 			NameStr:  "show",
 			DescStr:  "Shows the note specified by the id",
-			UsageStr: "iwashere show/s <id>",
+			UsageStr: "iwashere show <id>",
 			ExamplesList: []string{
 				"iwashere show 123",
 				"iwashere s 123",
@@ -26,40 +28,40 @@ func NewShowCommandFactory() Command {
 }
 
 func (a *ShowCommand) Name() string {
-	return a.BaseCommand.Name()
+	return a.baseCommand.Name()
 }
 
 func (a *ShowCommand) Description() string {
-	return a.BaseCommand.Description()
+	return a.baseCommand.Description()
 }
 
 func (a *ShowCommand) Usage() string {
-	return a.BaseCommand.Usage()
+	return a.baseCommand.Usage()
 }
 
 func (a *ShowCommand) Examples() []string {
-	return a.BaseCommand.Examples()
+	return a.baseCommand.Examples()
 }
 
 func (a *ShowCommand) Execute(ctx *Context) error {
 
 	repo := ctx.Repo
 
-	if len(ctx.Args) == 0 {
-		fmt.Println("Id must be provided")
-		fmt.Println()
+	parsedArgs, err := a.spec.Parse(ctx.Args)
+
+	if err != nil {
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-		return nil
+		return fmt.Errorf("invalid arguments: %w", err)
 	}
 
-	if len(ctx.Args) > 1 {
+	if len(parsedArgs.Positional) > 1 {
 		fmt.Println("show only accepts one argument")
 		fmt.Println()
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 		return nil
 	}
 
-	id := ctx.Args[0]
+	id := parsedArgs.Positional[0]
 
 	note, err := repo.GetNote(id)
 	if err != nil {
@@ -67,29 +69,24 @@ func (a *ShowCommand) Execute(ctx *Context) error {
 	}
 
 	format := "detailed"
-
-	if ctx.Flags["--short"] != "" {
-		if ctx.Flags["--short"] == "true" {
+	for f:= range parsedArgs.Flags {
+		switch f {
+		case "short":
 			format = "short"
-		} else {
-			fmt.Println("Unrecognized argument after short")
-			fmt.Println()
-			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-			return nil
+		case "compact":
+			format = "compact"
+		default:
+			format = "detailed"
 		}
 	}
 
-	if ctx.Flags["--compact"] != "" {
-		if ctx.Flags["--compact"] == "true" {
-			format = "compact"
-		} else {
-			fmt.Println("Unrecognized argument after compact")
-			fmt.Println()
-			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-			return nil
-		}
+	session, err := repo.GetSession(note.SessionID)
+	if err!=nil {
+		return err
 	}
-	utils.PrintNotes([]*models.PrivateNote{note}, nil, format)
+	sessionMap:= map[string]*models.Session{}
+	sessionMap[note.SessionID] = session
+	utils.PrintNotes([]*models.PrivateNote{note}, sessionMap, format)
 
 	return nil
 }

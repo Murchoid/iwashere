@@ -17,12 +17,14 @@ import (
 )
 
 type ShareCommand struct {
-	BaseCommand
+	spec *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewShareCommand() Command {
 	return &ShareCommand{
-		BaseCommand{
+		spec: ShareCommandSpec,
+		baseCommand: BaseCommand{
 			NameStr:  "share",
 			DescStr:  "Share notes with teammates",
 			UsageStr: "iwashere share [note-id] --with <recipient>",
@@ -37,19 +39,19 @@ func NewShareCommand() Command {
 }
 
 func (c *ShareCommand) Name() string {
-	return c.BaseCommand.Name()
+	return c.baseCommand.Name()
 }
 
 func (c *ShareCommand) Description() string {
-	return c.BaseCommand.Description()
+	return c.baseCommand.Description()
 }
 
 func (c *ShareCommand) Usage() string {
-	return c.BaseCommand.Usage()
+	return c.baseCommand.Usage()
 }
 
 func (c *ShareCommand) Examples() []string {
-	return c.BaseCommand.Examples()
+	return c.baseCommand.Examples()
 }
 
 func (c *ShareCommand) Execute(ctx *Context) error {
@@ -57,13 +59,20 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 		return fmt.Errorf("not in an iwashere project (run iwashere init first)")
 	}
 
-	// Check for --with flag
-	if ctx.Flags["--with"] == "" {
-		fmt.Println("You need to include the --with flag")
-		fmt.Println()
+	parsedArgs, err := c.spec.Parse(ctx.Args)
+
+	if err != nil {
 		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-		return nil
+		return fmt.Errorf("invalid arguments: %w", err)
 	}
+	
+
+	with := parsedArgs.Flags["with"]
+	pWith, err:= with.String()
+	if err != nil && with.Present {
+		return err
+	}
+
 
 	// Get git info for current user
 	gitService := git.NewService(ctx.WorkDir)
@@ -76,9 +85,12 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 
 	// Get the note to share
 	var privateNote *models.PrivateNote
-	var err error
 
-	if len(ctx.Args) == 0 {
+	var noteId string
+	if len(parsedArgs.Positional) > 0 {
+		noteId = parsedArgs.Positional[0]
+	}
+	if  noteId == "" {
 		// Share latest note
 		notes, err := ctx.Repo.ListNotes(&repository.NoteFilter{Limit: 1})
 		if err != nil {
@@ -89,16 +101,14 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 		}
 		privateNote = notes[0]
 	} else {
-		// Share specific note
-		noteID := ctx.Args[0]
-		privateNote, err = ctx.Repo.GetNote(noteID)
+		privateNote, err = ctx.Repo.GetNote(noteId)
 		if err != nil {
 			return fmt.Errorf("note not found: %w", err)
 		}
 	}
 
 	// Parse recipients
-	recipients := parseRecipients(ctx.Flags["--with"])
+	recipients := parseRecipients(pWith)
 
 	// Track success/failure
 	successCount := 0
@@ -121,8 +131,8 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 		}
 	}
 
-	// Report results
-	fmt.Printf("Shared with %d recipient(s)\n", successCount)
+
+	fmt.Printf("Shared note (%s) with %d recipient(s)\n",noteId[:5]+"...", successCount)
 	if len(errors) > 0 {
 		fmt.Println("Errors:")
 		for _, errMsg := range errors {
@@ -193,7 +203,7 @@ func (c *ShareCommand) shareWithIndividual(ctx *Context, note *models.PrivateNot
 		IV:            iv,
 		SharedBy:      sharerEmail,
 		SharedAt:      time.Now(),
-		NotePreview:   truncate(note.Message, 100),
+		NotePreview:   truncate(note.Message, 50),
 	}
 
 	// 7. Save to git-tracked shared directory
@@ -274,7 +284,7 @@ func (c *ShareCommand) updateShareIndex(ctx *Context, recipient, noteID string) 
 	}
 }
 
-// Helper functions (keep your existing ones)
+
 func parseRecipients(recipients string) []string {
 	return strings.Split(recipients, ",")
 }

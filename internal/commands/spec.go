@@ -404,6 +404,88 @@ var SessionCommandSpec = &CommandSpec{
 	},
 }
 
+// Share command spec
+var ShareCommandSpec = &CommandSpec{
+	Name:        "share",
+	Description: "Share notes with teammates",
+	Usage:       "iwashere share [note-id] --with <recipient>",
+Args: []ArgSpec{
+		{
+			Name:     "note-id",
+			Usage:    "ID of the note share",
+			Required: false,
+		},
+	},
+	Flags: []FlagSpec{
+		{
+			Name:     "with",
+			Type:     FlagTypeString,
+			Usage:    "Email or team to share note with",
+			Required: true,
+			Short:    "w",
+		},
+	},
+}
+
+// show-shared spec
+var ShowSharedCommandSpec = &CommandSpec{
+	Name:        "show-shared",
+	Description: "Show notes shared with you",
+	Usage:       "iwashere show-shared [note-id]",
+	Args: []ArgSpec{
+		{
+			Name:     "note id",
+			Usage: "iwashere show-shared 123",
+			Required: false,
+		},
+	},
+
+}
+
+// show spec
+var ShowCommandSpec = &CommandSpec{
+	Name:        "show",
+	Description: "Shows the note specified by the id",
+	Usage:       "iwashere show <id>",
+	Args: []ArgSpec{
+		{
+			Name:     "note id",
+			Usage: "iwashere show 123",
+			Required: true,
+		},
+	},
+Flags: []FlagSpec{
+		{
+			Name:     "limit",
+			Type:     FlagTypeInt,
+			Usage:    "iwashere list --limit 10",
+			Required: false,
+			Short:    "l",
+		},
+		{
+			Name:     "short",
+			Type:     FlagTypeBool,
+			Usage:    "Display the notes in 'short' format",
+			Required: false,
+			Short:    "s",
+		},
+		{
+			Name:     "detailed",
+			Type:     FlagTypeBool,
+			Usage:    "Display the notes in 'detailed' format",
+			Required: false,
+			Short:    "d",
+		},
+		{
+			Name:     "compact",
+			Type:     FlagTypeBool,
+			Usage:    "Display the notes in 'compact' format",
+			Required: false,
+			Short:    "c",
+		},
+	},	
+}
+
 var comandSpecRegestry = map[string]CommandSpec{}
 
 func RegisterSpec(name string, spec *CommandSpec) {
@@ -431,4 +513,7 @@ func init() {
 	RegisterSpec("init", InitCommandSpec)
 	RegisterSpec("list", ListCommandSpec)
 	RegisterSpec("session", SessionCommandSpec)
+	RegisterSpec("share", ShareCommandSpec)
+	RegisterSpec("share-shared", ShowSharedCommandSpec)
+	RegisterSpec("show", ShowCommandSpec)
 }

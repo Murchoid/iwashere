@@ -14,13 +14,15 @@ import (
 )
 
 type ShowSharedCommand struct {
-	BaseCommand
+	spec *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewShowShareCommand() Command {
 	return &ShowSharedCommand{
-		BaseCommand{
-			NameStr:  "show-share",
+		spec: ShowSharedCommandSpec,
+		baseCommand: BaseCommand{
+			NameStr:  "show-shared",
 			DescStr:  "Show notes shared with you",
 			UsageStr: "iwashere show-shared [note-id]",
 			ExamplesList: []string{
@@ -32,19 +34,19 @@ func NewShowShareCommand() Command {
 }
 
 func (c *ShowSharedCommand) Name() string {
-	return c.BaseCommand.Name()
+	return c.baseCommand.Name()
 }
 
 func (c *ShowSharedCommand) Description() string {
-	return c.BaseCommand.Description()
+	return c.baseCommand.Description()
 }
 
 func (c *ShowSharedCommand) Usage() string {
-	return c.BaseCommand.Usage()
+	return c.baseCommand.Usage()
 }
 
 func (c *ShowSharedCommand) Examples() []string {
-	return c.BaseCommand.Examples()
+	return c.baseCommand.Examples()
 }
 
 func (c *ShowSharedCommand) Execute(ctx *Context) error {
@@ -64,6 +66,13 @@ func (c *ShowSharedCommand) Execute(ctx *Context) error {
 		return nil
 	}
 
+	parsedArgs, err := c.spec.Parse(ctx.Args)
+
+	if err != nil {
+		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
+		return fmt.Errorf("invalid arguments: %w", err)
+	}
+
 	if len(ctx.Args) > 1 {
 		fmt.Println("show-shared only accpets one argument")
 		fmt.Println()
@@ -72,12 +81,12 @@ func (c *ShowSharedCommand) Execute(ctx *Context) error {
 	}
 
 	// If specific note ID provided
-	if len(ctx.Args) > 0 {
-		noteID := ctx.Args[0]
+	if len(parsedArgs.Positional)>0 {
+		noteID := parsedArgs.Positional[0]
 		return c.showSpecificNote(sharedDir, noteID, currentEmail)
 	}
 
-	// List all shared notes
+	//Ekse jus shhow List all shared notes
 	return c.listSharedNotes(sharedDir)
 }
 
