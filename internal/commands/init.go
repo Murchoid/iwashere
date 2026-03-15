@@ -14,7 +14,7 @@ import (
 )
 
 type InitCommand struct {
-	spec *CommandSpec
+	spec        *CommandSpec
 	baseCommand BaseCommand
 }
 
@@ -67,7 +67,7 @@ func (c *InitCommand) Execute(ctx *Context) error {
 
 	force := parseArgs.Flags["force"]
 	pForce, err := force.Bool()
-	if err!= nil && force.Present {
+	if err != nil && force.Present {
 		return err
 	}
 	if ctx.ProjectPath != "" && pForce {

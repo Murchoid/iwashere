@@ -11,12 +11,14 @@ import (
 )
 
 type SessionCommand struct {
-	BaseCommand
+	spec        *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewSessionCommandFactory() Command {
 	return &SessionCommand{
-		BaseCommand{
+		spec: SessionCommandSpec,
+		baseCommand: BaseCommand{
 			NameStr:  "session",
 			DescStr:  "create or end a session",
 			UsageStr: "iwashere session [option] <title>/<id>",
@@ -31,19 +33,19 @@ func NewSessionCommandFactory() Command {
 }
 
 func (a *SessionCommand) Name() string {
-	return a.BaseCommand.Name()
+	return a.baseCommand.Name()
 }
 
 func (a *SessionCommand) Description() string {
-	return a.BaseCommand.Description()
+	return a.baseCommand.Description()
 }
 
 func (a *SessionCommand) Usage() string {
-	return a.BaseCommand.Usage()
+	return a.baseCommand.Usage()
 }
 
 func (a *SessionCommand) Examples() []string {
-	return a.BaseCommand.Examples()
+	return a.baseCommand.Examples()
 }
 
 func (a *SessionCommand) Execute(ctx *Context) error {
@@ -52,37 +54,33 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 	}
 
 	repo := ctx.Repo
-	if len(ctx.Args) == 0 {
+
+	parsedArgs, err := a.spec.Parse(ctx.Args)
+
+	if err != nil {
+		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
+		return fmt.Errorf("invalid arguments: %w", err)
+	}
+
+	if parsedArgs.Subcommand == "" {
 		fmt.Println("Option must be provided")
 		fmt.Println()
 		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 		return nil
 	}
 
-	sessionTags := ctx.Args[0]
-	if sessionTags == "" {
-		fmt.Println("Option must be provided")
-		fmt.Println()
-		utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
-		return nil
-	}
+	sessionTags := parsedArgs.Subcommand
 
 	switch sessionTags {
 	case "start":
-
-		if len(ctx.Args) <= 1 {
-			fmt.Println("Title of session must be provided")
+		if len(parsedArgs.Positional) == 0 {
+			fmt.Println("Session title must be provided")
 			fmt.Println()
 			utils.PrintCommandHelp(a.Name(), a.Description(), a.Usage(), a.Examples())
 			return nil
 		}
-
-		if ctx.Args[1] == "" {
-			fmt.Println("You have to give a session name")
-			return nil
-		}
-
-		if err := startSession(repo, ctx.WorkDir, ctx.Args[1]); err != nil {
+		title := parsedArgs.Positional[0]
+		if err := startSession(repo, ctx.WorkDir, title); err != nil {
 			return err
 		}
 	case "end":
@@ -99,8 +97,13 @@ func (a *SessionCommand) Execute(ctx *Context) error {
 			return err
 		}
 	case "list":
-		if len(ctx.Args) > 1 {
-			if err := showSession(ctx); err != nil {
+		var id string
+		if len(parsedArgs.Positional) > 0 {
+			id = parsedArgs.Positional[0]
+		}
+
+		if id != "" {
+			if err := showSession(repo, id); err != nil {
 				return err
 			}
 		} else {
@@ -119,11 +122,13 @@ func startSession(repo repository.Repository, workDir, sName string) error {
 
 	isThereOngoinSession, err := repo.GetOpenSession()
 
-	if isThereOngoinSession.State == models.Ongoing || isThereOngoinSession.ID != "" {
-		fmt.Println("There is an ongoing session, end or pause it to start another")
-		fmt.Println()
-		utils.PrintSessionDetails(isThereOngoinSession, nil)
-		return nil
+	if isThereOngoinSession != nil {
+		if isThereOngoinSession.State == models.Ongoing || isThereOngoinSession.ID != "" && isThereOngoinSession.EndTime.IsZero() {
+			fmt.Println("There is an ongoing session, end it to start another")
+			fmt.Println()
+			utils.PrintSessionDetails(isThereOngoinSession, nil)
+			return nil
+		}
 	}
 
 	getRepoService := git.NewService(workDir)
@@ -147,7 +152,7 @@ func startSession(repo repository.Repository, workDir, sName string) error {
 		return err
 	}
 
-	fmt.Printf("Session %v started at just now\n", sName)
+	fmt.Printf("Session '%v' started has been started now\n", sName)
 	return nil
 }
 
@@ -255,31 +260,15 @@ func listSessions(repo repository.Repository) error {
 	return nil
 }
 
-func showSession(ctx *Context) error {
-	if len(ctx.Args) < 2 {
-		// Show current active session
-		session, err := ctx.Repo.GetOpenSession()
-		if err != nil {
-			return fmt.Errorf("no active session and no session ID provided")
-		}
-
-		notes, err := ctx.Repo.GetNotesBySession(session.ID)
-		if err != nil {
-			return err
-		}
-
-		utils.PrintCurrentSession(session, notes)
-		return nil
-	}
+func showSession(repo repository.Repository, sessionID string) error {
 
 	// Show specific session by ID
-	sessionID := ctx.Args[1]
-	session, err := ctx.Repo.GetSession(sessionID)
+	session, err := repo.GetSession(sessionID)
 	if err != nil {
 		return err
 	}
 
-	notes, err := ctx.Repo.GetNotesBySession(session.ID)
+	notes, err := repo.GetNotesBySession(session.ID)
 	if err != nil {
 		return err
 	}

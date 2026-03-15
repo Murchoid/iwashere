@@ -333,7 +333,7 @@ func (r *JSONRepository) GetOpenSession() (*models.Session, error) {
 		return nil, fmt.Errorf("failed to read notes directory: %w", err)
 	}
 
-	var session models.Session
+	var session *models.Session
 
 	for _, file := range files {
 		// Skip directories and non-JSON files
@@ -347,13 +347,15 @@ func (r *JSONRepository) GetOpenSession() (*models.Session, error) {
 			continue
 		}
 
-		if s.ID != "" && s.EndTime.IsZero() || s.State == "paused" || s.State == "continued" || s.State == "ongoing" {
-			session = *s
+		if s.ID != "" && s.EndTime.IsZero() || s.State == models.Paused || s.State == models.Continued || s.State == models.Ongoing {
+			session = s
 			break
+		} else {
+			continue
 		}
 	}
 
-	return &session, nil
+	return session, nil
 }
 
 func (r *JSONRepository) ListSessions() ([]*models.Session, error) {

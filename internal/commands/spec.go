@@ -294,7 +294,6 @@ var RemindCommandSpec = &CommandSpec{
 	},
 }
 
-
 // init spec
 var InitCommandSpec = &CommandSpec{
 	Name:        "init",
@@ -302,18 +301,105 @@ var InitCommandSpec = &CommandSpec{
 	Usage:       "iwashere init [options]",
 	Flags: []FlagSpec{
 		{
-			Name: "force",
-			Type: FlagTypeBool,
-			Usage: "iwashere init --force",
+			Name:     "force",
+			Type:     FlagTypeBool,
+			Usage:    "iwashere init --force",
 			Required: false,
-			Short: "f",
+			Short:    "f",
 		},
 		{
-			Name: "no-ignore",
-			Type: FlagTypeBool,
-			Usage: "iwashere init --no-ignore",
+			Name:     "no-ignore",
+			Type:     FlagTypeBool,
+			Usage:    "iwashere init --no-ignore",
 			Required: false,
-			Short: "ni",
+			Short:    "ni",
+		},
+	},
+}
+
+// List command spec
+var ListCommandSpec = &CommandSpec{
+	Name:        "list",
+	Description: "Lists all notes in the project/repo",
+	Usage:       "iwashere list [options]",
+	Flags: []FlagSpec{
+		{
+			Name:     "limit",
+			Type:     FlagTypeInt,
+			Usage:    "iwashere list --limit 10",
+			Required: false,
+			Short:    "l",
+		},
+		{
+			Name:     "short",
+			Type:     FlagTypeBool,
+			Usage:    "Display the notes in 'short' format",
+			Required: false,
+			Short:    "s",
+		},
+		{
+			Name:     "detailed",
+			Type:     FlagTypeBool,
+			Usage:    "Display the notes in 'detailed' format",
+			Required: false,
+			Short:    "d",
+		},
+		{
+			Name:     "compact",
+			Type:     FlagTypeBool,
+			Usage:    "Display the notes in 'compact' format",
+			Required: false,
+			Short:    "c",
+		},
+	},
+}
+
+// Session command spec
+var SessionCommandSpec = &CommandSpec{
+	Name:        "session",
+	Description: "start, pause, continue or end a session",
+	Usage:       "iwashere session [option] <title>/<id>",
+	Subcommands: map[string]*CommandSpec{
+		"start": {
+			Name:        "start",
+			Usage:       "iwashere session start <title>",
+			Description: "Start session with the title 'title'",
+			Args: []ArgSpec{
+				{
+					Name:     "session title",
+					Usage:    "iwashere session start 'example session'",
+					Required: true,
+				},
+			},
+		},
+		"pause": {
+			Name:        "pause",
+			Usage:       "iwashere session pause <id>",
+			Description: "Pause session with the id 'id'",
+		},
+		"continue": {
+			Name:        "continue",
+			Usage:       "iwashere session continue",
+			Description: "Start session with the title 'title'",
+		},
+
+		"list": {
+			Name:        "list",
+			Usage:       "iwashere session list [options]",
+			Description: "list all sessions",
+			Args: []ArgSpec{
+				{
+					Name:     "session id",
+					Usage:    "iwashere session list 123",
+					Required: false,
+				},
+			},
+		},
+
+		"end": {
+			Name:        "end",
+			Usage:       "iwashere end",
+			Description: "End an ongoing/continued",
 		},
 	},
 }
@@ -343,4 +429,6 @@ func init() {
 	RegisterSpec("delete", DeleteCommandSpec)
 	RegisterSpec("edit", EditCommandSpec)
 	RegisterSpec("init", InitCommandSpec)
+	RegisterSpec("list", ListCommandSpec)
+	RegisterSpec("session", SessionCommandSpec)
 }

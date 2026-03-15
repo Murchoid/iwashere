@@ -75,7 +75,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 	}
 
 	note := &models.PrivateNote{
-		ID: utils.GenerateId(),
+		ID:          utils.GenerateId(),
 		Message:     message,
 		ProjectPath: ctx.ProjectPath,
 	}

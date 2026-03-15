@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/Murchoid/iwashere/internal/domain/models"
 	"github.com/Murchoid/iwashere/internal/repository"
@@ -10,53 +9,68 @@ import (
 )
 
 type ListCommand struct {
-	BaseCommand
+	spec        *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewListCommandFactory() Command {
 	return &ListCommand{
-		BaseCommand{
+		spec: ListCommandSpec,
+		baseCommand: BaseCommand{
 			NameStr:  "list",
 			DescStr:  "Lists all notes in the project/repo",
 			UsageStr: "iwashere list/ls [options]",
 			ExamplesList: []string{
 				"iwashere list",
 				"iwashere list --limit 10",
-				"iwashere ls",
-				"iwashere ls --limit 10",
+				"iwashere list --limit 10 --short",
+				"iwashere list --short",
+				"iwashere list --detailed",
+				"iwashere list --compact",
 			},
 		},
 	}
 }
 
 func (a *ListCommand) Name() string {
-	return a.BaseCommand.Name()
+	return a.baseCommand.Name()
 }
 
 func (a *ListCommand) Description() string {
-	return a.BaseCommand.Description()
+	return a.baseCommand.Description()
 }
 
 func (a *ListCommand) Usage() string {
-	return a.BaseCommand.Usage()
+	return a.baseCommand.Usage()
 }
 
 func (a *ListCommand) Examples() []string {
-	return a.BaseCommand.Examples()
+	return a.baseCommand.Examples()
 }
 
 func (c *ListCommand) Execute(ctx *Context) error {
 
-	if len(ctx.Args) > 0 {
-		fmt.Println("Unrecognized arguments")
-		fmt.Println()
+	parsedArgs, err := c.spec.Parse(ctx.Args)
+
+	if err != nil {
 		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-		return nil
+		return fmt.Errorf("invalid arguments: %w", err)
 	}
 
 	filter := &repository.NoteFilter{
 		ProjectPath: ctx.ProjectPath,
-		Limit:       c.getLimit(ctx),
+	}
+
+	limit := parsedArgs.Flags["limit"]
+	pLimit, err := limit.Int()
+	if err != nil && limit.Present {
+		return err
+	}
+
+	if limit.Present {
+		filter.Limit = pLimit
+	} else {
+		filter.Limit = 5
 	}
 
 	notes, err := ctx.Repo.ListNotes(filter)
@@ -75,17 +89,24 @@ func (c *ListCommand) Execute(ctx *Context) error {
 		}
 	}
 
-	// Use display package
+	// set up format
 	format := "detailed"
-	if ctx.Flags["--short"] != "" {
-		if ctx.Flags["--short"] == "true" {
-			format = "short"
-		} else {
-			fmt.Println("Unrecognized argument after short")
-			fmt.Println()
-			utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-			return nil
-		}
+	short := parsedArgs.Flags["short"]
+	pShort, err := short.Bool()
+	if err != nil && short.Present {
+		return err
+	}
+
+	compact := parsedArgs.Flags["compact"]
+	pCompact, err := compact.Bool()
+	if err != nil && compact.Present {
+		return err
+	}
+
+	if pShort {
+		format = "short"
+	} else if pCompact {
+		format = "compact"
 	}
 
 	if ctx.Flags["--compact"] != "" {
@@ -101,17 +122,6 @@ func (c *ListCommand) Execute(ctx *Context) error {
 
 	utils.PrintNotes(notes, sessions, format)
 	return nil
-}
-
-func (c *ListCommand) getLimit(ctx *Context) int {
-	if ctx.Flags["--limit"] != "" {
-		limit, err := strconv.Atoi(ctx.Flags["--limit"])
-		if err != nil {
-			return 5
-		}
-		return limit
-	}
-	return 5
 }
 
 func init() {
