@@ -97,22 +97,25 @@ func (s *Service) getBranch() (string, error) {
 }
 
 func (s *Service) getAllBranches() ([]string, error) {
-	cmd := exec.Command("git", "branch")
+	cmd := exec.Command("git", "branch", "--list")
 	cmd.Dir = s.workDir
 	out, err := cmd.Output()
 	if err != nil {
-		return []string{}, err
+		return nil, err
 	}
 
+	lines := strings.Split(string(out), "\n")
 	var branches []string
-
-	for _, branch := range out {
-		if branch == '*' {
+	for _, line := range lines {
+		branch := strings.TrimSpace(line)
+		if branch == "" {
 			continue
 		}
-		branches = append(branches, strings.TrimSpace(string(branch)))
-	}
+		// Remove leading '* ' from current branch
+		branch = strings.TrimPrefix(branch, "* ")
 
+		branches = append(branches, branch)
+	}
 	return branches, nil
 }
 

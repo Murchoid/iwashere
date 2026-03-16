@@ -6,19 +6,23 @@ import (
 
 type Config struct {
 	Project struct {
-		Name     string    `yaml:"name"`
-		InitDate time.Time `yaml:"init_date"`
-	} `yaml:"project"`
+		Name     string    `json:"name"`
+		InitDate time.Time `json:"init_date"`
+	} `json:"project"`
 
 	Storage struct {
-		Type string `yaml:"type"` // "sqlite" or "json"
-		Path string `yaml:"path"`
-	} `yaml:"storage"`
+		Type string `json:"type"` // "sqlite" or "json"
+		Path string `json:"path"`
+	} `json:"storage"`
 
 	Git struct {
-		AutoContext   bool `yaml:"auto_context"`
-		TrackBranches bool `yaml:"track_branches"`
-	} `yaml:"git"`
+		AutoContext   bool `json:"auto_context"`
+		TrackBranches bool `json:"track_branches"`
+	} `json:"git"`
+	
+	Team struct {
+		TeamName   string `json:"team_name"`
+	} `json:"team"`
 }
 
 func DefaultConfig() *Config {

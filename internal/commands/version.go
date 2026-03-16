@@ -9,8 +9,7 @@ import (
 
 // These will be set during build
 var (
-	// These can still be set by ldflags as fallback
-	Version = "0.2.7"
+	Version = "0.3.0"
 	Commit  = "none"
 )
 
@@ -45,8 +44,7 @@ func printVersionInfo() {
 		"Never lose your train of thought",
 		"Your context, your control",
 		"Fast. Simple. Effective.",
-		"Dogfooding since day one",
-		"Made with ❤️  in Kenya",
+		"Mkenya daima",
 	}
 
 	fmt.Println()

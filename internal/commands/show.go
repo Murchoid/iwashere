@@ -81,7 +81,7 @@ func (a *ShowCommand) Execute(ctx *Context) error {
 	}
 
 	session, err := repo.GetSession(note.SessionID)
-	if err != nil && note.SessionID != ""{
+	if err != nil && note.SessionID != "" {
 		return err
 	}
 	sessionMap := map[string]*models.Session{}

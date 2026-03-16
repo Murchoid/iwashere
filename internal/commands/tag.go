@@ -10,12 +10,12 @@ import (
 	"github.com/Murchoid/iwashere/internal/utils"
 )
 
-type  listFlags struct {
-			cloud bool
-			format string
-			limit int
-		}
-	
+type listFlags struct {
+	cloud  bool
+	format string
+	limit  int
+}
+
 type TagCommand struct {
 	spec        *CommandSpec
 	baseCommand BaseCommand
@@ -120,7 +120,7 @@ func (a *TagCommand) Execute(ctx *Context) error {
 		}
 		limit := parsedArgs.Flags["limit"]
 		pLimit, err := limit.Int()
-		if err!= nil && limit.Present {
+		if err != nil && limit.Present {
 			return err
 		}
 		if !limit.Present {
@@ -128,12 +128,12 @@ func (a *TagCommand) Execute(ctx *Context) error {
 		}
 
 		flags := listFlags{
-			cloud: pCloud,
+			cloud:  pCloud,
 			format: format,
-			limit: pLimit,
+			limit:  pLimit,
 		}
 
-		if err := listTag(repo, tagsInfo,flags); err != nil {
+		if err := listTag(repo, tagsInfo, flags); err != nil {
 			return err
 		}
 
@@ -220,7 +220,7 @@ func listTag(repo repository.Repository, tagInfo []string, flags listFlags) erro
 		filter.Tags = tags
 		filter.Limit = flags.limit
 		notes, err = repo.ListNotes(&filter)
-		
+
 		if err != nil {
 			return err
 		}
@@ -270,14 +270,14 @@ func AllTagResults(notes []*models.PrivateNote) {
 	}
 
 	for tag, tagNote := range fTags {
-		fmt.Printf("%-*s (%d notes)\n",longestTag, tag, len(tagNote))
+		fmt.Printf("%-*s (%d notes)\n", longestTag, tag, len(tagNote))
 	}
 }
 
 func oneTagResult(repo repository.Repository, note *models.PrivateNote, format string) error {
 
 	session, err := repo.GetSession(note.SessionID)
-	if err != nil && note.SessionID != ""{
+	if err != nil && note.SessionID != "" {
 		return err
 	}
 	sessionMap := map[string]*models.Session{}

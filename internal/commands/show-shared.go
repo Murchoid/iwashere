@@ -59,7 +59,9 @@ func (c *ShowSharedCommand) Execute(ctx *Context) error {
 	}
 
 	sharedDir := filepath.Join(ctx.ProjectPath, ".iwashere-shared", currentEmail)
-
+	teamName := ctx.Config.Team.TeamName
+	teamDir := filepath.Join(ctx.ProjectPath, ".iwashere-shared", "team", teamName)
+	fmt.Println(teamDir)
 	// Check if directory exists
 	if _, err := os.Stat(sharedDir); os.IsNotExist(err) {
 		fmt.Println("No notes shared with you yet")
@@ -87,24 +89,30 @@ func (c *ShowSharedCommand) Execute(ctx *Context) error {
 	}
 
 	//Ekse jus shhow List all shared notes
-	return c.listSharedNotes(sharedDir)
+	return c.listSharedNotes(sharedDir, teamDir)
 }
 
-func (c *ShowSharedCommand) listSharedNotes(sharedDir string) error {
-	files, err := filepath.Glob(filepath.Join(sharedDir, "*.share"))
+func (c *ShowSharedCommand) listSharedNotes(sharedDir, teamDir string) error {
+	personalFiles, err := filepath.Glob(filepath.Join(sharedDir, "*.share"))
+	teamFiles, err := filepath.Glob(filepath.Join(teamDir, "*.team"))
 	if err != nil {
 		return err
 	}
 
-	if len(files) == 0 {
+	if len(personalFiles) == 0 && len(teamFiles)== 0{
 		fmt.Println("No shared notes found")
 		return nil
 	}
 
-	fmt.Println("Notes shared with you:")
+	fmt.Println("Notes shared with you")
+	fmt.Println("=======================")
 	fmt.Println()
 
-	for _, file := range files {
+	if len(personalFiles)>0 {
+		fmt.Println("Personal notes")
+		fmt.Println("================")
+	}
+	for _, file := range personalFiles {
 		data, err := os.ReadFile(file)
 		if err != nil {
 			continue
@@ -119,6 +127,29 @@ func (c *ShowSharedCommand) listSharedNotes(sharedDir string) error {
 		fmt.Printf(" [%s] from %s\n", payload.NoteID, payload.SharedBy)
 		fmt.Printf("     %s\n", payload.NotePreview)
 		fmt.Printf("     shared %s\n", utils.HowLongAgo(payload.SharedAt, 0))
+		fmt.Println()
+	}
+
+	if len(teamFiles)>0 {
+		fmt.Println("Team notes")
+		fmt.Println("===========")
+	}
+
+	for _, file := range teamFiles {
+		data, err := os.ReadFile(file)
+		if err != nil {
+			continue
+		}
+
+		var payload models.TeamNote
+		if err := json.Unmarshal(data, &payload); err != nil {
+			continue
+		}
+
+		// Show preview without decrypting full note
+		fmt.Printf(" [%s] from %s\n", payload.ID, payload.Author)
+		fmt.Printf("     %s\n", payload.Message)
+		fmt.Printf("     shared %s\n", utils.HowLongAgo(payload.CreatedAt, 0))
 		fmt.Println()
 	}
 

@@ -11,7 +11,6 @@ import (
 	"github.com/Murchoid/iwashere/internal/domain/models"
 	"github.com/Murchoid/iwashere/internal/encryption"
 	"github.com/Murchoid/iwashere/internal/repository"
-	"github.com/Murchoid/iwashere/internal/repository/jsonRepo"
 	"github.com/Murchoid/iwashere/internal/services/git"
 	"github.com/Murchoid/iwashere/internal/utils"
 )
@@ -245,14 +244,21 @@ func (c *ShareCommand) shareWithTeam(ctx *Context, note *models.PrivateNote, tea
 	}
 
 	// Save to team directory (git-tracked)
-	teamPath := filepath.Join(ctx.ProjectPath, ".iwashere", "team", teamName)
-	if err := os.MkdirAll(teamPath, 0755); err != nil {
+
+	teamDir := filepath.Join(ctx.ProjectPath, ".iwashere-shared", "team", teamName)
+	if err := os.MkdirAll(teamDir, 0755); err != nil {
 		return fmt.Errorf("failed to create team directory: %w", err)
 	}
 
-	teamRepo := jsonRepo.NewJSONRepository(teamPath)
-	if err := teamRepo.SaveTeamNote(teamNote); err != nil {
-		return fmt.Errorf("failed to save team note: %w", err)
+	payloadData, err := json.MarshalIndent(teamNote, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal payload: %w", err)
+	}
+
+	teamPath := filepath.Join(teamDir, note.ID + ".team")
+	fmt.Println(teamPath)
+	if err := os.WriteFile(teamPath, payloadData, 0644); err != nil {
+		return fmt.Errorf("failed to save payload: %w", err)
 	}
 
 	return nil

@@ -50,7 +50,7 @@ func (c *ConfigCommand) Examples() []string {
 }
 
 func (c *ConfigCommand) Execute(ctx *Context) error {
-	configDir := utils.GetConfigDir()
+	configDir := filepath.Join(ctx.ProjectPath, ".iwashere", "config")
 	configPath := filepath.Join(configDir, "config.json")
 
 	// Ensure config directory exists
@@ -121,6 +121,8 @@ func (c *ConfigCommand) setConfig(configPath string, args []string) error {
 		config.Storage.Type = value
 	case "storage.path":
 		config.Storage.Path = value
+	case "team.name":
+		config.Team.TeamName = value
 	case "git.auto_context":
 		// Parse string to bool
 		boolVal, err := strconv.ParseBool(value)

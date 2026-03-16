@@ -109,7 +109,7 @@ func (r *JSONRepository) SaveTeamNote(note *models.TeamNote) error {
 	}
 	note.Tags = slices.Compact(note.Tags)
 
-	path := filepath.Join(r.notesBasePath, note.ID+".json")
+	path := filepath.Join(note.ID+".team")
 	data, err := json.MarshalIndent(note, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal note: %w", err)
