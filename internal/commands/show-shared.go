@@ -14,7 +14,7 @@ import (
 )
 
 type ShowSharedCommand struct {
-	spec *CommandSpec
+	spec        *CommandSpec
 	baseCommand BaseCommand
 }
 
@@ -81,7 +81,7 @@ func (c *ShowSharedCommand) Execute(ctx *Context) error {
 	}
 
 	// If specific note ID provided
-	if len(parsedArgs.Positional)>0 {
+	if len(parsedArgs.Positional) > 0 {
 		noteID := parsedArgs.Positional[0]
 		return c.showSpecificNote(sharedDir, noteID, currentEmail)
 	}

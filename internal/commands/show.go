@@ -8,7 +8,7 @@ import (
 )
 
 type ShowCommand struct {
-	spec *CommandSpec
+	spec        *CommandSpec
 	baseCommand BaseCommand
 }
 
@@ -69,7 +69,7 @@ func (a *ShowCommand) Execute(ctx *Context) error {
 	}
 
 	format := "detailed"
-	for f:= range parsedArgs.Flags {
+	for f := range parsedArgs.Flags {
 		switch f {
 		case "short":
 			format = "short"
@@ -81,10 +81,10 @@ func (a *ShowCommand) Execute(ctx *Context) error {
 	}
 
 	session, err := repo.GetSession(note.SessionID)
-	if err!=nil {
+	if err != nil && note.SessionID != ""{
 		return err
 	}
-	sessionMap:= map[string]*models.Session{}
+	sessionMap := map[string]*models.Session{}
 	sessionMap[note.SessionID] = session
 	utils.PrintNotes([]*models.PrivateNote{note}, sessionMap, format)
 

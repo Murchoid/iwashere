@@ -17,7 +17,7 @@ import (
 )
 
 type ShareCommand struct {
-	spec *CommandSpec
+	spec        *CommandSpec
 	baseCommand BaseCommand
 }
 
@@ -65,14 +65,12 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
 		return fmt.Errorf("invalid arguments: %w", err)
 	}
-	
 
 	with := parsedArgs.Flags["with"]
-	pWith, err:= with.String()
+	pWith, err := with.String()
 	if err != nil && with.Present {
 		return err
 	}
-
 
 	// Get git info for current user
 	gitService := git.NewService(ctx.WorkDir)
@@ -90,7 +88,7 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 	if len(parsedArgs.Positional) > 0 {
 		noteId = parsedArgs.Positional[0]
 	}
-	if  noteId == "" {
+	if noteId == "" {
 		// Share latest note
 		notes, err := ctx.Repo.ListNotes(&repository.NoteFilter{Limit: 1})
 		if err != nil {
@@ -131,8 +129,7 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 		}
 	}
 
-
-	fmt.Printf("Shared note (%s) with %d recipient(s)\n",noteId[:5]+"...", successCount)
+	fmt.Printf("Shared note (%s) with %d recipient(s)\n", noteId[:5]+"...", successCount)
 	if len(errors) > 0 {
 		fmt.Println("Errors:")
 		for _, errMsg := range errors {
@@ -283,7 +280,6 @@ func (c *ShareCommand) updateShareIndex(ctx *Context, recipient, noteID string) 
 		os.WriteFile(indexPath, data, 0644)
 	}
 }
-
 
 func parseRecipients(recipients string) []string {
 	return strings.Split(recipients, ",")

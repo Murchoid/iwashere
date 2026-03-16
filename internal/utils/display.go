@@ -221,7 +221,7 @@ func groupNotesBySession(notes []*models.PrivateNote, sessions map[string]*model
 	var standalone []*models.PrivateNote
 
 	for _, note := range notes {
-		
+
 		if note.SessionID != "" {
 			sessionMap[note.SessionID] = append(sessionMap[note.SessionID], note)
 		} else {
@@ -251,7 +251,17 @@ func groupNotesBySession(notes []*models.PrivateNote, sessions map[string]*model
 }
 
 func printSessionHeader(session *models.Session) {
-	duration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
+	var duration string
+	switch session.State {
+
+	case models.Ended:
+		duration = session.EndTime.Sub(session.StartTime).Round(time.Minute).String()
+	case models.Paused:
+		duration = "paused"
+	case models.Continued, models.Ongoing:
+		duration = "ongoing"
+	}
+
 	fmt.Printf("%s %s%s ", ColorPurple, session.Title, ColorReset)
 	fmt.Printf("(%s - %s, %s)\n",
 		session.StartTime.Format("15:04"),

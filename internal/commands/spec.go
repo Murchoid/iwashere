@@ -409,7 +409,7 @@ var ShareCommandSpec = &CommandSpec{
 	Name:        "share",
 	Description: "Share notes with teammates",
 	Usage:       "iwashere share [note-id] --with <recipient>",
-Args: []ArgSpec{
+	Args: []ArgSpec{
 		{
 			Name:     "note-id",
 			Usage:    "ID of the note share",
@@ -435,11 +435,10 @@ var ShowSharedCommandSpec = &CommandSpec{
 	Args: []ArgSpec{
 		{
 			Name:     "note id",
-			Usage: "iwashere show-shared 123",
+			Usage:    "iwashere show-shared 123",
 			Required: false,
 		},
 	},
-
 }
 
 // show spec
@@ -450,11 +449,11 @@ var ShowCommandSpec = &CommandSpec{
 	Args: []ArgSpec{
 		{
 			Name:     "note id",
-			Usage: "iwashere show 123",
+			Usage:    "iwashere show 123",
 			Required: true,
 		},
 	},
-Flags: []FlagSpec{
+	Flags: []FlagSpec{
 		{
 			Name:     "limit",
 			Type:     FlagTypeInt,
@@ -483,7 +482,99 @@ Flags: []FlagSpec{
 			Required: false,
 			Short:    "c",
 		},
-	},	
+	},
+}
+
+// Tag command spec
+var TagCommandSpec = &CommandSpec{
+	Name:        "tag",
+	Description: "add or remove a tag from a note",
+	Usage:       "iwashere tag <subcommand> [arguments]",
+	Subcommands: map[string]*CommandSpec{
+		"add": {
+			Name:        "add",
+			Usage:       "iwashere tag add <id> <tag>",
+			Description: "Add a tag to an existing note",
+			Args: []ArgSpec{
+				{
+					Name:     "note id",
+					Usage:    "iwashere tag add 123 <tag>",
+					Required: true,
+				},
+				{
+					Name:     "tag",
+					Usage:    "iwashere tag add 123 feature",
+					Required: true,
+				},
+			},
+		},
+		"remove": {
+			Name:        "remove",
+			Usage:       "iwashere tag remove <id> <tag>",
+			Description: "Add a tag to an existing note",
+			Args: []ArgSpec{
+				{
+					Name:     "note id",
+					Usage:    "iwashere tag remove 123 <tag>",
+					Required: true,
+				},
+				{
+					Name:     "tag",
+					Usage:    "iwashere tag remove 123 feature",
+					Required: true,
+				},
+			},
+		},
+		"list": {
+			Name:        "list",
+			Usage:       "iwashere tag list <tag>",
+			Description: "list all occurences of indicated tag ",
+			Args: []ArgSpec{
+				{
+					Name:     "tag",
+					Usage:    "iwashere tag list feature",
+					Required: false,
+				},
+			},
+			Flags: []FlagSpec{
+				{
+					Name:     "cloud",
+					Type:     FlagTypeBool,
+					Usage:    "iwashere tag list --cloud",
+					Required: false,
+					Short:    "cl",
+				},
+				{
+					Name:     "limit",
+					Type:     FlagTypeInt,
+					Usage:    "iwashere list --limit 10",
+					Required: false,
+					Short:    "l",
+				},
+				{
+					Name:     "short",
+					Type:     FlagTypeBool,
+					Usage:    "Display the notes in 'short' format",
+					Required: false,
+					Short:    "s",
+				},
+				{
+					Name:     "detailed",
+					Type:     FlagTypeBool,
+					Usage:    "Display the notes in 'detailed' format",
+					Required: false,
+					Short:    "d",
+				},
+				{
+					Name:     "compact",
+					Type:     FlagTypeBool,
+					Usage:    "Display the notes in 'compact' format",
+					Required: false,
+					Short:    "c",
+				},
+			},
+		},
+	},
 }
 
 var comandSpecRegestry = map[string]CommandSpec{}
@@ -516,4 +607,5 @@ func init() {
 	RegisterSpec("share", ShareCommandSpec)
 	RegisterSpec("share-shared", ShowSharedCommandSpec)
 	RegisterSpec("show", ShowCommandSpec)
+	RegisterSpec("tag", TagCommandSpec)
 }
