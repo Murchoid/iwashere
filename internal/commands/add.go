@@ -12,33 +12,40 @@ import (
 
 type AddCommand struct {
 	spec *CommandSpec
+	baseCommand BaseCommand
 }
 
 func NewAddCommandFactory() Command {
 	return &AddCommand{
 		spec: AddCommandSpec,
-	}
-}
-
-func (a *AddCommand) Name() string {
-	return "add"
-}
-
-func (a *AddCommand) Description() string {
-	return "Add a new note"
-}
-
-func (a *AddCommand) Usage() string {
-	return "iwashere add/a <message> [options]"
-}
-
-func (a *AddCommand) Examples() []string {
-	return []string{
+		baseCommand: BaseCommand{
+			NameStr: "add",
+			DescStr: "Add a new note",
+			UsageStr: "iwashere add <message> [options]",
+			ExamplesList: []string{
 		"iwashere add \"Working on authentication\"",
 		"iwashere a \"Fix memory leak\" --tags bug,performance",
 		"iwashere add \"Update README\" --branch main",
 		"iwashere add \"Add current note in current session\" --session",
+	},
+		},
 	}
+}
+
+func (a *AddCommand) Name() string {
+	return a.baseCommand.Name()
+}
+
+func (a *AddCommand) Description() string {
+	return a.baseCommand.Description()
+}
+
+func (a *AddCommand) Usage() string {
+	return a.baseCommand.Usage()
+}
+
+func (a *AddCommand) Examples() []string {
+	return a.baseCommand.Examples()
 }
 
 func (a *AddCommand) Execute(ctx *Context) error {

@@ -68,7 +68,6 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 
 		if strings.HasPrefix(arg, "-") {
 			flagName := strings.TrimLeft(arg, "-")
-
 			var flagSpec *FlagSpec
 			for _, f := range c.Flags {
 				if f.Name == flagName || f.Short == flagName {
@@ -89,7 +88,7 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 				value = true
 				present = true
 
-			case FlagTypeString, FlagTypeTime, FlagTypeDuration:
+			case FlagTypeString, FlagTypeTime:
 				if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
 					return nil, fmt.Errorf("flag %s requires a value", arg)
 				}
@@ -107,13 +106,6 @@ func (c *CommandSpec) parseWithParent(args []string, result *ParsedArgs) (*Parse
 						return nil, fmt.Errorf("invalid time format for %s: %w", arg, err)
 					}
 					value = t
-
-				case FlagTypeDuration:
-					d, err := time.ParseDuration(val)
-					if err != nil {
-						return nil, fmt.Errorf("invalid duration for %s: %w", arg, err)
-					}
-					value = d
 				}
 				present = true
 
@@ -185,13 +177,6 @@ func (f FlagValue) Time() (time.Time, error) {
 		return t, nil
 	}
 	return time.Time{}, fmt.Errorf("flag --%s is not a time", f.Spec.Name)
-}
-
-func (f FlagValue) Duration() (time.Duration, error) {
-	if d, ok := f.Value.(time.Duration); ok {
-		return d, nil
-	}
-	return 0, fmt.Errorf("flag --%s is not a duration", f.Spec.Name)
 }
 
 func (f FlagValue) Int() (int, error) {

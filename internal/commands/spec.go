@@ -6,7 +6,6 @@ const (
 	FlagTypeString FlagType = iota
 	FlagTypeBool
 	FlagTypeInt
-	FlagTypeDuration
 	FlagTypeTime
 )
 
