@@ -82,7 +82,7 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 		if err == nil && gitInfo != nil {
 			filters.Branch = gitInfo.Branch
 
-			fmt.Printf("Git context: %s @ %s\n", gitInfo.Branch, gitInfo.CommitHash)
+			fmt.Printf("Git context: %s%s %s @ %s\n", utils.ColorGreen, gitInfo.Branch, utils.ColorReset, gitInfo.CommitHash)
 			if gitInfo.HasChanges {
 				fmt.Printf("You have uncommitted changes\n")
 			}
@@ -96,7 +96,7 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 				filters.Branch = branchName
 			} else {
 				fmt.Println()
-				return fmt.Errorf("Branch '%s' does not exist in your git", branchName)
+				return fmt.Errorf("Branch '%s%s%s' does not exist in your git", utils.ColorGreen, branchName, utils.ColorReset)
 			}
 		}
 	}
@@ -108,12 +108,12 @@ func (a *BranchCommand) Execute(ctx *Context) error {
 
 	sessions := make(map[string]*models.Session)
 	for _, note := range notes {
-		if note.SessionID != "" {
-			session, _ := ctx.Repo.GetSession(note.SessionID)
-			if session != nil {
-				sessions[note.SessionID] = session
-			}
+
+		session, _ := ctx.Repo.GetSession(note.SessionID)
+		if session != nil {
+			sessions[note.SessionID] = session
 		}
+
 	}
 
 	format := "detailed"

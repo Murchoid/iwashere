@@ -21,7 +21,6 @@ func NewShowCommandFactory() Command {
 			UsageStr: "iwashere show <id>",
 			ExamplesList: []string{
 				"iwashere show 123",
-				"iwashere s 123",
 			},
 		},
 	}

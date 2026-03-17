@@ -269,8 +269,13 @@ func AllTagResults(notes []*models.PrivateNote) {
 		}
 	}
 
+	shown := false
 	for tag, tagNote := range fTags {
+		shown = true
 		fmt.Printf("%-*s (%d notes)\n", longestTag, tag, len(tagNote))
+	}
+	if !shown {
+		fmt.Println("No tags yet!")
 	}
 }
 
@@ -304,8 +309,14 @@ func AllTagCloudResults(notes []*models.PrivateNote) {
 		}
 	}
 
+	shown:=false
 	for tag, tagNote := range fTags {
+		shown = true
 		fmt.Printf("%-*s %s\n", longestTag, tag, printStars(len(tagNote)))
+	}
+
+	if !shown {
+		fmt.Println("No tags yet!")
 	}
 }
 

@@ -132,7 +132,6 @@ func (c *InitCommand) Execute(ctx *Context) error {
 
 	fmt.Printf("Initialized empty iwashere repository in %s\n", iwasherePath)
 
-	// Show next steps
 	fmt.Println("\nNext steps:")
 	fmt.Println("  iwashere add \"Your first note\"")
 	fmt.Println("  iwashere show")
@@ -177,12 +176,12 @@ func (c *InitCommand) updateGitignore(workDir string) error {
 }
 
 func (c *InitCommand) initDatabase(ctx *Context, iwasherePath string) error {
-	// For now, just create an empty file as placeholder
-	// Later, this will initialize SQLite schema
 	var dbPath string
 
 	switch ctx.Config.Storage.Type {
 	case "sqlite":
+		// For now, we just create an empty file as placeholder
+		// Later, this might be initialize SQLite schema, let see
 		dbPath = filepath.Join(iwasherePath, "db", "notes.db")
 
 	case "json":
@@ -190,7 +189,9 @@ func (c *InitCommand) initDatabase(ctx *Context, iwasherePath string) error {
 		ctx.Repo = jsonRepo
 		return nil
 	default:
-		dbPath = filepath.Join(iwasherePath, "db", "notes.db")
+		jsonRepo := jsonRepo.NewJSONRepository(iwasherePath)
+		ctx.Repo = jsonRepo
+		return nil
 	}
 
 	f, err := os.Create(dbPath)

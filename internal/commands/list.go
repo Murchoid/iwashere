@@ -19,7 +19,7 @@ func NewListCommandFactory() Command {
 		baseCommand: BaseCommand{
 			NameStr:  "list",
 			DescStr:  "Lists all notes in the project/repo",
-			UsageStr: "iwashere list/ls [options]",
+			UsageStr: "iwashere list [options]",
 			ExamplesList: []string{
 				"iwashere list",
 				"iwashere list --limit 10",
@@ -107,17 +107,6 @@ func (c *ListCommand) Execute(ctx *Context) error {
 		format = "short"
 	} else if pCompact {
 		format = "compact"
-	}
-
-	if ctx.Flags["--compact"] != "" {
-		if ctx.Flags["--compact"] == "true" {
-			format = "compact"
-		} else {
-			fmt.Println("Unrecognized argument after compact")
-			fmt.Println()
-			utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-			return nil
-		}
 	}
 
 	utils.PrintNotes(notes, sessions, format)

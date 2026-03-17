@@ -187,7 +187,7 @@ func CheckAndShowReminders(ctx *commands.Context) {
 		overdue := strings.TrimLeft(utils.HowLongAgo(r.DueAt, 0), " ")
 		noteid := r.NoteID
 		if strings.Compare(overdue, "just now") != 0 {
-			overdue = strings.TrimSuffix(overdue,"ago")
+			overdue = strings.TrimSuffix(overdue, "ago")
 			fmt.Printf("  • %s (overdue by %s)\n", r.Message, overdue)
 		} else {
 			fmt.Printf("  • %s (Just in time)\n", r.Message)

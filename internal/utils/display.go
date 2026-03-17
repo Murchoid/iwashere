@@ -47,7 +47,7 @@ func PrintNotes(notes []*models.PrivateNote, sessions map[string]*models.Session
 
 	for i, group := range sessionGroups {
 		if i > 0 {
-			fmt.Println() // Blank line between sessions
+			fmt.Println()
 		}
 
 		// Print session header if this group has a session
@@ -71,7 +71,7 @@ func PrintNotes(notes []*models.PrivateNote, sessions map[string]*models.Session
 	}
 }
 
-//Session display function
+//Session display functions
 
 // PrintSessions displays sessions in a format consistent with notes
 func PrintSessions(sessions []*models.Session, showNotes bool, repo repository.Repository) {
@@ -194,8 +194,7 @@ func PrintSessionDetails(session *models.Session, notes []*models.PrivateNote) {
 	}
 }
 
-// Reminder display
-// PrintReminders displays sessions in a format consistent with notes
+// reminder display
 func PrintReminders(reminders []*models.Reminder, showNotes bool, repo repository.Repository) {
 	if len(reminders) == 0 {
 		fmt.Println("No reminders found")
@@ -212,16 +211,15 @@ func PrintReminders(reminders []*models.Reminder, showNotes bool, repo repositor
 	}
 }
 
-// Helpers
 func groupNotesBySession(notes []*models.PrivateNote, sessions map[string]*models.Session) []noteGroup {
 	var groups []noteGroup
 
-	// First, group by session
 	sessionMap := make(map[string][]*models.PrivateNote)
 	var standalone []*models.PrivateNote
 
 	for _, note := range notes {
 
+		//we keep checking for this because some notes may not be associated with any session
 		if note.SessionID != "" {
 			sessionMap[note.SessionID] = append(sessionMap[note.SessionID], note)
 		} else {
@@ -262,7 +260,7 @@ func printSessionHeader(session *models.Session) {
 		duration = "ongoing"
 	}
 
-	fmt.Printf("%s %s%s ", ColorPurple, session.Title, ColorReset)
+	fmt.Printf("Session: %s %s%s ", ColorPurple, session.Title, ColorReset)
 	fmt.Printf("(%s - %s, %s)\n",
 		session.StartTime.Format("15:04"),
 		session.EndTime.Format("15:04"),
@@ -275,28 +273,23 @@ func printSessionHeader(session *models.Session) {
 func (d *NoteDisplay) detailedFormat() string {
 	var parts []string
 
-	// Time with relative format
 	timeStr := HowLongAgo(d.Note.CreatedAt, 0)
 	parts = append(parts, fmt.Sprintf("%s[%s%s]",
 		ColorGray, timeStr, ColorReset))
 
-	// Branch with Color
 	if d.Note.Branch != "" {
 		parts = append(parts, fmt.Sprintf("%s(%s)%s",
 			ColorGreen, d.Note.Branch, ColorReset))
 	}
 
-	// ID (shortened)
 	if d.ShowID {
 		shortID := d.Note.ID
 		parts = append(parts, fmt.Sprintf("%s%s:%s",
 			ColorCyan, shortID, ColorReset))
 	}
 
-	// Message (main content)
 	parts = append(parts, d.Note.Message)
 
-	// Tags on new line with indentation
 	if d.ShowTags && len(d.Note.Tags) > 0 {
 		tags := make([]string, len(d.Note.Tags))
 		for i, tag := range d.Note.Tags {
@@ -305,7 +298,6 @@ func (d *NoteDisplay) detailedFormat() string {
 		parts = append(parts, fmt.Sprintf("\n  %s", strings.Join(tags, " ")))
 	}
 
-	// Modified files
 	if d.ShowFiles && len(d.Note.ModifiedFiles) > 0 {
 		files := make([]string, len(d.Note.ModifiedFiles))
 		for i, f := range d.Note.ModifiedFiles {
@@ -321,7 +313,7 @@ func (d *NoteDisplay) detailedFormat() string {
 }
 
 func (d *NoteDisplay) shortFormat() string {
-	// Compact, one-line format
+
 	timeStr := HowLongAgo(d.Note.CreatedAt, 0)
 	branch := ""
 	if d.Note.Branch != "" {
@@ -338,26 +330,26 @@ func (d *NoteDisplay) shortFormat() string {
 }
 
 func (d *NoteDisplay) compactFormat() string {
-	// Super compact for lists
+
 	return fmt.Sprintf("%s %s",
 		HowLongAgo(d.Note.CreatedAt, 0),
 		d.Note.Message)
 }
 
 func printSession(session *models.Session, isLast bool, showNotes bool, repo repository.Repository) {
-	// Choose the right tree character
+
 	prefix := "├─ "
 	if isLast {
 		prefix = "└─ "
 	}
 
-	// Format duration
 	var durationStr string
-	if session.State == models.Ongoing || session.State == models.Continued {
+	switch session.State {
+	case models.Ongoing, models.Continued:
 		durationStr = fmt.Sprintf("(started %s, ongoing)", HowLongAgo(session.StartTime, 0))
-	} else if session.State == models.Paused {
+	case models.Paused:
 		durationStr = fmt.Sprintf("(started %s, paused)", HowLongAgo(session.StartTime, 0))
-	} else {
+	default:
 		sessionDuration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
 		durationStr = fmt.Sprintf("(started %s, lasted %s)",
 			HowLongAgo(session.StartTime, 0),
@@ -367,7 +359,8 @@ func printSession(session *models.Session, isLast bool, showNotes bool, repo rep
 	// Print session header
 	fmt.Printf("%s %s (%s) %s\n", prefix, session.ID, session.Title, durationStr)
 
-	// Print session summary if exists (indented)
+	// Print session summary if exists, maybe in the future i will implemente summary, but for now this
+	//function does print anything
 	if session.Summary != "" {
 		fmt.Printf("  %s   %s\n",
 			strings.Repeat(" ", len(prefix)-2),

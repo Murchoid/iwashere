@@ -15,7 +15,7 @@ func GetConfigDir() string {
 	return filepath.Join(home, ".config", "iwashere")
 }
 
-// Disable colors on Windows if needed
+// Disable colors on Windows if needed, windows may not support colors
 func UseColors() bool {
 	if runtime.GOOS == "windows" {
 		// Check if we're in a modern terminal that supports colors

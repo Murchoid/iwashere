@@ -104,19 +104,25 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 		fmt.Println("No active session")
 		fmt.Println("Start one with: iwashere session start \"session name\"")
 	} else {
-		fmt.Printf("You were working on '%s' (%s)\n",
+		fmt.Printf("You were working on %s'%s'%s (%s%s%s)\n",
+			utils.ColorPurple,
 			session.Title,
-			utils.HowLongAgo(session.StartTime, 0))
+			utils.ColorReset,
+			utils.ColorGray,
+			utils.HowLongAgo(session.StartTime, 0),
+			utils.ColorReset,
+		)
 
-		if session.State == models.Ongoing || session.State == models.Continued {
+		switch session.State {
+		case models.Ongoing, models.Continued:
 			fmt.Printf("Session ongoing")
 			fmt.Println()
-		} else if session.State == models.Paused {
+		case models.Paused:
 			fmt.Printf("Session paused")
 			fmt.Println()
-		} else {
+		default:
 			duration := session.EndTime.Sub(session.StartTime).Round(time.Minute)
-			fmt.Printf("Session lasted %s\n", duration)
+			fmt.Printf("Session lasted %s%s%s\n",utils.ColorBlue, duration, utils.ColorReset)
 			fmt.Println()
 		}
 	}
@@ -125,12 +131,12 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 	// Last note
 	if len(notes) > 0 {
 		lastNote := notes[len(notes)-1]
-		fmt.Printf("Last note: %s\n", lastNote.Message)
+		fmt.Printf("Last note: %s%s%s\n",utils.ColorYellow, lastNote.Message, utils.ColorReset)
 
 		// Show tags if any
 		if len(lastNote.Tags) > 0 {
 			fmt.Print("Tags: ")
-			fmt.Printf("%s ", strings.Join(lastNote.Tags, ", "))
+			fmt.Printf("%s%s%s ", utils.ColorGray, strings.Join(lastNote.Tags, ", "), utils.ColorReset)
 		}
 		fmt.Println()
 		fmt.Println()
@@ -155,7 +161,7 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 	}
 
 	if len(modifiedFiles) > 0 {
-		fmt.Println("Modified files:")
+		fmt.Printf("Modified files:\n%s", utils.ColorRed)
 
 		// Sort files for consistent display
 		var fileList []string
@@ -168,15 +174,16 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 			// Check if unstaged in git
 			unstaged := ""
 			if gitInfo != nil && gitInfo.HasChanges {
-				// You'd need a more sophisticated check here
+				// We fall back to this
 				unstaged = " (unstaged)"
 			}
 			fmt.Printf("   • %s%s\n", file, unstaged)
 		}
+		fmt.Printf("%s", utils.ColorReset)
 		fmt.Println()
 	}
 
-	// Related notes (last 5 notes, excluding current session)
+	// Related notes (last 5 notes)
 	if len(notes) > 0 {
 		fmt.Println("Related notes from this session:")
 
@@ -185,11 +192,12 @@ func printStatus(session *models.Session, notes []*models.PrivateNote, gitServic
 			if i < len(notes)-5 { // Only show last 5
 				break
 			}
+
 			printRelatedNote(notes[i], i == len(notes)-1)
 		}
 	}
 
-	// Next steps suggestion
+
 	fmt.Println()
 	fmt.Println("What's next?")
 	if session == nil {
@@ -216,10 +224,14 @@ func printRelatedNote(note *models.PrivateNote, isLast bool) {
 		tagsStr = fmt.Sprintf(" [%s]", strings.Join(note.Tags, ", "))
 	}
 
-	fmt.Printf("%s%s - %s%s\n",
+	fmt.Printf("%s%s%s%s - %s%s%s%s\n",
 		prefix,
+		utils.ColorGray,
 		timeStr,
+		utils.ColorReset,
+		utils.ColorYellow,
 		note.Message,
+		utils.ColorReset,
 		tagsStr)
 }
 

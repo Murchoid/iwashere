@@ -69,7 +69,7 @@ func (c *RemindCommand) addReminder(ctx *Context, parsed *ParsedArgs) error {
 		return fmt.Errorf("--at flag required")
 	}
 
-	// Get message
+	// Get message (required)
 	var message string
 	if msgFlag, ok := parsed.Flags["message"]; ok && msgFlag.Present {
 		msg, _ := msgFlag.String()
@@ -85,13 +85,21 @@ func (c *RemindCommand) addReminder(ctx *Context, parsed *ParsedArgs) error {
 	}
 
 	// Get repeat (optional)
-	repeats := "none"
+	repeats := models.Once
 	if repeatFlag, ok := parsed.Flags["repeat"]; ok && repeatFlag.Present {
-		rep, _ := repeatFlag.String()
-		repeats = rep
+		rep, err := repeatFlag.String()
+		if err != nil {
+			return err
+		}
+
+		switch rep {
+		case models.Daily, models.Once, models.Weekly, models.Monthly, models.Yearly:
+			repeats = rep
+		default:
+			return fmt.Errorf("unrecognize repeat value use (daily, once, weekly, monthly, yearly)")
+		}
 	}
 
-	// Create reminder
 	reminder := &models.Reminder{
 		ID:        utils.GenerateId(),
 		NoteID:    noteID,
@@ -108,7 +116,7 @@ func (c *RemindCommand) addReminder(ctx *Context, parsed *ParsedArgs) error {
 
 	fmt.Printf("Reminder set for %s\n", dueTime.Format("Mon Jan 2 at 15:04"))
 	fmt.Printf("  Message: %s\n", truncate(message, 50))
-	if repeats != "none" {
+	if repeats != models.Once {
 		fmt.Printf("   Repeats: %s\n", repeats)
 	}
 
@@ -124,7 +132,7 @@ func (c *RemindCommand) listReminders(ctx *Context, parsed *ParsedArgs) error {
 
 	fmt.Println("Reminders")
 	fmt.Println("===========")
-
+	shown := false
 	for _, r := range reminders {
 		if !all && !r.Active {
 			continue
@@ -138,16 +146,20 @@ func (c *RemindCommand) listReminders(ctx *Context, parsed *ParsedArgs) error {
 			status = "Done"
 		}
 
-		fmt.Printf("%s [%s] %s\n", status, r.ID[:8], r.Message)
+		fmt.Printf("%s%s%s %s[%s]%s %s\n", utils.ColorCyan, status, utils.ColorReset, utils.ColorBlue, r.ID, utils.ColorReset, r.Message)
 		fmt.Printf("   Due: %s (%s)\n",
 			r.DueAt.Format("Mon Jan 2 15:04"),
 			utils.HowLongAgo(r.CreatedAt, 0))
-		if r.Repeats != "none" {
+		if r.Repeats != models.Once {
 			fmt.Printf("   Repeats: %s\n", r.Repeats)
 		}
 		fmt.Println()
+		shown = true
 	}
 
+	if !shown {
+		fmt.Println("No reminders you are all good")
+	}
 	return nil
 }
 

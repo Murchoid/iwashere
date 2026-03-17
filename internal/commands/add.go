@@ -11,7 +11,7 @@ import (
 )
 
 type AddCommand struct {
-	spec *CommandSpec
+	spec        *CommandSpec
 	baseCommand BaseCommand
 }
 
@@ -19,15 +19,15 @@ func NewAddCommandFactory() Command {
 	return &AddCommand{
 		spec: AddCommandSpec,
 		baseCommand: BaseCommand{
-			NameStr: "add",
-			DescStr: "Add a new note",
+			NameStr:  "add",
+			DescStr:  "Add a new note",
 			UsageStr: "iwashere add <message> [options]",
 			ExamplesList: []string{
-		"iwashere add \"Working on authentication\"",
-		"iwashere a \"Fix memory leak\" --tags bug,performance",
-		"iwashere add \"Update README\" --branch main",
-		"iwashere add \"Add current note in current session\" --session",
-	},
+				"iwashere add \"Working on authentication\"",
+				"iwashere add \"Fix memory leak\" --tags bug,performance",
+				"iwashere add \"Update README\" --branch main",
+				"iwashere add \"Add current note in current session\" --session",
+			},
 		},
 	}
 }
@@ -119,12 +119,15 @@ func (a *AddCommand) Execute(ctx *Context) error {
 				}
 			}
 
-			fmt.Printf("Git context: %s @ %s\n", gitInfo.Branch, gitInfo.CommitHash)
+			fmt.Printf("Git context: %s%s %s @ %s\n", utils.ColorGreen, gitInfo.Branch, utils.ColorReset, gitInfo.CommitHash)
 			if gitInfo.HasChanges {
 				fmt.Printf("You have uncommitted changes\n")
 			}
 
 		}
+	} else {
+		fmt.Println("Git autocontext config is set to false use\n iwashere config git.auto_context true, to change this setting")
+		fmt.Println()
 	}
 
 	session, err := parsed.Flags["session"].Bool()
@@ -138,7 +141,7 @@ func (a *AddCommand) Execute(ctx *Context) error {
 		return fmt.Errorf("failed to save note: %w", err)
 	}
 
-	fmt.Printf("Note saved (ID: %s)\n", note.ID)
+	fmt.Printf("Note saved (ID: %s %s %s)\n", utils.ColorCyan, note.ID, utils.ColorReset)
 	return nil
 }
 

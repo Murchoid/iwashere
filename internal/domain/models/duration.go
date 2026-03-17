@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Duration is a custom type that handles both string and number formats
+// Duration will be our custom type that handles both string and number formats
 type Duration time.Duration
 
 // UnmarshalJSON implements custom JSON unmarshaling
@@ -34,13 +34,12 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 	}
 }
 
-// MarshalJSON implements custom JSON marshaling
 func (d Duration) MarshalJSON() ([]byte, error) {
-	// Always marshal as string for readability
+
 	return json.Marshal(time.Duration(d).String())
 }
 
-// Duration returns the time.Duration value
+
 func (d Duration) Duration() time.Duration {
 	return time.Duration(d)
 }

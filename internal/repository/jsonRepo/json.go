@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Murchoid/iwashere/internal/domain/errors"
 	"github.com/Murchoid/iwashere/internal/domain/models"
 	"github.com/Murchoid/iwashere/internal/repository"
 	"github.com/Murchoid/iwashere/internal/utils"
@@ -65,12 +64,18 @@ func (r *JSONRepository) ListNotes(filter *repository.NoteFilter) ([]*models.Pri
 		if r.matchesFilter(note, filter) {
 			notes = append(notes, note)
 		}
-		// notes = append(notes, note)
 	}
 
 	// Sort by timestamp (newest first)
-	r.sortNotesByTime(notes)
-
+	slices.SortStableFunc(notes, func(a, b *models.PrivateNote) int {
+		if a.CreatedAt.Before(b.CreatedAt) {
+			return 1
+		}
+		if b.CreatedAt.Before(a.CreatedAt) {
+			return -1
+		}
+		return 0
+	})
 	// Apply limit
 	if filter != nil && filter.Limit > 0 && len(notes) > filter.Limit {
 		notes = notes[:filter.Limit]
@@ -88,6 +93,9 @@ func (r *JSONRepository) SaveNote(note *models.PrivateNote) error {
 		note.CreatedAt = time.Now()
 	}
 	note.UpdatedAt = time.Now()
+	for i, t := range note.Tags {
+		note.Tags[i] = strings.ToLower(t)
+	}
 	note.Tags = slices.Compact(note.Tags)
 
 	path := filepath.Join(r.notesBasePath, note.ID+".json")
@@ -109,7 +117,7 @@ func (r *JSONRepository) SaveTeamNote(note *models.TeamNote) error {
 	}
 	note.Tags = slices.Compact(note.Tags)
 
-	path := filepath.Join(note.ID+".team")
+	path := filepath.Join(note.ID + ".team")
 	data, err := json.MarshalIndent(note, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal note: %w", err)
@@ -123,7 +131,7 @@ func (r *JSONRepository) GetNote(id string) (*models.PrivateNote, error) {
 
 	// Check if exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, errors.ErrNoteNotFound
+		return nil, fmt.Errorf("Note not found")
 	}
 
 	data, err := os.ReadFile(path)
@@ -140,7 +148,7 @@ func (r *JSONRepository) GetNote(id string) (*models.PrivateNote, error) {
 }
 
 func (r *JSONRepository) UpdateMessage(note *models.PrivateNote) error {
-	// First verify note exists
+
 	existing, err := r.GetNote(note.ID)
 	if err != nil {
 		return err
@@ -161,7 +169,7 @@ func (r *JSONRepository) UpdateMessage(note *models.PrivateNote) error {
 }
 
 func (r *JSONRepository) UpdateTags(note *models.PrivateNote) error {
-	// First verify note exists
+
 	existing, err := r.GetNote(note.ID)
 	if err != nil {
 		return err
@@ -183,7 +191,7 @@ func (r *JSONRepository) UpdateTags(note *models.PrivateNote) error {
 }
 
 func (r *JSONRepository) AddTagsToNote(note *models.PrivateNote) error {
-	// First verify note exists
+
 	existing, err := r.GetNote(note.ID)
 	if err != nil {
 		return err
@@ -206,7 +214,7 @@ func (r *JSONRepository) AddTagsToNote(note *models.PrivateNote) error {
 }
 
 func (r *JSONRepository) RemoveTagsFromNote(note *models.PrivateNote) error {
-	// First verify note exists
+
 	existing, err := r.GetNote(note.ID)
 	if err != nil {
 		return err
@@ -244,7 +252,7 @@ func (r *JSONRepository) DeleteNote(id string) error {
 
 	if err := os.Remove(path); err != nil {
 		if os.IsNotExist(err) {
-			return errors.ErrNoteNotFound
+			return fmt.Errorf("Note not found")
 		}
 		return err
 	}
@@ -276,7 +284,7 @@ func (r *JSONRepository) GetSession(id string) (*models.Session, error) {
 
 	// Check if exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, errors.ErrSessionNotFound
+		return nil, fmt.Errorf("Session not found")
 	}
 
 	data, err := os.ReadFile(path)
@@ -297,7 +305,7 @@ func (r *JSONRepository) GetNotesBySession(id string) ([]*models.PrivateNote, er
 
 	// Check if exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, errors.ErrSessionNotFound
+		return nil, fmt.Errorf("Note not found")
 	}
 
 	data, err := os.ReadFile(path)
@@ -328,7 +336,7 @@ func (r *JSONRepository) GetOpenSession() (*models.Session, error) {
 	files, err := os.ReadDir(r.sessionBasePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &models.Session{}, nil // No notes yet
+			return &models.Session{}, nil // No sessions yet
 		}
 		return nil, fmt.Errorf("failed to read notes directory: %w", err)
 	}
@@ -412,7 +420,7 @@ func (r *JSONRepository) GetReminder(id string) (*models.Reminder, error) {
 
 	// Check if exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, errors.ErrNoteNotFound
+		return nil, fmt.Errorf("Reminder not found")
 	}
 
 	data, err := os.ReadFile(path)
@@ -434,7 +442,7 @@ func (r *JSONRepository) DeactivateOrUpdateReminder(id string) error {
 		return err
 	}
 
-	if existing.Repeats == "none" || existing.Repeats == "" {
+	if existing.Repeats == models.Once || existing.Repeats == "" {
 		existing.Active = false
 	} else {
 		existing.DueAt = getNextTimeDependingOnRepeat(existing.Repeats, existing.DueAt)
@@ -512,7 +520,7 @@ func (r *JSONRepository) DeleteReminder(id string) error {
 
 	if err := os.Remove(path); err != nil {
 		if os.IsNotExist(err) {
-			return errors.ErrNoteNotFound
+			return fmt.Errorf("Note not found")
 		}
 		return err
 	}
@@ -607,17 +615,6 @@ func (r *JSONRepository) matchesFilter(note *models.PrivateNote, filter *reposit
 	}
 
 	return true
-}
-
-func (r *JSONRepository) sortNotesByTime(notes []*models.PrivateNote) {
-	// Simple bubble sort for now (optimize later if needed)
-	for i := 0; i < len(notes)-1; i++ {
-		for j := i + 1; j < len(notes); j++ {
-			if notes[i].CreatedAt.Before(notes[j].CreatedAt) {
-				notes[i], notes[j] = notes[j], notes[i]
-			}
-		}
-	}
 }
 
 func getNextTimeDependingOnRepeat(repeat string, currentTime time.Time) time.Time {

@@ -124,7 +124,6 @@ func (c *ConfigCommand) setConfig(configPath string, args []string) error {
 	case "team.name":
 		config.Team.TeamName = value
 	case "git.auto_context":
-		// Parse string to bool
 		boolVal, err := strconv.ParseBool(value)
 		if err != nil {
 			return fmt.Errorf("git.autocontext must be true/false")
@@ -166,10 +165,12 @@ func (c *ConfigCommand) getConfig(configPath string, args []string) error {
 		fmt.Println(config.Storage.Type)
 	case "storage.path":
 		fmt.Println(config.Storage.Path)
-	case "git.autocontext":
+	case "git.auto_context":
 		fmt.Println(config.Git.AutoContext)
-	case "git.trackbranches":
+	case "git.track_branches":
 		fmt.Println(config.Git.TrackBranches)
+	case "team.name":
+		fmt.Println(config.Team.TeamName)
 	default:
 		return fmt.Errorf("unknown config key: %s", key)
 	}

@@ -183,8 +183,10 @@ func pauseSession(repo repository.Repository) error {
 		return err
 	}
 
-	fmt.Printf("Session '%s' paused (total: %s)\n",
+	fmt.Printf("Session %s'%s'%s paused (total: %s)\n",
+		utils.ColorPurple,
 		session.Title,
+		utils.ColorReset,
 		session.TotalTime.Duration().Round(time.Second))
 	return nil
 }
@@ -214,7 +216,7 @@ func continueSession(repo repository.Repository) error {
 		return err
 	}
 
-	fmt.Printf("Session '%s' continued\n", session.Title)
+	fmt.Printf("Session %s'%s'%s continued\n", utils.ColorPurple, session.Title, utils.ColorReset)
 	return nil
 }
 

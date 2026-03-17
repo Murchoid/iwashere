@@ -20,6 +20,9 @@ import (
 
 type UpdateCommand struct{}
 
+//just like the version command, i got lazy and i dont really
+//see the use of having a BaseCommand here when all they do is one thing
+//if i get unlazy i will update
 func NewUpdateCommand() Command {
 	return &UpdateCommand{}
 }
@@ -122,7 +125,7 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
 		return fmt.Errorf("failed to replace binary: %w", err)
 	}
 
-	// Make it executable again, it keeps failing
+	// Make it executable again, it keeps failing adn I am paranoid
 	if err := os.Chmod(exe, 0755); err != nil {
 		return fmt.Errorf("failed to set permissions: %w", err)
 	}
@@ -131,7 +134,7 @@ func (c *UpdateCommand) Execute(ctx *Context) error {
 	os.RemoveAll(tmpDir)
 
 	fmt.Println("Update complete!")
-	fmt.Printf("Run 'iwashere --version' to verify\n")
+	fmt.Printf("Run 'iwashere version' to verify\n")
 	return nil
 }
 
@@ -186,7 +189,7 @@ func getPlatformFileInfo(version string) (*PlatformFileInfo, error) {
 		"https://github.com/Murchoid/iwashere/releases/download/%s/iwashere_%s_%s_%s%s",
 		version,         // v0.2.0
 		cleanVersion,    // 0.2.0
-		info.osName,     // linux (lowercase!)
+		info.osName,     // linux 
 		info.arch,       // amd64
 		info.archiveExt, // .tar.gz
 	)
@@ -336,6 +339,7 @@ func getLatestVersion() (string, error) {
 
 func downloadFile(url, path string) error {
 	maxRetries := 3
+	//this is for github's throttling
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		fmt.Printf("Download attempt %d/%d...\n", attempt, maxRetries)
 

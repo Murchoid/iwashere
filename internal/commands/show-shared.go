@@ -61,7 +61,7 @@ func (c *ShowSharedCommand) Execute(ctx *Context) error {
 	sharedDir := filepath.Join(ctx.ProjectPath, ".iwashere-shared", currentEmail)
 	teamName := ctx.Config.Team.TeamName
 	teamDir := filepath.Join(ctx.ProjectPath, ".iwashere-shared", "team", teamName)
-	fmt.Println(teamDir)
+
 	// Check if directory exists
 	if _, err := os.Stat(sharedDir); os.IsNotExist(err) {
 		fmt.Println("No notes shared with you yet")
@@ -99,7 +99,7 @@ func (c *ShowSharedCommand) listSharedNotes(sharedDir, teamDir string) error {
 		return err
 	}
 
-	if len(personalFiles) == 0 && len(teamFiles)== 0{
+	if len(personalFiles) == 0 && len(teamFiles) == 0 {
 		fmt.Println("No shared notes found")
 		return nil
 	}
@@ -108,7 +108,7 @@ func (c *ShowSharedCommand) listSharedNotes(sharedDir, teamDir string) error {
 	fmt.Println("=======================")
 	fmt.Println()
 
-	if len(personalFiles)>0 {
+	if len(personalFiles) > 0 {
 		fmt.Println("Personal notes")
 		fmt.Println("================")
 	}
@@ -130,7 +130,7 @@ func (c *ShowSharedCommand) listSharedNotes(sharedDir, teamDir string) error {
 		fmt.Println()
 	}
 
-	if len(teamFiles)>0 {
+	if len(teamFiles) > 0 {
 		fmt.Println("Team notes")
 		fmt.Println("===========")
 	}
@@ -146,14 +146,13 @@ func (c *ShowSharedCommand) listSharedNotes(sharedDir, teamDir string) error {
 			continue
 		}
 
-		// Show preview without decrypting full note
 		fmt.Printf(" [%s] from %s\n", payload.ID, payload.Author)
 		fmt.Printf("     %s\n", payload.Message)
 		fmt.Printf("     shared %s\n", utils.HowLongAgo(payload.CreatedAt, 0))
 		fmt.Println()
 	}
 
-	fmt.Println("Use 'iwashere show-shared <note-id>' to view full note")
+	fmt.Println("Use 'iwashere show-shared <note-id>' to view full note (only works for personal notes)")
 	return nil
 }
 
@@ -188,8 +187,8 @@ func (c *ShowSharedCommand) showSpecificNote(sharedDir string, noteID string, cu
 	}
 
 	// Display the note
-	fmt.Printf("Note from %s\n", payload.SharedBy)
-	fmt.Printf("   shared %s\n", utils.HowLongAgo(payload.SharedAt, 0))
+	fmt.Printf("Note from %s%s%s\n",utils.ColorYellow,payload.SharedBy, utils.ColorReset)
+	fmt.Printf("   shared %s%s%s\n", utils.ColorCyan,utils.HowLongAgo(payload.SharedAt, 0), utils.ColorReset)
 	fmt.Println()
 	fmt.Printf("   %s\n", sharedNote.Message)
 	fmt.Println()
@@ -199,11 +198,11 @@ func (c *ShowSharedCommand) showSpecificNote(sharedDir string, noteID string, cu
 	}
 
 	if sharedNote.Branch != "" {
-		fmt.Printf("   %s\n", sharedNote.Branch)
+		fmt.Printf("  Branch: %s%s%s\n", utils.ColorGreen,sharedNote.Branch, utils.ColorReset)
 	}
 
 	if sharedNote.SessionName != "" {
-		fmt.Printf("   Session: %s\n", sharedNote.SessionName)
+		fmt.Printf("   Session: %s%s%s\n", utils.ColorPurple, sharedNote.SessionName, utils.ColorPurple)
 	}
 
 	return nil

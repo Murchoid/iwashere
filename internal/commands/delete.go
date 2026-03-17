@@ -17,10 +17,9 @@ func NewDeleteCommandFactory() Command {
 		baseCommand: BaseCommand{
 			NameStr:  "delete",
 			DescStr:  "deletes a note",
-			UsageStr: "iwashere delete/rm <id>",
+			UsageStr: "iwashere delete <id>",
 			ExamplesList: []string{
 				"iwashere delete 123",
-				"iwashere rm 123",
 			},
 		},
 	}
@@ -60,7 +59,7 @@ func (a *DeleteCommand) Execute(ctx *Context) error {
 		return err
 	}
 
-	fmt.Printf("Note #%v deleted\n", id)
+	fmt.Printf("Note %s%v%s deleted\n", utils.ColorBlue,id, utils.ColorReset)
 	return nil
 }
 

@@ -1,6 +1,5 @@
 package utils
 
-// Simple Color support (disable on Windows if needed)
 var (
 	ColorGreen  = "\033[32m"
 	ColorYellow = "\033[33m"

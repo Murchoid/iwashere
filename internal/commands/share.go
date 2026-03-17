@@ -100,7 +100,7 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 	} else {
 		privateNote, err = ctx.Repo.GetNote(noteId)
 		if err != nil {
-			return fmt.Errorf("note not found: %w", err)
+			return fmt.Errorf("Note not found: %w", err)
 		}
 	}
 
@@ -151,13 +151,13 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 }
 
 func (c *ShareCommand) shareWithIndividual(ctx *Context, note *models.PrivateNote, recipient string, sharerEmail string) error {
-	// 1. Generate a random key for this note
+
 	noteKey, err := encryption.GenerateKey()
 	if err != nil {
 		return fmt.Errorf("failed to generate key: %w", err)
 	}
 
-	// 2. Create the shared note content (sanitized)
+
 	sharedNote := &models.SharedNote{
 		Message:   note.Message,
 		CreatedAt: note.CreatedAt,
@@ -173,25 +173,25 @@ func (c *ShareCommand) shareWithIndividual(ctx *Context, note *models.PrivateNot
 		}
 	}
 
-	// 3. Marshal the shared note to JSON
+
 	noteJSON, err := json.Marshal(sharedNote)
 	if err != nil {
 		return fmt.Errorf("failed to marshal note: %w", err)
 	}
 
-	// 4. Encrypt the note JSON with the random key
+
 	encryptedNote, iv, err := encryption.Encrypt(noteJSON, noteKey)
 	if err != nil {
 		return fmt.Errorf("failed to encrypt note: %w", err)
 	}
 
-	// 5. Encrypt the random key for the recipient
+
 	encryptedKey, err := encryption.EncryptKeyForRecipient(noteKey, recipient)
 	if err != nil {
 		return fmt.Errorf("failed to encrypt key: %w", err)
 	}
 
-	// 6. Create the payload
+
 	payload := &models.EncryptedPayload{
 		NoteID:        note.ID,
 		EncryptedNote: encryptedNote,
@@ -199,10 +199,10 @@ func (c *ShareCommand) shareWithIndividual(ctx *Context, note *models.PrivateNot
 		IV:            iv,
 		SharedBy:      sharerEmail,
 		SharedAt:      time.Now(),
-		NotePreview:   truncate(note.Message, 50),
+		NotePreview:   truncate(note.Message, 50), //inly first 50 chars
 	}
 
-	// 7. Save to git-tracked shared directory
+
 	// Use .iwashere-shared/ (not .iwashere/) so it can be in git
 	sharedDir := filepath.Join(ctx.ProjectPath, ".iwashere-shared", recipient)
 	if err := os.MkdirAll(sharedDir, 0755); err != nil {
@@ -219,7 +219,6 @@ func (c *ShareCommand) shareWithIndividual(ctx *Context, note *models.PrivateNot
 		return fmt.Errorf("failed to save payload: %w", err)
 	}
 
-	// 8. Update index for easier listing (optional)
 	c.updateShareIndex(ctx, recipient, note.ID)
 
 	return nil
@@ -244,7 +243,6 @@ func (c *ShareCommand) shareWithTeam(ctx *Context, note *models.PrivateNote, tea
 	}
 
 	// Save to team directory (git-tracked)
-
 	teamDir := filepath.Join(ctx.ProjectPath, ".iwashere-shared", "team", teamName)
 	if err := os.MkdirAll(teamDir, 0755); err != nil {
 		return fmt.Errorf("failed to create team directory: %w", err)
@@ -255,7 +253,7 @@ func (c *ShareCommand) shareWithTeam(ctx *Context, note *models.PrivateNote, tea
 		return fmt.Errorf("failed to marshal payload: %w", err)
 	}
 
-	teamPath := filepath.Join(teamDir, note.ID + ".team")
+	teamPath := filepath.Join(teamDir, note.ID+".team")
 	fmt.Println(teamPath)
 	if err := os.WriteFile(teamPath, payloadData, 0644); err != nil {
 		return fmt.Errorf("failed to save payload: %w", err)
@@ -278,10 +276,8 @@ func (c *ShareCommand) updateShareIndex(ctx *Context, recipient, noteID string) 
 		index.Shares = make(map[string][]string)
 	}
 
-	// Add to index
 	index.Shares[recipient] = append(index.Shares[recipient], noteID)
 
-	// Save index
 	if data, err := json.MarshalIndent(index, "", "  "); err == nil {
 		os.WriteFile(indexPath, data, 0644)
 	}

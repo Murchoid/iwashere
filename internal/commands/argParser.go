@@ -188,8 +188,8 @@ func (f FlagValue) Int() (int, error) {
 
 func parseNaturalTime(val string) (time.Time, error) {
 
-	if strings.HasPrefix(val, "in ") {
-		d, err := time.ParseDuration(strings.TrimPrefix(val, "in "))
+	if timeStr, ok := strings.CutPrefix(val, "in "); ok {
+		d, err := time.ParseDuration(timeStr)
 		if err != nil {
 			return time.Time{}, err
 		}
@@ -197,9 +197,9 @@ func parseNaturalTime(val string) (time.Time, error) {
 		dueTime := time.Now().Add(d)
 		return dueTime, nil
 
-	} else if strings.HasPrefix("tomorrow ", val) {
-		t, err := time.Parse("15:00", strings.TrimPrefix(val, "tomorrow "))
-		dueDate := time.Now().Add(24 * 60)
+	} else if timeStr, ok := strings.CutPrefix(val, "tomorrow "); ok {
+		t, err := time.Parse("15:04", timeStr)
+		dueDate := time.Now().AddDate(0, 0, 1)
 
 		if err != nil {
 			return time.Time{}, err
@@ -210,14 +210,13 @@ func parseNaturalTime(val string) (time.Time, error) {
 			t.Hour(), t.Minute(), 0, 0, dueDate.Location(),
 		), nil
 
-	} else if strings.HasPrefix("today ", val) {
-		t, err := time.Parse("15:00", strings.TrimPrefix(val, "today "))
+	} else if timeStr, ok := strings.CutPrefix(val, "today "); ok {
+		t, err := time.Parse("15:04", timeStr)
 		dueDate := time.Now()
 
 		if err != nil {
 			return time.Time{}, err
 		}
-
 		return time.Date(
 			dueDate.Year(), dueDate.Month(), dueDate.Day(),
 			t.Hour(), t.Minute(), 0, 0, dueDate.Location(),

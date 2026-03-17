@@ -19,9 +19,9 @@ type Config struct {
 		AutoContext   bool `json:"auto_context"`
 		TrackBranches bool `json:"track_branches"`
 	} `json:"git"`
-	
+
 	Team struct {
-		TeamName   string `json:"team_name"`
+		TeamName string `json:"team_name"`
 	} `json:"team"`
 }
 

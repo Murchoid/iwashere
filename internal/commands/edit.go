@@ -119,7 +119,7 @@ func (a *EditCommand) Execute(ctx *Context) error {
 		}
 	}
 
-	fmt.Printf("Edited #%v note\n", id)
+	fmt.Printf("Edited #%s%v%s note\n", utils.ColorPurple, id, utils.ColorReset)
 	return nil
 }
 

@@ -90,22 +90,22 @@ func showCommandHelp(cmdName string) {
 		return
 	}
 
-	fmt.Printf("Usage: %s\n", spec.Usage)
-	fmt.Printf("\nDescription:\n  %s\n", spec.Description)
+	fmt.Printf("%sUsage%s: %s%s%s\n", utils.ColorGreen, utils.ColorReset, utils.ColorYellow, spec.Usage, utils.ColorReset)
+	fmt.Printf("\n%sDescription%s:\n  %s\n", utils.ColorGreen, utils.ColorReset, spec.Description)
 
 	if len(spec.Args) > 0 {
-		fmt.Printf("\nArguments:\n")
+		fmt.Printf("\n%sArguments%s:\n", utils.ColorGreen, utils.ColorReset)
 		for _, arg := range spec.Args {
 			req := ""
 			if arg.Required {
 				req = " (required)"
 			}
-			fmt.Printf("  %s%s\n    %s\n", arg.Name, req, arg.Usage)
+			fmt.Printf("  %s%s%s%s%s%s\n    %s\n", utils.ColorCyan, arg.Name, utils.ColorReset, utils.ColorRed, req, utils.ColorReset, arg.Usage)
 		}
 	}
 
 	if len(spec.Flags) > 0 {
-		fmt.Printf("\nFlags:\n")
+		fmt.Printf("\n%sFlags%s:\n", utils.ColorGreen, utils.ColorReset)
 		for _, flag := range spec.Flags {
 			short := ""
 			if flag.Short != "" {
@@ -125,7 +125,7 @@ func showCommandHelp(cmdName string) {
 	}
 
 	if len(spec.Subcommands) > 0 {
-		fmt.Printf("\nSubcommands:\n")
+		fmt.Printf("\n%sSubcommands%s:\n", utils.ColorGreen, utils.ColorReset)
 		for name, sub := range spec.Subcommands {
 			fmt.Printf("  %s\n    %s\n", name, sub.Description)
 		}

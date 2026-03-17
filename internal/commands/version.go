@@ -9,12 +9,12 @@ import (
 
 // These will be set during build
 var (
-	Version = "0.3.0"
+	Version = "dev"
 	Commit  = "none"
 )
 
 type VersionCommand struct{}
-
+//Too lazy to rafactor this to use the BaseCommand struct
 func NewVersionCommand() Command {
 	return &VersionCommand{}
 }
@@ -64,14 +64,14 @@ func printVersionInfo() {
 	fmt.Println("   • iwashere status   # See where you left off")
 	fmt.Println()
 
-	// Easter egg if version is dev
+
 	if Version == "dev" {
 		fmt.Println("Development build - you're probably hacking on iwashere!")
-		fmt.Println("Run 'go build -o iwashere ./cmd/iwashere' to build")
+		fmt.Println("Run 'go build -o iwashere ./cmd/' to build")
 	}
 }
 
-// Get returns the version string, trying multiple strategies
+
 func GetVersion() string {
 
 	if Version != "dev" && Version != "" {
@@ -98,12 +98,7 @@ func GetInfo() string {
 	return version
 }
 
-// IsReleaseBuild returns true if this is a proper release
-func IsReleaseBuild() bool {
-	return Version != "dev" && Version != ""
-}
 
-// Simple pseudo-random for facts
 func getRandomFactIndex(max int) int {
 	return int(time.Now().UnixNano() % int64(max))
 }
