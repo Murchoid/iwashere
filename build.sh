@@ -1,10 +1,8 @@
 #!/bin/bash
 # test-build.sh
-MODULE=$(go list -m)  # This gets your module name
+MODULE=$(go list -m)  
 
-echo "Module: $MODULE"
-echo "Testing build with version info..."
-
+echo "Building iwashere ..."
 # Build with test values
 go build  -o iwashere-test ./cmd/
 

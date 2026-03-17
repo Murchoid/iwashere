@@ -2,9 +2,9 @@
 
 A CLI tool that remembers where you left off in your coding projects.
 
-[![Release](https://img.shields.io/github/v/release/yourusername/iwashere)](https://github.com/yourusername/iwashere/releases)
-[![Go Version](https://img.shields.io/github/go-mod/go-version/yourusername/iwashere)](https://golang.org)
-[![License](https://img.shields.io/github/license/yourusername/iwashere)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/Murchoid/iwashere)](https://github.com/Murchoid/iwashere/releases)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/Murchoid/iwashere)](https://golang.org)
+[![License](https://img.shields.io/github/license/Murchoid/iwashere)](LICENSE)
 
 ## Overview
 
@@ -26,7 +26,7 @@ iwashere helps you preserve context across coding sessions. When you step away f
 
 ```bash
 # Download the latest release
-curl -L https://github.com/yourusername/iwashere/releases/latest/download/iwashere_Linux_x86_64.tar.gz | tar xz
+curl -L https://github.com/Murchoid/iwashere/releases/latest/download/iwashere_Linux_x86_64.tar.gz | tar xz
 
 # Move to your PATH
 sudo mv iwashere /usr/local/bin/
@@ -39,7 +39,7 @@ iwashere --version
 
 ```powershell
 # Download the latest release
-Invoke-WebRequest -Uri "https://github.com/yourusername/iwashere/releases/latest/download/iwashere_Windows_x86_64.zip" -OutFile "iwashere.zip"
+Invoke-WebRequest -Uri "https://github.com/Murchoid/iwashere/releases/latest/download/iwashere_Windows_x86_64.zip" -OutFile "iwashere.zip"
 
 # Extract
 Expand-Archive -Path "iwashere.zip" -DestinationPath "C:\tools\iwashere"
@@ -51,7 +51,7 @@ Expand-Archive -Path "iwashere.zip" -DestinationPath "C:\tools\iwashere"
 
 ```bash
 # Download the latest release
-curl -L https://github.com/yourusername/iwashere/releases/latest/download/iwashere_Darwin_x86_64.tar.gz | tar xz
+curl -L https://github.com/Murchoid/iwashere/releases/latest/download/iwashere_Darwin_x86_64.tar.gz | tar xz
 
 # Move to your PATH
 sudo mv iwashere /usr/local/bin/
@@ -60,7 +60,7 @@ sudo mv iwashere /usr/local/bin/
 ### Build from Source
 
 ```bash
-git clone https://github.com/yourusername/iwashere.git
+git clone https://github.com/Murchoid/iwashere.git
 cd iwashere
 go build -o iwashere ./cmd/iwashere
 sudo mv iwashere /usr/local/bin/
@@ -181,7 +181,7 @@ your-project/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/iwashere.git
+git clone https://github.com/Murchoid/iwashere.git
 cd iwashere
 
 # Build for your current platform
@@ -228,5 +228,5 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- [GitHub Issues](https://github.com/yourusername/iwashere/issues)
-- [Discussions](https://github.com/yourusername/iwashere/discussions)
+- [GitHub Issues](https://github.com/Murchoid/iwashere/issues)
+- [Discussions](https://github.com/Murchoid/iwashere/discussions)
