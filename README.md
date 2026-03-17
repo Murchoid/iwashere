@@ -1,4 +1,5 @@
 # iwashere
+![iwashere logo](.github/images/iwashere-logo.svg)
 
 A CLI tool that remembers where you left off in your coding projects.
 
@@ -19,43 +20,6 @@ iwashere helps you preserve context across coding sessions. When you step away f
 - **Branch Awareness** - See notes specific to your current branch
 - **Status Overview** - Quick summary of where you left off
 - **Team Sharing** - Share notes with teammates (encrypted)
-
-## Installation
-
-### Linux
-
-```bash
-# Download the latest release
-curl -L https://github.com/Murchoid/iwashere/releases/latest/download/iwashere_Linux_x86_64.tar.gz | tar xz
-
-# Move to your PATH
-sudo mv iwashere /usr/local/bin/
-
-# Verify installation
-iwashere --version
-```
-
-### Windows
-
-```powershell
-# Download the latest release
-Invoke-WebRequest -Uri "https://github.com/Murchoid/iwashere/releases/latest/download/iwashere_Windows_x86_64.zip" -OutFile "iwashere.zip"
-
-# Extract
-Expand-Archive -Path "iwashere.zip" -DestinationPath "C:\tools\iwashere"
-
-# Add to PATH (System Properties → Environment Variables → Add C:\tools\iwashere)
-```
-
-### macOS
-
-```bash
-# Download the latest release
-curl -L https://github.com/Murchoid/iwashere/releases/latest/download/iwashere_Darwin_x86_64.tar.gz | tar xz
-
-# Move to your PATH
-sudo mv iwashere /usr/local/bin/
-```
 
 ### Build from Source
 
@@ -152,6 +116,9 @@ iwashere stores configuration in `.iwashere/config.json`:
     "git": {
         "auto_context": true,
         "track_branches": true
+    },
+    "team": {
+        "team_name": "backend-team"
     }
 }
 ```
@@ -164,7 +131,6 @@ When you run `iwashere init`, the following structure is created:
 your-project/
 ├── .iwashere/              # Hidden directory (like .git)
 │   ├── private/            # Your personal notes (gitignored)
-│   ├── team/               # Team notes (optional, can be tracked)
 │   └── config.json         # Project configuration
 ├── .iwashere-shared/       # Encrypted shared notes (can be tracked)
 └── .gitignore              # Automatically updated to hide iwashere folders
@@ -187,8 +153,7 @@ cd iwashere
 # Build for your current platform
 go build -o iwashere ./cmd/iwashere
 
-# Run tests
-go test ./...
+#or use the build script
 
 # Cross-compile for all platforms
 ./build.sh
@@ -200,11 +165,14 @@ go test ./...
 2. Create and push a tag:
 
 ```bash
-git tag -a v0.2.0 -m "Release v0.2.0"
-git push origin v0.2.0
+git tag -a v0.3.1 -m "Release v0.2.0"
+git push origin main
 ```
 
-3. GitHub Actions will automatically build and publish the release
+3. Release with goreleaser
+```bash
+    goreleaser release --clean
+```
 
 ## Contributing
 
@@ -224,7 +192,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - Built with Go
 - Inspired by the need to remember context across coding sessions
-- Dogfooded since day one - used to build itself
 
 ## Support
 

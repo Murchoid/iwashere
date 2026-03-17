@@ -4,3 +4,4 @@ docs/
 builds/
 # Added by goreleaser init:
 dist/
+.goreleaser.yaml
