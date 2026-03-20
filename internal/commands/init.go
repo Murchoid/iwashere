@@ -52,13 +52,6 @@ func (c *InitCommand) Examples() []string {
 
 func (c *InitCommand) Execute(ctx *Context) error {
 
-	if len(ctx.Args) > 0 {
-		fmt.Println("Unrecognized arguments")
-		fmt.Println()
-		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
-		return nil
-	}
-
 	parseArgs, err := c.spec.Parse(ctx.Args)
 	if err != nil {
 		utils.PrintCommandHelp(c.Name(), c.Description(), c.Usage(), c.Examples())
@@ -70,7 +63,7 @@ func (c *InitCommand) Execute(ctx *Context) error {
 	if err != nil && force.Present {
 		return err
 	}
-	if ctx.ProjectPath != "" && pForce {
+	if ctx.ProjectPath != "" && !pForce {
 		fmt.Println(".iwashere already exists (use --force to reinitialize)")
 		fmt.Println("use 'iwashere init --force' if you want to forcefully reinitialize (Use this if you know what you are doing)")
 		return nil
@@ -119,7 +112,7 @@ func (c *InitCommand) Execute(ctx *Context) error {
 		return err
 	}
 
-	if pNoIgnore {
+	if !pNoIgnore {
 		if err := c.updateGitignore(ctx.WorkDir); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to update .gitignore: %v\n", err)
 		}

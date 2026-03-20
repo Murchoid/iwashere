@@ -1,7 +1,7 @@
-# iwashere personal notes
-.iwashere/
 docs/
 builds/
 # Added by goreleaser init:
 dist/
 .goreleaser.yaml
+# iwashere personal notes
+.iwashere/
