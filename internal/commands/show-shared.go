@@ -52,8 +52,12 @@ func (c *ShowSharedCommand) Examples() []string {
 func (c *ShowSharedCommand) Execute(ctx *Context) error {
 	// Get current user's email from git
 	gitService := git.NewService(ctx.WorkDir)
-	gitInfo, _ := gitService.GetInfo()
-	currentEmail := gitInfo.UserEmail
+	gitInfo, err := gitService.GetInfo()
+	currentEmail := ""
+	if err == nil && gitInfo != nil {
+		currentEmail = gitInfo.UserEmail
+	}
+	
 	if currentEmail == "" {
 		currentEmail = "unknown@local"
 	}

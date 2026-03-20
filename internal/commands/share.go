@@ -73,8 +73,16 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 
 	// Get git info for current user
 	gitService := git.NewService(ctx.WorkDir)
-	gitInfo, _ := gitService.GetInfo()
-	currentEmail := gitInfo.UserEmail
+	gitInfo, err := gitService.GetInfo()
+
+	currentEmail := ""
+	userName := ""
+
+	if err == nil && gitInfo != nil {
+		currentEmail = gitInfo.UserEmail
+		userName = gitInfo.UserName
+	}
+
 	if currentEmail == "" {
 		// Fallback to a default if no git email
 		currentEmail = "unknown@local"
@@ -115,7 +123,7 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 	for _, recipient := range recipients {
 		if strings.HasPrefix(recipient, "@") {
 			// Team sharing - use team directory (git-tracked, no encryption)
-			err = c.shareWithTeam(ctx, privateNote, recipient, gitInfo.UserName)
+			err = c.shareWithTeam(ctx, privateNote, recipient, userName)
 		} else {
 			// Individual sharing - use encrypted payloads
 			err = c.shareWithIndividual(ctx, privateNote, recipient, currentEmail)

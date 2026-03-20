@@ -138,8 +138,11 @@ func startSession(repo repository.Repository, workDir, sName string) error {
 	if err != nil {
 		return err
 	}
+	branch := ""
 
-	branch := info.Branch
+	if info != nil {
+		branch = info.Branch
+	}
 	session := models.Session{
 		ID:        utils.GenerateId(),
 		State:     models.Ongoing,
