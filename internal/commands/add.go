@@ -152,7 +152,7 @@ func addNoteToCurrentSession(repo repository.Repository, note *models.PrivateNot
 		return err
 	}
 
-	if session.ID == "" {
+	if session == nil {
 		fmt.Println("No session open create one to add a note to it")
 		return nil
 	}

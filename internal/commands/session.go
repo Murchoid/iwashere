@@ -165,7 +165,7 @@ func pauseSession(repo repository.Repository) error {
 		return err
 	}
 
-	if session.ID == "" {
+	if session == nil {
 		fmt.Println("No active session to pause")
 		return nil
 	}
@@ -200,7 +200,7 @@ func continueSession(repo repository.Repository) error {
 		return err
 	}
 
-	if session.ID == "" {
+	if session == nil {
 		fmt.Println("No paused session to continue")
 		return nil
 	}
@@ -229,7 +229,7 @@ func endSession(repo repository.Repository) error {
 		return err
 	}
 
-	if session.ID == "" {
+	if session == nil {
 		fmt.Println("No active session to end")
 		return nil
 	}
