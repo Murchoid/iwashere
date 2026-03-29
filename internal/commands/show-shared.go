@@ -67,10 +67,14 @@ func (c *ShowSharedCommand) Execute(ctx *Context) error {
 	teamDir := filepath.Join(ctx.ProjectPath, ".iwashere-shared", "team", teamName)
 
 	// Check if directory exists
-	if _, err := os.Stat(sharedDir); os.IsNotExist(err) {
-		fmt.Println("No notes shared with you yet")
+	_, err1 := os.Stat(sharedDir)
+	_, err2 := os.Stat(teamDir)
+
+	if err1 != nil && err2 != nil {
+		fmt.Println("No notes shared with you yet!")
 		return nil
 	}
+
 
 	parsedArgs, err := c.spec.Parse(ctx.Args)
 
