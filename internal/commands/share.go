@@ -105,6 +105,7 @@ func (c *ShareCommand) Execute(ctx *Context) error {
 			return fmt.Errorf("no notes found to share")
 		}
 		privateNote = notes[0]
+		noteId = privateNote.ID
 	} else {
 		privateNote, err = ctx.Repo.GetNote(noteId)
 		if err != nil {
